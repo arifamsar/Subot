@@ -24,7 +24,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 class NavigationState(
-    val startRoute: NavKey,
+    val initialStartRoute: NavKey,
+    var startRoute: NavKey,
     val loginRoute: NavKey,
     topLevelRoute: MutableState<NavKey>,
     isLoggedIn: MutableState<Boolean>,
@@ -78,6 +79,7 @@ fun rememberNavigationState(
 
     return remember(startRoute, loginRoute, topLevelRoute, isLoggedIn) {
         NavigationState(
+            initialStartRoute = startRoute,
             startRoute = startRoute,
             loginRoute = loginRoute,
             topLevelRoute = topLevelRoute,

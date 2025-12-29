@@ -63,12 +63,14 @@ class Navigator(val state: NavigationState) {
             }
         }
 
+        // Switch root to Main so back exits the app
+        state.startRoute = AppRoute.Main
+        state.topLevelRoute = AppRoute.Main
+
         // Navigate to destination
         if (destination in state.backStacks.keys) {
-            // Destination is a top-level route, just switch to it
             state.topLevelRoute = destination
         } else {
-            // Destination is a nested route, add it to the current stack
             state.backStacks[state.topLevelRoute]?.add(destination)
         }
     }
@@ -84,6 +86,9 @@ class Navigator(val state: NavigationState) {
         state.backStacks.values.forEach { stack ->
             stack.removeAll { it is AppRoute.RequiresLogin }
         }
+
+        // Reset root back to the initial (splash/onboarding/login) flow
+        state.startRoute = state.initialStartRoute
 
         // Ensure the startRoute stack has at least the login route
         val startStack = state.backStacks[state.startRoute]
