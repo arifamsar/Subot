@@ -9,14 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
+import com.subot.core.data.service.initPreferencesDataStore
 
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initPreferencesDataStore(applicationContext)
         enableEdgeToEdge()
         setContent { 
             App(onThemeChanged = { ThemeChanged(it) }) 
         }
+
     }
 }
 

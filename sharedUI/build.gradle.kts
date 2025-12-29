@@ -48,7 +48,7 @@ kotlin {
             implementation(libs.androidx.paging.compose)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
-            implementation(project(":core"))
+            api(project(":core"))
             api(project(":features:home"))
         }
 
