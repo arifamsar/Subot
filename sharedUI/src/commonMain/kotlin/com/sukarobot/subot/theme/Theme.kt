@@ -1,7 +1,7 @@
 package com.sukarobot.subot.theme
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -95,13 +95,14 @@ internal fun AppTheme(
     val isDarkState = remember(systemIsDark) { mutableStateOf(systemIsDark) }
     CompositionLocalProvider(
         LocalThemeIsDark provides isDarkState,
-        LocalRippleConfiguration provides null
+        LocalIndication provides ScaleIndication
     ) {
         val isDark by isDarkState
         onThemeChanged(!isDark)
         MaterialTheme(
             colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
-            content = { Surface(content = content) }
+            content = { Surface(content = content) },
+            typography = appTypography()
         )
     }
 }
