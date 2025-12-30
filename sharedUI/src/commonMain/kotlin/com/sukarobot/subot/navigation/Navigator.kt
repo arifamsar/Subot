@@ -34,7 +34,17 @@ class Navigator(val state: NavigationState) {
             ?: error("No back stack for route ${state.topLevelRoute}")
         val currentRoute = currentStack.last()
 
+        // Prevent back navigation from login/onboarding when not logged in
+        if (!state.isLoggedIn && (currentRoute == state.loginRoute || currentRoute == AppRoute.Onboarding)) {
+            // User is on login/onboarding screen and not logged in - don't allow back navigation
+            return
+        }
+
         if (currentRoute == state.topLevelRoute) {
+            // If we're at a top-level route and it's the start route, we can't go back further
+            if (state.topLevelRoute == state.startRoute) {
+                return
+            }
             state.topLevelRoute = state.startRoute
         } else {
             currentStack.removeLastOrNull()
@@ -82,32 +92,28 @@ class Navigator(val state: NavigationState) {
         state.isLoggedIn = false
         state.onLoginSuccessRoute = null
 
-        // Remove all routes that require login from all stacks
+        // Clear ALL back stacks completely to prevent any back navigation
         state.backStacks.values.forEach { stack ->
-            stack.removeAll { it is AppRoute.RequiresLogin }
+            stack.clear()
         }
 
-        // Reset root back to the initial (splash/onboarding/login) flow
-        state.startRoute = state.initialStartRoute
+        // Reset root back to the login screen directly
+        state.startRoute = state.loginRoute
 
-        // Ensure the startRoute stack has at least the login route
-        val startStack = state.backStacks[state.startRoute]
-        if (startStack != null) {
-            if (startStack.isEmpty()) {
-                startStack.add(state.startRoute)
-            }
-            // Add login if not already present
-            if (state.loginRoute !in startStack) {
-                startStack.add(state.loginRoute)
-            }
-            state.topLevelRoute = state.startRoute
-        } else {
-            // Fallback: login is a top-level route
+        // Navigate directly to login screen with a fresh stack
+        val loginStack = state.backStacks[state.loginRoute]
+        if (loginStack != null) {
+            loginStack.clear()
+            loginStack.add(state.loginRoute)
             state.topLevelRoute = state.loginRoute
-            state.backStacks[state.loginRoute]?.let { loginStack ->
-                if (loginStack.isEmpty()) {
-                    loginStack.add(state.loginRoute)
-                }
+        } else {
+            // Fallback: if login is not a top-level route, use initial start route
+            state.startRoute = state.initialStartRoute
+            val startStack = state.backStacks[state.initialStartRoute]
+            if (startStack != null) {
+                startStack.clear()
+                startStack.add(state.initialStartRoute)
+                state.topLevelRoute = state.initialStartRoute
             }
         }
     }

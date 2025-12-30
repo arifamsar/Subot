@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
@@ -28,6 +29,12 @@ fun NavigationNavBar(
 
     val navigator = remember {
         Navigator(navigationState)
+    }
+
+    // Reset to Home when coming back from a logout-driven host change
+    LaunchedEffect(Unit) {
+        navigationState.startRoute = AppRoute.Home
+        navigationState.topLevelRoute = AppRoute.Home
     }
 
     Scaffold(
