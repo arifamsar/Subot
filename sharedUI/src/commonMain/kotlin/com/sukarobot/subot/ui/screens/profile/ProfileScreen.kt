@@ -1,7 +1,6 @@
 package com.sukarobot.subot.ui.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +48,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sukarobot.subot.navigation.AppRoute
+import com.sukarobot.subot.ui.components.AppDialog
+import org.koin.compose.viewmodel.koinViewModel
 
 data class ProfileMenuItem(
     val title: String,
@@ -66,9 +67,11 @@ fun ProfileScreen(
     onLogout: () -> Unit = {},
     onNavigate: (AppRoute) -> Unit = {}
 ) {
+    val viewModel = koinViewModel<ProfileViewModel>()
     var darkModeEnabled by remember { mutableStateOf(false) }
     var notificationsEnabled by remember { mutableStateOf(true) }
-    
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     val generalSettings = remember {
         listOf(
             ProfileMenuItem(
@@ -218,7 +221,7 @@ fun ProfileScreen(
                 SettingsGroup(
                     items = support,
                     onClick = { item ->
-                        if (item.title == "Logout") onLogout()
+                        if (item.title == "Logout") showLogoutDialog = true
                         else item.route?.let { onNavigate(it) }
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -237,6 +240,21 @@ fun ProfileScreen(
                         .padding(horizontal = 16.dp)
                 )
             }
+        }
+
+        // Logout Confirmation Dialog
+        if (showLogoutDialog) {
+            AppDialog(
+                title = "Logout",
+                message = "Are you sure you want to logout?",
+                confirmText = "Logout",
+                onConfirm = {
+                    showLogoutDialog = false
+                    viewModel.logout { onLogout() }
+                },
+                dismissText = "Cancel",
+                onDismiss = { showLogoutDialog = false }
+            )
         }
     }
 }
@@ -349,17 +367,11 @@ private fun SettingsItem(
     
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
             .clickable(
                 onClick = onClick,
             )
-            .border(
-                shape = RoundedCornerShape(16.dp),
-                width = 0.dp,
-                color = Color.Transparent
-            )
-        ,
+            .fillMaxWidth()
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
