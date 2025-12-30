@@ -2,14 +2,15 @@ package com.sukarobot.subot.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subot.core.data.service.UserPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
-    
+class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel() {
+
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
     
@@ -50,13 +51,14 @@ class LoginViewModel : ViewModel() {
     private fun performLogin() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, loginError = null)
-            
+
             try {
                 // Simulate network delay
                 delay(1500)
-                
+
                 // For demo purposes, accept any valid credentials
                 // In real app, this would call a repository/use case
+                userPreferences.setLoggedIn(true)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoginSuccessful = true
@@ -72,5 +74,9 @@ class LoginViewModel : ViewModel() {
     
     fun clearLoginSuccess() {
         _uiState.value = _uiState.value.copy(isLoginSuccessful = false)
+    }
+
+    fun clearLoginError() {
+        _uiState.value = _uiState.value.copy(loginError = null)
     }
 }
