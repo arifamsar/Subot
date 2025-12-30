@@ -17,7 +17,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,11 +33,16 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onSplashComplete: () -> Unit,
+    viewModel: SplashViewModel,
+    onNavigateToHome: () -> Unit,
+    onNavigateToOnboarding: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val scale = remember { Animatable(0f) }
     val alpha = remember { Animatable(0f) }
-    
+    var splashDelayFinished by retain { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         // Scale animation
         scale.animateTo(
@@ -42,7 +52,7 @@ fun SplashScreen(
                 easing = FastOutSlowInEasing
             )
         )
-        
+
         // Fade in animation
         alpha.animateTo(
             targetValue = 1f,
@@ -50,12 +60,22 @@ fun SplashScreen(
                 durationMillis = 500
             )
         )
-        
+
         // Wait before navigating
         delay(1500)
-        onSplashComplete()
+        splashDelayFinished = true
     }
-    
+
+    LaunchedEffect(uiState.isReady, splashDelayFinished) {
+        if (uiState.isReady && splashDelayFinished) {
+            when {
+                uiState.isLoggedIn -> onNavigateToHome()
+                uiState.isOnboardingCompleted -> onNavigateToLogin()
+                else -> onNavigateToOnboarding()
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,9 +93,9 @@ fun SplashScreen(
                     .scale(scale.value),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = "Subot",
                 style = MaterialTheme.typography.displayMedium,
@@ -83,9 +103,9 @@ fun SplashScreen(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.alpha(alpha.value)
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Your Smart Assistant",
                 style = MaterialTheme.typography.bodyLarge,
