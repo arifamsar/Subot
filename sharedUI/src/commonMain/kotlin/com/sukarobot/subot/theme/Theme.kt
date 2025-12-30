@@ -1,12 +1,12 @@
 package com.sukarobot.subot.theme
 
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
@@ -84,23 +84,26 @@ private val DarkColorScheme = darkColorScheme(
     surfaceContainerHighest = SurfaceContainerHighestDark,
 )
 
-internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
+internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(false) }
 
 @Composable
 internal fun AppTheme(
-    onThemeChanged: @Composable (isDark: Boolean) -> Unit,
+    isDark: Boolean,
+    onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val systemIsDark = isSystemInDarkTheme()
-    val isDarkState = remember(systemIsDark) { mutableStateOf(systemIsDark) }
+    val isDarkState = remember { mutableStateOf(isDark) }
+    LaunchedEffect(isDark) {
+        isDarkState.value = isDark
+    }
     CompositionLocalProvider(
         LocalThemeIsDark provides isDarkState,
         LocalIndication provides ScaleIndication
     ) {
-        val isDark by isDarkState
-        onThemeChanged(!isDark)
+        val currentIsDark by isDarkState
+        onThemeChanged(currentIsDark)
         MaterialTheme(
-            colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
+            colorScheme = if (currentIsDark) DarkColorScheme else LightColorScheme,
             content = { Surface(content = content) },
             typography = appTypography()
         )

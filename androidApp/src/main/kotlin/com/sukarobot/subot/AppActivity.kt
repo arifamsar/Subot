@@ -1,6 +1,7 @@
 package com.sukarobot.subot
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,8 +30,9 @@ private fun ThemeChanged(isDark: Boolean) {
     LaunchedEffect(isDark) {
         val window = (view.context as Activity).window
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isDark
-            isAppearanceLightNavigationBars = isDark
+            val lightIcons = !isDark
+            isAppearanceLightStatusBars = lightIcons
+            isAppearanceLightNavigationBars = lightIcons
         }
     }
 }
