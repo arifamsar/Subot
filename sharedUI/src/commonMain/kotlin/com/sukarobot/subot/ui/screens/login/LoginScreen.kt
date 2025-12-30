@@ -28,12 +28,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.sukarobot.subot.ui.components.AppDialog
 import com.sukarobot.subot.ui.components.AppPasswordTextField
 import com.sukarobot.subot.ui.components.AppPrimaryButton
 import com.sukarobot.subot.ui.components.AppScaffold
@@ -43,39 +49,61 @@ import com.sukarobot.subot.ui.components.FullScreenLoading
 
 @Composable
 fun LoginScreen(
+    modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(uiState.isLoginSuccessful) {
         if (uiState.isLoginSuccessful) {
-            viewModel.clearLoginSuccess()
-            onLoginSuccess()
+            showSuccessDialog = true
         }
     }
-    
-    LaunchedEffect(uiState.loginError) {
-        uiState.loginError?.let { error ->
-            snackbarHostState.showSnackbar(error)
-        }
+
+    if (uiState.loginError != null) {
+        AppDialog(
+            title = "Login Failed",
+            message = uiState.loginError ?: "",
+            confirmText = "Retry",
+            onConfirm = { viewModel.clearLoginError() },
+            dismissText = "Close",
+            onDismiss = { viewModel.clearLoginError() }
+        )
     }
-    
+
+    if (showSuccessDialog) {
+        AppDialog(
+            title = "Login Successful",
+            message = "You have been logged in successfully.",
+            confirmText = "Continue",
+            onConfirm = {
+                viewModel.clearLoginSuccess()
+                showSuccessDialog = false
+                onLoginSuccess()
+            },
+            dismissText = null,
+            onDismiss = null,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    }
+
     AppScaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp)
-                    .imePadding(),
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(48.dp))
@@ -129,7 +157,8 @@ fun LoginScreen(
                     errorMessage = uiState.emailError,
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
-                    enabled = !uiState.isLoading
+                    enabled = !uiState.isLoading,
+                    modifier = Modifier
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -147,7 +176,8 @@ fun LoginScreen(
                     errorMessage = uiState.passwordError,
                     imeAction = ImeAction.Done,
                     onImeAction = { viewModel.validateAndLogin() },
-                    enabled = !uiState.isLoading
+                    enabled = !uiState.isLoading,
+                    modifier = Modifier
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -168,38 +198,48 @@ fun LoginScreen(
                     text = if (uiState.isLoading) "Signing in..." else "Sign In",
                     onClick = { viewModel.validateAndLogin() },
                     enabled = !uiState.isLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Sign up link
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Don't have an account?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    AppTextButton(
-                        text = "Sign Up",
-                        onClick = { /* Handle sign up */ }
-                    )
-                }
+//                // Sign up link
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Text(
+//                        text = "Don't have an account?",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant
+//                    )
+//                    AppTextButton(
+//                        text = "Sign Up",
+//                        onClick = { /* Handle sign up */ }
+//                    )
+//                }
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Loading overlay
             if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)),
-                    contentAlignment = Alignment.Center
+                Dialog(
+                    onDismissRequest = {},
+                    properties = DialogProperties(
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false,
+                        usePlatformDefaultWidth = false
+                    )
                 ) {
-                    FullScreenLoading()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        FullScreenLoading()
+                    }
                 }
             }
 
