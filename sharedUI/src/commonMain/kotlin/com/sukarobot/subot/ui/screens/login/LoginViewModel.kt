@@ -13,41 +13,52 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-    
-    fun onEmailChange(email: String) {
+
+    fun onEvent(event: LoginEvent) {
+        when (event) {
+            is LoginEvent.EmailChanged -> handleEmailChanged(event.email)
+            is LoginEvent.PasswordChanged -> handlePasswordChanged(event.password)
+            is LoginEvent.ValidateAndLogin -> handleValidateAndLogin()
+            is LoginEvent.ClearLoginSuccess -> handleClearLoginSuccess()
+            is LoginEvent.ClearLoginError -> handleClearLoginError()
+            is LoginEvent.ForgotPassword -> handleForgotPassword()
+        }
+    }
+
+    private fun handleEmailChanged(email: String) {
         _uiState.value = _uiState.value.copy(
             email = email,
             emailError = null,
             loginError = null
         )
     }
-    
-    fun onPasswordChange(password: String) {
+
+    private fun handlePasswordChanged(password: String) {
         _uiState.value = _uiState.value.copy(
             password = password,
             passwordError = null,
             loginError = null
         )
     }
-    
-    fun validateAndLogin() {
+
+    private fun handleValidateAndLogin() {
         val currentState = _uiState.value
-        
+
         // Validate email
         val emailValidation = LoginValidator.validateEmail(currentState.email)
         val passwordValidation = LoginValidator.validatePassword(currentState.password)
-        
+
         _uiState.value = currentState.copy(
             emailError = emailValidation.errorMessage,
             passwordError = passwordValidation.errorMessage
         )
-        
+
         // If validation passes, attempt login
         if (emailValidation.isValid && passwordValidation.isValid) {
             performLogin()
         }
     }
-    
+
     private fun performLogin() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, loginError = null)
@@ -71,12 +82,17 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
             }
         }
     }
-    
-    fun clearLoginSuccess() {
+
+    private fun handleClearLoginSuccess() {
         _uiState.value = _uiState.value.copy(isLoginSuccessful = false)
     }
 
-    fun clearLoginError() {
+    private fun handleClearLoginError() {
         _uiState.value = _uiState.value.copy(loginError = null)
+    }
+
+    private fun handleForgotPassword() {
+        // Handle forgot password logic here
+        // For now, we'll just log it or show a message
     }
 }

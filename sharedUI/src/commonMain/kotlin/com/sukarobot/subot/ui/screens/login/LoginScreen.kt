@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sukarobot.subot.ui.components.AppDialog
 import com.sukarobot.subot.ui.components.AppPasswordTextField
 import com.sukarobot.subot.ui.components.AppPrimaryButton
@@ -50,10 +51,10 @@ import com.sukarobot.subot.ui.components.FullScreenLoading
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel,
+    onEvent: (LoginEvent) -> Unit,
+    uiState: LoginUiState,
     onLoginSuccess: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
@@ -66,11 +67,11 @@ fun LoginScreen(
     if (uiState.loginError != null) {
         AppDialog(
             title = "Login Failed",
-            message = uiState.loginError ?: "",
+            message = uiState.loginError,
             confirmText = "Retry",
-            onConfirm = { viewModel.clearLoginError() },
+            onConfirm = { onEvent(LoginEvent.ClearLoginError) },
             dismissText = "Close",
-            onDismiss = { viewModel.clearLoginError() }
+            onDismiss = { onEvent(LoginEvent.ClearLoginError) }
         )
     }
 
@@ -80,7 +81,7 @@ fun LoginScreen(
             message = "You have been logged in successfully.",
             confirmText = "Continue",
             onConfirm = {
-                viewModel.clearLoginSuccess()
+                onEvent(LoginEvent.ClearLoginSuccess)
                 showSuccessDialog = false
                 onLoginSuccess()
             },
@@ -149,7 +150,7 @@ fun LoginScreen(
                 // Email field
                 AppTextField(
                     value = uiState.email,
-                    onValueChange = viewModel::onEmailChange,
+                    onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
                     label = "Email",
                     placeholder = "Enter your email",
                     leadingIcon = Icons.Default.Email,
@@ -166,7 +167,7 @@ fun LoginScreen(
                 // Password field
                 AppPasswordTextField(
                     value = uiState.password,
-                    onValueChange = viewModel::onPasswordChange,
+                    onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
                     label = "Password",
                     placeholder = "Enter your password",
                     leadingIcon = Icons.Default.Lock,
@@ -175,7 +176,7 @@ fun LoginScreen(
                     isError = uiState.passwordError != null,
                     errorMessage = uiState.passwordError,
                     imeAction = ImeAction.Done,
-                    onImeAction = { viewModel.validateAndLogin() },
+                    onImeAction = { onEvent(LoginEvent.ValidateAndLogin) },
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                 )
@@ -186,7 +187,7 @@ fun LoginScreen(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     AppTextButton(
                         text = "Forgot Password?",
-                        onClick = { /* Handle forgot password */ },
+                        onClick = { onEvent(LoginEvent.ForgotPassword) },
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )
                 }
@@ -196,7 +197,7 @@ fun LoginScreen(
                 // Login button
                 AppPrimaryButton(
                     text = if (uiState.isLoading) "Signing in..." else "Sign In",
-                    onClick = { viewModel.validateAndLogin() },
+                    onClick = { onEvent(LoginEvent.ValidateAndLogin) },
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()

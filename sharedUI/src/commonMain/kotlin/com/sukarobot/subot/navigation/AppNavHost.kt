@@ -1,8 +1,10 @@
 package com.sukarobot.subot.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.sukarobot.subot.ui.screens.login.LoginScreen
@@ -74,10 +76,12 @@ fun AppNavHost() {
                 }
 
                 entry<AppRoute.Login> {
-                    val loginViewModel = koinViewModel<LoginViewModel>()
+                    val viewModel = koinViewModel<LoginViewModel>()
+                    val loginUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                     LoginScreen(
-                        viewModel = loginViewModel,
+                        uiState = loginUiState,
+                        onEvent = viewModel::onEvent,
                         onLoginSuccess = navigator::onLoginSuccess
                     )
                 }
