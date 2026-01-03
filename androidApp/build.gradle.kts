@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 36
 
-        applicationId = "com.sukarobot.subot.androidApp"
+        applicationId = "com.sukarobot.subot"
         versionCode = 1
         versionName = "1.0.0"
     }
