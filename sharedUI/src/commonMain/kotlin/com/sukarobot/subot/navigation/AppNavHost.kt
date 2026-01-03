@@ -43,9 +43,11 @@ fun AppNavHost() {
             entryProvider = entryProvider {
                 entry<AppRoute.Splash> {
                     val splashViewModel = koinViewModel<SplashViewModel>()
+                    val splashUiState by splashViewModel.uiState.collectAsStateWithLifecycle()
 
                     SplashScreen(
-                        viewModel = splashViewModel,
+                        uiState = splashUiState,
+                        onEvent = splashViewModel::onEvent,
                         onNavigateToHome = {
                             navigationState.startRoute = AppRoute.Main
                             navigator.onLoginSuccess()

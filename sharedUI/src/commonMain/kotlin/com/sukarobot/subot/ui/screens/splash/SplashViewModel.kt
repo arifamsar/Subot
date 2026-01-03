@@ -14,10 +14,16 @@ class SplashViewModel(private val userPreferences: UserPreferences): ViewModel()
     val uiState: StateFlow<SplashUiState> = _uiState
 
     init {
-        loadStatuses()
+        onEvent(SplashEvent.LoadStatuses)
     }
 
-    private fun loadStatuses() {
+    fun onEvent(event: SplashEvent) {
+        when (event) {
+            is SplashEvent.LoadStatuses -> handleLoadStatuses()
+        }
+    }
+
+    private fun handleLoadStatuses() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {

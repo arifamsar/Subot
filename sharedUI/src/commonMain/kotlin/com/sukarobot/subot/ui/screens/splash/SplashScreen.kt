@@ -33,17 +33,20 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    viewModel: SplashViewModel,
+    uiState: SplashUiState = SplashUiState(),
+    onEvent: (SplashEvent) -> Unit = {},
     onNavigateToHome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val scale = remember { Animatable(0f) }
     val alpha = remember { Animatable(0f) }
     var splashDelayFinished by retain { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        // Load initial statuses
+        onEvent(SplashEvent.LoadStatuses)
+
         // Scale animation
         scale.animateTo(
             targetValue = 1f,
@@ -68,10 +71,10 @@ fun SplashScreen(
 
     LaunchedEffect(uiState.isReady, splashDelayFinished) {
         if (uiState.isReady && splashDelayFinished) {
-            when {
-                uiState.isLoggedIn -> onNavigateToHome()
-                uiState.isOnboardingCompleted -> onNavigateToLogin()
-                else -> onNavigateToOnboarding()
+            when (uiState.nextScreen) {
+                NextScreen.Home -> onNavigateToHome()
+                NextScreen.Login -> onNavigateToLogin()
+                NextScreen.Onboarding -> onNavigateToOnboarding()
             }
         }
     }
