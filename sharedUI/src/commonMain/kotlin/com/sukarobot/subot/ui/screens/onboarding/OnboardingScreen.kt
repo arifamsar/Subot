@@ -22,11 +22,15 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,10 +38,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sukarobot.subot.theme.LocalThemeIsDark
 import com.sukarobot.subot.ui.components.AppPrimaryButton
 import com.sukarobot.subot.ui.components.AppTextButton
 import com.sukarobot.subot.ui.components.WaterDropIndicator
+import com.sukarobot.subot.ui.components.icons.Hicon
+import com.sukarobot.subot.ui.components.icons.MoonOutlined
+import com.sukarobot.subot.ui.components.icons.SunOutlined
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 data class OnboardingPage(
     val icon: ImageVector,
@@ -71,10 +80,16 @@ fun OnboardingScreen(
 
     val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
     val coroutineScope = rememberCoroutineScope()
+    val viewModel = koinViewModel<OnboardingViewModel>()
+    val darkModeEnabled by viewModel.darkModeEnabled.collectAsState()
+    val themeState = LocalThemeIsDark.current
+
+    LaunchedEffect(darkModeEnabled) {
+        themeState.value = darkModeEnabled
+    }
 
     Scaffold(
         topBar = {
-            // skip top bar for onboarding
             TopAppBar(
                 title = {},
                 actions = {
@@ -87,6 +102,14 @@ fun OnboardingScreen(
                             text = "Skip",
                             onClick = onOnboardingComplete,
                             modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { viewModel.toggleDarkMode(!darkModeEnabled) }) {
+                        Icon(
+                            imageVector = if (darkModeEnabled) Hicon.SunOutlined else Hicon.MoonOutlined,
+                            contentDescription = if (darkModeEnabled) "Switch to light mode" else "Switch to dark mode"
                         )
                     }
                 }
