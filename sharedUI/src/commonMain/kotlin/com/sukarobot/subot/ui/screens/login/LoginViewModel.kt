@@ -56,6 +56,12 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
         // If validation passes, attempt login
         if (emailValidation.isValid && passwordValidation.isValid) {
             performLogin()
+
+            // Clear form
+            _uiState.value = _uiState.value.copy(
+                email = "",
+                password = ""
+            )
         }
     }
 
