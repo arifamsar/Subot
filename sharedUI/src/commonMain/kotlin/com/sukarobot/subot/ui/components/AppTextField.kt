@@ -18,11 +18,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -47,9 +49,8 @@ fun AppTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label) },
             placeholder = if (placeholder.isNotEmpty()) {
-                { Text(placeholder) }
+                { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) }
             } else null,
             leadingIcon = leadingIcon?.let {
                 {
@@ -88,12 +89,16 @@ fun AppTextField(
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error
+                unfocusedBorderColor = Color.Transparent,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         if (isError && !errorMessage.isNullOrEmpty()) {
             Text(
                 text = errorMessage,
@@ -122,14 +127,13 @@ fun AppPasswordTextField(
     enabled: Boolean = true
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-    
+
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label) },
             placeholder = if (placeholder.isNotEmpty()) {
-                { Text(placeholder) }
+                { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) }
             } else null,
             leadingIcon = leadingIcon?.let {
                 {
@@ -150,7 +154,7 @@ fun AppPasswordTextField(
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) VisualTransformation.None 
+            visualTransformation = if (passwordVisible) VisualTransformation.None
                 else PasswordVisualTransformation(),
             isError = isError,
             keyboardOptions = KeyboardOptions(
@@ -166,12 +170,16 @@ fun AppPasswordTextField(
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error
+                unfocusedBorderColor = Color.Transparent,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         if (isError && !errorMessage.isNullOrEmpty()) {
             Text(
                 text = errorMessage,
@@ -181,4 +189,15 @@ fun AppPasswordTextField(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AppTextFieldPreview() {
+    AppTextField(
+        value = "",
+        onValueChange = {},
+        label = "Username",
+        placeholder = "Enter your username"
+    )
 }
