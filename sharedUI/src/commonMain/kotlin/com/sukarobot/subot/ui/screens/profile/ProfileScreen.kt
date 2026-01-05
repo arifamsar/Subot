@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sukarobot.subot.navigation.AppRoute
@@ -337,18 +339,29 @@ private fun SettingsItem(
     onSwitchChange: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
-    val contentColor = if (item.isDestructive) 
-        MaterialTheme.colorScheme.error 
-    else 
+    val contentColor = if (item.isDestructive)
+        MaterialTheme.colorScheme.error
+    else
         MaterialTheme.colorScheme.onSurface
-    
-    Row(
-        modifier = Modifier
-            .clickable(
-                onClick = onClick,
+
+    val rowModifier = if (item.hasSwitch && switchState != null) {
+        Modifier
+            .toggleable(
+                value = switchState,
+                role = Role.Switch,
+                onValueChange = onSwitchChange
             )
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+    } else {
+        Modifier
+            .clickable(onClick = onClick)
+            .fillMaxWidth()
+            .padding(16.dp)
+    }
+
+    Row(
+        modifier = rowModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
