@@ -37,17 +37,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sukarobot.subot.ui.components.AppPullToRefresh
+import com.sukarobot.subot.utils.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlin.time.Clock
 
 data class DateItem(
-    val day: String,
-    val date: String,
+    val date: LocalDate,
     val isSelected: Boolean = false
 )
 
 data class ScheduleEvent(
     val title: String,
-    val time: String,
-    val duration: String,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
     val color: Color
 )
 
@@ -57,43 +60,44 @@ fun ScheduleScreen() {
     var isRefreshing by remember { mutableStateOf(false) }
     var selectedDateIndex by remember { mutableStateOf(2) }
     
-    val dates = remember {
-        listOf(
-            DateItem("Mon", "23"),
-            DateItem("Tue", "24"),
-            DateItem("Wed", "25", true),
-            DateItem("Thu", "26"),
-            DateItem("Fri", "27"),
-            DateItem("Sat", "28"),
-            DateItem("Sun", "29")
-        )
+    // Get current date and week dates
+    val currentDate = remember { Clock.System.nowAsLocalDate() }
+    val weekDates = remember { currentDate.getCurrentWeekDates() }
+
+    val dates = remember(weekDates) {
+        weekDates.mapIndexed { index, date ->
+            DateItem(
+                date = date,
+                isSelected = index == selectedDateIndex
+            )
+        }
     }
-    
+
     val events = remember {
         listOf(
             ScheduleEvent(
-                "Team Meeting",
-                "09:00 AM",
-                "1 hour",
-                Color(0xFF1565C0)
+                title = "Team Meeting",
+                startTime = LocalTime(9, 0),
+                endTime = LocalTime(10, 0),
+                color = Color(0xFF1565C0)
             ),
             ScheduleEvent(
-                "Project Review",
-                "11:00 AM",
-                "30 mins",
-                Color(0xFF2E7D32)
+                title = "Project Review",
+                startTime = LocalTime(11, 0),
+                endTime = LocalTime(11, 30),
+                color = Color(0xFF2E7D32)
             ),
             ScheduleEvent(
-                "Lunch Break",
-                "12:30 PM",
-                "1 hour",
-                Color(0xFFED6C02)
+                title = "Lunch Break",
+                startTime = LocalTime(12, 30),
+                endTime = LocalTime(13, 30),
+                color = Color(0xFFED6C02)
             ),
             ScheduleEvent(
-                "Client Call",
-                "03:00 PM",
-                "45 mins",
-                Color(0xFF9C27B0)
+                title = "Client Call",
+                startTime = LocalTime(15, 0),
+                endTime = LocalTime(15, 45),
+                color = Color(0xFF9C27B0)
             )
         )
     }
@@ -127,7 +131,7 @@ fun ScheduleScreen() {
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
-                            text = "December 2025",
+                            text = currentDate.toMonthYearString(),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -198,7 +202,7 @@ private fun DateCard(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = date.day,
+                text = date.date.toDayName().take(3),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isSelected) 
                     MaterialTheme.colorScheme.onPrimary 
@@ -207,7 +211,7 @@ private fun DateCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = date.date,
+                text = date.date.toDayOfMonthString(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (isSelected) 
@@ -224,6 +228,9 @@ private fun ScheduleEventCard(
     event: ScheduleEvent,
     modifier: Modifier = Modifier
 ) {
+    val timeRange = "${event.startTime.to12HourFormat()} - ${event.endTime.to12HourFormat()}"
+    val duration = event.startTime.durationUntil(event.endTime).toDurationString()
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -264,8 +271,9 @@ private fun ScheduleEventCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${event.time} • ${event.duration}",
+                        text = "$timeRange • $duration",
                         style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
