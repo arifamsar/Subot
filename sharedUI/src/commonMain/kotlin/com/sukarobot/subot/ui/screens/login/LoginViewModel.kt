@@ -48,9 +48,17 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
         val emailValidation = LoginValidator.validateEmail(currentState.email)
         val passwordValidation = LoginValidator.validatePassword(currentState.password)
 
+        // Map error codes to ValidationError enum
+        val emailError = emailValidation.errorMessage?.let {
+            ValidationError.valueOf(it)
+        }
+        val passwordError = passwordValidation.errorMessage?.let {
+            ValidationError.valueOf(it)
+        }
+
         _uiState.value = currentState.copy(
-            emailError = emailValidation.errorMessage,
-            passwordError = passwordValidation.errorMessage
+            emailError = emailError,
+            passwordError = passwordError
         )
 
         // If validation passes, attempt login
@@ -83,7 +91,7 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    loginError = "Login failed. Please try again."
+                    loginError = e.message ?: "Login failed. Please try again."
                 )
             }
         }

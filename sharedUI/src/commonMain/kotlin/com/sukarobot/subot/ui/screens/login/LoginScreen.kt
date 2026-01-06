@@ -47,6 +47,32 @@ import com.sukarobot.subot.ui.components.FullScreenLoading
 import com.sukarobot.subot.ui.components.icons.EmailOutlined
 import com.sukarobot.subot.ui.components.icons.Hicon
 import com.sukarobot.subot.ui.components.icons.LockOutlined
+import org.jetbrains.compose.resources.stringResource
+import subot.sharedui.generated.resources.Res
+import subot.sharedui.generated.resources.close
+import subot.sharedui.generated.resources.continue_text
+import subot.sharedui.generated.resources.email_label
+import subot.sharedui.generated.resources.email_placeholder
+import subot.sharedui.generated.resources.email_required
+import subot.sharedui.generated.resources.forgot_password
+import subot.sharedui.generated.resources.halo
+import subot.sharedui.generated.resources.logged_in_successfully
+import subot.sharedui.generated.resources.login_failed
+import subot.sharedui.generated.resources.login_failed_general
+import subot.sharedui.generated.resources.login_subtitle
+import subot.sharedui.generated.resources.login_successful
+import subot.sharedui.generated.resources.no_account_text
+import subot.sharedui.generated.resources.number_required
+import subot.sharedui.generated.resources.password_label
+import subot.sharedui.generated.resources.password_length_requirement
+import subot.sharedui.generated.resources.password_placeholder
+import subot.sharedui.generated.resources.password_required
+import subot.sharedui.generated.resources.retry
+import subot.sharedui.generated.resources.sign_in
+import subot.sharedui.generated.resources.sign_up
+import subot.sharedui.generated.resources.signing_in
+import subot.sharedui.generated.resources.uppercase_required
+import subot.sharedui.generated.resources.valid_email_required
 
 @Composable
 fun LoginScreen(
@@ -66,20 +92,20 @@ fun LoginScreen(
 
     if (uiState.loginError != null) {
         AppDialog(
-            title = "Login Failed",
-            message = uiState.loginError,
-            confirmText = "Retry",
+            title = stringResource(Res.string.login_failed),
+            message = stringResource(Res.string.login_failed_general),
+            confirmText = stringResource(Res.string.retry),
             onConfirm = { onEvent(LoginEvent.ClearLoginError) },
-            dismissText = "Close",
+            dismissText = stringResource(Res.string.close),
             onDismiss = { onEvent(LoginEvent.ClearLoginError) }
         )
     }
 
     if (showSuccessDialog) {
         AppDialog(
-            title = "Login Successful",
-            message = "You have been logged in successfully.",
-            confirmText = "Continue",
+            title = stringResource(Res.string.login_successful),
+            message = stringResource(Res.string.logged_in_successfully),
+            confirmText = stringResource(Res.string.continue_text),
             onConfirm = {
                 onEvent(LoginEvent.ClearLoginSuccess)
                 showSuccessDialog = false
@@ -112,14 +138,14 @@ fun LoginScreen(
                         .padding(horizontal = 24.dp, vertical = 24.dp)
                 ) {
                     Text(
-                        text = "Halo!",
+                        text = stringResource(Res.string.halo),
                         style = MaterialTheme.typography.displayMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Masuk dengan aman menggunakan email dan kata sandi Anda.",
+                        text = stringResource(Res.string.login_subtitle),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     )
@@ -146,7 +172,7 @@ fun LoginScreen(
                             Spacer(modifier = Modifier.height(32.dp))
                             
                             Text(
-                                text = "Sign in",
+                                text = stringResource(Res.string.sign_in),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -158,11 +184,11 @@ fun LoginScreen(
                             AppTextField(
                                 value = uiState.email,
                                 onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
-                                label = "Email",
-                                placeholder = "Enter your mail",
+                                label = stringResource(Res.string.email_label),
+                                placeholder = stringResource(Res.string.email_placeholder),
                                 leadingIcon = Hicon.EmailOutlined,
                                 isError = uiState.emailError != null,
-                                errorMessage = uiState.emailError,
+                                errorMessage = getErrorMessage(uiState.emailError),
                                 keyboardType = KeyboardType.Email,
                                 imeAction = ImeAction.Next,
                                 enabled = !uiState.isLoading,
@@ -175,13 +201,13 @@ fun LoginScreen(
                             AppPasswordTextField(
                                 value = uiState.password,
                                 onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
-                                label = "Password",
-                                placeholder = "Enter your Password",
+                                label = stringResource(Res.string.password_label),
+                                placeholder = stringResource(Res.string.password_placeholder),
                                 leadingIcon = Hicon.LockOutlined,
                                 visibilityIcon = Icons.Default.Visibility,
                                 visibilityOffIcon = Icons.Default.VisibilityOff,
                                 isError = uiState.passwordError != null,
-                                errorMessage = uiState.passwordError,
+                                errorMessage = getErrorMessage(uiState.passwordError),
                                 imeAction = ImeAction.Done,
                                 onImeAction = { onEvent(LoginEvent.ValidateAndLogin) },
                                 enabled = !uiState.isLoading,
@@ -196,7 +222,7 @@ fun LoginScreen(
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 AppTextButton(
-                                    text = "Forgot password?",
+                                    text = stringResource(Res.string.forgot_password),
                                     onClick = { onEvent(LoginEvent.ForgotPassword) }
                                 )
                             }
@@ -205,7 +231,7 @@ fun LoginScreen(
 
                             // Login button
                             AppPrimaryButton(
-                                text = if (uiState.isLoading) "Signing in..." else "Sign in",
+                                text = if (uiState.isLoading) stringResource(Res.string.signing_in) else stringResource(Res.string.sign_in),
                                 onClick = { onEvent(LoginEvent.ValidateAndLogin) },
                                 enabled = !uiState.isLoading,
                                 modifier = Modifier.fillMaxWidth()
@@ -223,12 +249,12 @@ fun LoginScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Don't have an account? ",
+                                text = stringResource(Res.string.no_account_text),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             AppTextButton(
-                                text = "Sign up",
+                                text = stringResource(Res.string.sign_up),
                                 onClick = { /* Handle sign up */ }
                             )
                         }
@@ -263,6 +289,22 @@ fun LoginScreen(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
+    }
+}
+
+/**
+ * Helper function to map validation error codes to string resources
+ */
+@Composable
+private fun getErrorMessage(error: ValidationError?): String? {
+    if (error == null) return null
+    return when (error) {
+        ValidationError.EMAIL_REQUIRED -> stringResource(Res.string.email_required)
+        ValidationError.INVALID_EMAIL_FORMAT -> stringResource(Res.string.valid_email_required)
+        ValidationError.PASSWORD_REQUIRED -> stringResource(Res.string.password_required)
+        ValidationError.PASSWORD_TOO_SHORT -> stringResource(Res.string.password_length_requirement)
+        ValidationError.PASSWORD_NO_UPPERCASE -> stringResource(Res.string.uppercase_required)
+        ValidationError.PASSWORD_NO_NUMBER -> stringResource(Res.string.number_required)
     }
 }
 
