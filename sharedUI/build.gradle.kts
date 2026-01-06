@@ -25,13 +25,13 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
+            api(libs.compose.runtime)
+            api(libs.compose.ui)
+            api(libs.compose.foundation)
+            api(libs.compose.resources)
+            api(libs.compose.ui.tooling.preview)
+            api(libs.compose.material3)
             implementation(libs.material.icons.extended)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.resources)
-            implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.compose.material3)
             implementation(libs.kermit)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime)
@@ -59,11 +59,11 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling)
+
         }
 
         iosMain.dependencies {
-
+            implementation(libs.ktor.client.darwin)
         }
 
     }
@@ -79,5 +79,9 @@ kotlin {
                 }
             }
         }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
