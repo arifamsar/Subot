@@ -46,29 +46,43 @@ import com.sukarobot.subot.ui.components.icons.Hicon
 import com.sukarobot.subot.ui.components.icons.MoonOutlined
 import com.sukarobot.subot.ui.components.icons.SunOutlined
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import subot.sharedui.generated.resources.Res
+import subot.sharedui.generated.resources.get_started
+import subot.sharedui.generated.resources.next
+import subot.sharedui.generated.resources.onboarding_description_1
+import subot.sharedui.generated.resources.onboarding_description_2
+import subot.sharedui.generated.resources.onboarding_description_3
+import subot.sharedui.generated.resources.skip
+import subot.sharedui.generated.resources.smart_scheduling
+import subot.sharedui.generated.resources.stay_notified
+import subot.sharedui.generated.resources.switch_to_dark_mode
+import subot.sharedui.generated.resources.switch_to_light_mode
+import subot.sharedui.generated.resources.welcome_to_subot
 
 data class OnboardingPage(
     val icon: ImageVector,
-    val title: String,
-    val description: String
+    val title: StringResource,
+    val description: StringResource
 )
 
 private val onboardingPages = listOf(
     OnboardingPage(
         icon = Icons.Default.SmartToy,
-        title = "Welcome to Subot",
-        description = "Your intelligent assistant that helps you manage your daily tasks and activities with ease."
+        title = Res.string.welcome_to_subot,
+        description = Res.string.onboarding_description_1
     ),
     OnboardingPage(
         icon = Icons.Default.CalendarMonth,
-        title = "Smart Scheduling",
-        description = "Organize your schedule effortlessly. Never miss an important appointment or deadline again."
+        title = Res.string.smart_scheduling,
+        description = Res.string.onboarding_description_2
     ),
     OnboardingPage(
         icon = Icons.Default.Notifications,
-        title = "Stay Notified",
-        description = "Get timely reminders and notifications to keep you on track throughout your day."
+        title = Res.string.stay_notified,
+        description = Res.string.onboarding_description_3
     )
 )
 
@@ -99,7 +113,7 @@ fun OnboardingScreen(
                         exit = fadeOut()
                     ) {
                         AppTextButton(
-                            text = "Skip",
+                            text = stringResource(Res.string.skip),
                             onClick = onOnboardingComplete,
                             modifier = Modifier.padding(end = 8.dp)
                         )
@@ -109,7 +123,7 @@ fun OnboardingScreen(
                     IconButton(onClick = { viewModel.toggleDarkMode(!darkModeEnabled) }) {
                         Icon(
                             imageVector = if (darkModeEnabled) Hicon.SunOutlined else Hicon.MoonOutlined,
-                            contentDescription = if (darkModeEnabled) "Switch to light mode" else "Switch to dark mode"
+                            contentDescription = if (darkModeEnabled) stringResource(Res.string.switch_to_light_mode) else stringResource(Res.string.switch_to_dark_mode)
                         )
                     }
                 }
@@ -155,13 +169,13 @@ fun OnboardingScreen(
                 // Navigation buttons
                 if (pagerState.currentPage == onboardingPages.size - 1) {
                     AppPrimaryButton(
-                        text = "Get Started",
+                        text = stringResource(Res.string.get_started),
                         onClick = onOnboardingComplete,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
                     AppPrimaryButton(
-                        text = "Next",
+                        text = stringResource(Res.string.next),
                         onClick = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -207,7 +221,7 @@ private fun OnboardingPageContent(
         Spacer(modifier = Modifier.height(48.dp))
         
         Text(
-            text = page.title,
+            text = stringResource(page.title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -217,7 +231,7 @@ private fun OnboardingPageContent(
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = page.description,
+            text = stringResource(page.description),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
