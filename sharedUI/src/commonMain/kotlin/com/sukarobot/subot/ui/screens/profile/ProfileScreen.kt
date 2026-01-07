@@ -44,7 +44,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sukarobot.subot.navigation.AppRoute
-import com.sukarobot.subot.theme.LocalThemeIsDark
 import com.sukarobot.subot.ui.components.AppDialog
 import com.sukarobot.subot.ui.components.icons.FAQCircle
 import com.sukarobot.subot.ui.components.icons.Hicon
@@ -77,10 +76,6 @@ fun ProfileScreen(
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    val themeState = LocalThemeIsDark.current
-    LaunchedEffect(darkModeEnabled) {
-        themeState.value = darkModeEnabled
-    }
 
     val generalSettings = remember {
         listOf(
