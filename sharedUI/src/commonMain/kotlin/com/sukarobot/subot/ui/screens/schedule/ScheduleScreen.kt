@@ -56,7 +56,9 @@ data class ScheduleEvent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScheduleScreen() {
+fun ScheduleScreen(
+    modifier: Modifier = Modifier
+) {
     var isRefreshing by remember { mutableStateOf(false) }
     var selectedDateIndex by remember { mutableStateOf(2) }
     
@@ -103,7 +105,7 @@ fun ScheduleScreen() {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         // Content
         AppPullToRefresh(

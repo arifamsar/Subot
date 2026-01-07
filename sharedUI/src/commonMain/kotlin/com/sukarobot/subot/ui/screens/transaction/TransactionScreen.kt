@@ -55,7 +55,9 @@ data class Transaction(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen() {
+fun TransactionScreen(
+    modifier: Modifier = Modifier
+) {
     var isRefreshing by remember { mutableStateOf(false) }
 
     val transactions = remember {
@@ -104,7 +106,7 @@ fun TransactionScreen() {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         // Content
         AppPullToRefresh(
