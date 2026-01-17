@@ -25,12 +25,12 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(libs.compose.runtime)
-            api(libs.compose.ui)
-            api(libs.compose.foundation)
-            api(libs.compose.resources)
-            api(libs.compose.ui.tooling.preview)
-            api(libs.compose.material3)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.resources)
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.compose.material3)
             implementation(libs.material.icons.extended)
             implementation(libs.kermit)
             implementation(libs.androidx.lifecycle.viewmodel)
@@ -46,8 +46,10 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
             implementation(libs.androidx.paging.compose)
-            implementation(libs.jetbrains.material3.adaptiveNavigation3)
-            implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
+            implementation(libs.androidx.material3.adaptive)
+            implementation(libs.androidx.material3.adaptive.nav3)
+            implementation(libs.androidx.lifecycle.viewmodel.nav3)
+            implementation(libs.liquid)
             api(project(":core"))
             api(project(":features:home"))
         }
