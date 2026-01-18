@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
@@ -24,6 +25,9 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import org.jetbrains.compose.resources.painterResource
+import subot.sharedui.generated.resources.Res
+import subot.sharedui.generated.resources.ic_cyclone
 
 @Composable
 fun AppNetworkImage(
@@ -109,5 +113,15 @@ fun AppIconImage(
         contentDescription = contentDescription,
         modifier = modifier,
         tint = tint
+    )
+}
+
+@Preview
+@Composable
+fun AppLocalImagePreview() {
+    AppLocalImage(
+        painter = painterResource(Res.drawable.ic_cyclone),
+        contentDescription = "Local Image",
+        modifier = Modifier.size(150.dp)
     )
 }
