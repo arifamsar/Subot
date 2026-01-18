@@ -25,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +38,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sukarobot.subot.ui.components.AppPullToRefresh
-import com.sukarobot.subot.ui.components.AppScaffold
 import com.sukarobot.subot.ui.components.ShimmerList
 
 data class QuickAction(
@@ -116,7 +114,6 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
-
                 // Quick Actions
                 item {
                     Text(
