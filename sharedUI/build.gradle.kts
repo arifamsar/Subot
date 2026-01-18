@@ -1,27 +1,15 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.android.kmp.library)
+    alias(libs.plugins.subot.kotlin.multiplatform)
+    alias(libs.plugins.subot.compose.multiplatform)
     alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
-    android {
-        namespace = "com.sukarobot.subot"
-        compileSdk = 36
-        minSdk = 24
-        androidResources.enable = true
-        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
-    }
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    androidLibrary {
+        namespace = "com.subot.sharedui"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -30,6 +18,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.resources)
             implementation(libs.compose.ui.tooling.preview)
+//            implementation(compose.preview)
             implementation(libs.compose.material3)
             implementation(libs.material.icons.extended)
             implementation(libs.kermit)
@@ -67,23 +56,5 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-
     }
-
-    targets
-        .withType<KotlinNativeTarget>()
-        .matching { it.konanTarget.family.isAppleFamily }
-        .configureEach {
-            binaries {
-                framework {
-                    baseName = "SharedUI"
-                    isStatic = true
-                }
-            }
-        }
 }
-
-dependencies {
-    androidRuntimeClasspath(libs.compose.ui.tooling)
-}
-

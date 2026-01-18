@@ -1,6 +1,7 @@
 rootProject.name = "Subot"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content { 
