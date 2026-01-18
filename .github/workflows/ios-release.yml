@@ -1,0 +1,64 @@
+name: iOS Debug
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle and Kotlin/Native
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.konan
+            ~/.cache/jetbrains
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Install CocoaPods (if needed)
+        run: |
+          if [ -f "iosApp/Podfile" ]; then
+            sudo gem install cocoapods --no-document
+            (cd iosApp && pod install)
+          fi
+
+      - name: Build shared KMP artifacts (iOS)
+        run: ./gradlew --no-daemon :presentation:packForXcode
+
+      - name: Build and test iOS app
+        working-directory: iosApp
+        env:
+          scheme: iosApp
+        run: |
+          xcodebuild \
+            -scheme "$scheme" \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
+            -configuration Debug \
+            clean test | xcpretty
+
