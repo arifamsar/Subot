@@ -3,7 +3,7 @@ package com.sukarobot.subot
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.subot.core.data.di.preferencesModule
+import com.subot.core.data.di.coreModule
 import com.subot.core.data.service.UserPreferences
 import com.sukarobot.subot.navigation.AppNavHost
 import com.sukarobot.subot.theme.AppTheme
@@ -17,14 +17,17 @@ fun App(
 ) {
     KoinApplication(
         application = {
-            modules(preferencesModule, viewModelModule)
+            modules(coreModule, viewModelModule)
         }
     ) {
         val userPreferences = koinInject<UserPreferences>()
-        val isDark by userPreferences.darkModeEnabledFlow().collectAsState(initial = false)
+        val isDark by userPreferences.darkModeEnabledFlow().collectAsState(initial = null)
 
-        AppTheme(isDark = isDark, onThemeChanged = onThemeChanged) {
-            AppNavHost()
+        // Only render when theme preference is loaded to prevent flash
+        isDark?.let { darkMode ->
+            AppTheme(isDark = darkMode, onThemeChanged = onThemeChanged) {
+                AppNavHost()
+            }
         }
     }
 }
