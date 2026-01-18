@@ -30,8 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sukarobot.subot.navigation.AppRoute
 import com.sukarobot.subot.ui.components.AppDialog
 import com.sukarobot.subot.ui.components.icons.FAQCircle
@@ -72,7 +71,7 @@ fun ProfileScreen(
     onNavigate: (AppRoute) -> Unit = {}
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
-    val darkModeEnabled by viewModel.darkModeEnabled.collectAsState()
+    val darkModeEnabled by viewModel.darkModeEnabled.collectAsStateWithLifecycle()
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
