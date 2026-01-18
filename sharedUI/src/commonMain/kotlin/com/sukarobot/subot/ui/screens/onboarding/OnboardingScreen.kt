@@ -18,8 +18,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sukarobot.subot.theme.BluePrimary
 import com.sukarobot.subot.theme.LocalThemeIsDark
 import com.sukarobot.subot.ui.components.AppPrimaryButton
 import com.sukarobot.subot.ui.components.AppTextButton
@@ -45,6 +48,9 @@ import com.sukarobot.subot.ui.components.WaterDropIndicator
 import com.sukarobot.subot.ui.components.icons.Hicon
 import com.sukarobot.subot.ui.components.icons.MoonOutlined
 import com.sukarobot.subot.ui.components.icons.SunOutlined
+import com.sukarobot.subot.ui.components.switch_button.SwitchButton
+import com.sukarobot.subot.ui.components.switch_button.SwitchButtonConfig
+import com.sukarobot.subot.ui.components.switch_button.SwitchButtonIcon
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -120,10 +126,25 @@ fun OnboardingScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { viewModel.toggleDarkMode(!darkModeEnabled) }) {
-                        Icon(
-                            imageVector = if (darkModeEnabled) Hicon.SunOutlined else Hicon.MoonOutlined,
-                            contentDescription = if (darkModeEnabled) stringResource(Res.string.switch_to_light_mode) else stringResource(Res.string.switch_to_dark_mode)
+                    Box(modifier = Modifier.padding(start = 16.dp)) {
+                        SwitchButton(
+                            isSelected = darkModeEnabled,
+                            onStateChange = { viewModel.toggleDarkMode(it) },
+                            icon = {
+                                SwitchButtonIcon(
+                                    isSelected = darkModeEnabled,
+                                    selectedIcon = Icons.Filled.WbSunny,
+                                    iconColor = BluePrimary,
+                                    unSelectedIcon = Icons.Filled.DarkMode,
+                                    contentDescription = if (darkModeEnabled) stringResource(Res.string.switch_to_light_mode) else stringResource(
+                                        Res.string.switch_to_dark_mode
+                                    )
+                                )
+                            },
+                            switchButtonConfig = SwitchButtonConfig(
+                                selectedBackgroundColor = MaterialTheme.colorScheme.primary,
+//                                innerBoxColor = MaterialTheme.colorScheme.onPrimary
+                            )
                         )
                     }
                 }
@@ -217,9 +238,9 @@ private fun OnboardingPageContent(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         Text(
             text = stringResource(page.title),
             style = MaterialTheme.typography.headlineMedium,
@@ -227,9 +248,9 @@ private fun OnboardingPageContent(
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = stringResource(page.description),
             style = MaterialTheme.typography.bodyLarge,
