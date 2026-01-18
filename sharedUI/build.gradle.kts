@@ -9,6 +9,8 @@ kotlin {
     androidLibrary {
         namespace = "com.subot.sharedui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+        androidResources.enable = true
     }
 
     sourceSets {
@@ -57,4 +59,10 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "subot.sharedui.generated.resources"
+    generateResClass = always
 }
