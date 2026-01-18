@@ -102,7 +102,7 @@ fun LocalTime.to24HourFormat(): String {
 fun LocalDateTime.toReadableString(): String {
     val dayName = date.toDayName()
     val monthName = date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
-    val day = date.dayOfMonth
+    val day = date.day
     val year = date.year
     val time = time.to12HourFormat()
     return "$dayName, $monthName $day, $year at $time"
