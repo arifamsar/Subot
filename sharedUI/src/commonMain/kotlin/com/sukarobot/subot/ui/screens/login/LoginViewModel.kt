@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel() {
@@ -64,12 +65,6 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
         // If validation passes, attempt login
         if (emailValidation.isValid && passwordValidation.isValid) {
             performLogin()
-
-            // Clear form
-            _uiState.value = _uiState.value.copy(
-                email = "",
-                password = ""
-            )
         }
     }
 
@@ -84,10 +79,14 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
                 // For demo purposes, accept any valid credentials
                 // In real app, this would call a repository/use case
                 userPreferences.setLoggedIn(true)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    isLoginSuccessful = true
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        isLoginSuccessful = true,
+                        email = "",
+                        password = ""
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
