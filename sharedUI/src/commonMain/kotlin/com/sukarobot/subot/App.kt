@@ -1,10 +1,9 @@
 package com.sukarobot.subot
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.subot.core.data.di.coreModule
+import com.subot.core.data.di.dataModule
 import com.subot.core.data.service.UserPreferences
 import com.sukarobot.subot.navigation.AppNavHost
 import com.sukarobot.subot.theme.AppTheme
@@ -18,7 +17,7 @@ fun App(
 ) {
     KoinApplication(
         application = {
-            modules(coreModule, viewModelModule)
+            modules(dataModule, viewModelModule)
         }
     ) {
         val userPreferences = koinInject<UserPreferences>()
