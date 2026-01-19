@@ -37,3 +37,8 @@ include(":androidApp")
 
 include(":core")
 include(":features:home")
+include(":features:schedule")
+include(":features:transactions")
+include(":features:profile")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

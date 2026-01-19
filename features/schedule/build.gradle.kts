@@ -4,7 +4,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.subot.features.home"
+        namespace = "com.subot.features.schedule"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
 }
