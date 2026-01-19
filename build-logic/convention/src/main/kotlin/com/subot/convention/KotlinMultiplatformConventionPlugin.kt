@@ -1,15 +1,11 @@
 package com.subot.convention
 
-import com.android.build.api.dsl.LibraryExtension
-import org.gradle.api.JavaVersion
+import com.subot.convention.utils.alias
+import com.subot.convention.utils.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.kotlin.dsl.withType
 
 class KotlinMultiplatformConventionPlugin : Plugin<Project> {
 
@@ -17,8 +13,8 @@ class KotlinMultiplatformConventionPlugin : Plugin<Project> {
 
         with(target) {
             with(pluginManager) {
-                apply(libs.findPlugin("kotlin-multiplatform").get().get().pluginId)
-                apply(libs.findPlugin("android-kmp-library").get().get().pluginId)
+                alias(libs.plugins.kotlin.multiplatform)
+                alias(libs.plugins.android.kmp.library)
             }
 
             // Configure Kotlin Multiplatform extension

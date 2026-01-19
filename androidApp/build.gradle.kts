@@ -1,5 +1,3 @@
-import kotlin.math.min
-
 plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)

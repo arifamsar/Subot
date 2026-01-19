@@ -1,19 +1,19 @@
 package com.subot.convention
 
 import androidx.room.gradle.RoomExtension
+import com.subot.convention.utils.alias
+import com.subot.convention.utils.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getByType
 
 class RoomConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.findPlugin("ksp").get().get().pluginId)
-                apply(libs.findPlugin("room").get().get().pluginId)
+                alias(libs.plugins.ksp)
+                alias(libs.plugins.room)
             }
 
             extensions.configure<RoomExtension> {
@@ -21,7 +21,7 @@ class RoomConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                val roomCompiler = libs.findLibrary("room.compiler").get()
+                val roomCompiler = libs.room.compiler
                 add("kspAndroid", roomCompiler)
                 add("kspIosArm64", roomCompiler)
                 add("kspIosSimulatorArm64", roomCompiler)

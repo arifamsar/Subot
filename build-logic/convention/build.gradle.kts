@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.initialization.DependenciesAccessors
+import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
     `kotlin-dsl`
@@ -11,6 +12,16 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.room.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
+    gradle.serviceOf<DependenciesAccessors>().classes.asFiles.forEach {
+        compileOnly(files(it.absolutePath))
+    }
+}
+
+tasks {
+    validatePlugins {
+        enableStricterValidation = true
+        failOnWarning = true
+    }
 }
 
 gradlePlugin {
@@ -26,6 +37,14 @@ gradlePlugin {
         register("room") {
             id = "subot.room"
             implementationClass = "com.subot.convention.RoomConventionPlugin"
+        }
+        register("navigation") {
+            id = "subot.navigation.convention"
+            implementationClass = "com.subot.convention.NavigationConventionPlugin"
+        }
+        register("feature") {
+            id = "subot.feature.convention"
+            implementationClass = "com.subot.convention.FeatureConventionPlugin"
         }
     }
 }
