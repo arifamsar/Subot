@@ -3,10 +3,8 @@ package com.sukarobot.subot.ui.screens.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subot.core.data.service.UserPreferences
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(private val userPreferences: UserPreferences): ViewModel() {
@@ -14,16 +12,7 @@ class OnboardingViewModel(private val userPreferences: UserPreferences): ViewMod
     private val _isOnboardingCompleted = MutableStateFlow(false)
     val isOnboardingCompleted = _isOnboardingCompleted
 
-    private val _darkModeEnabled = MutableStateFlow(false)
-    val darkModeEnabled: StateFlow<Boolean> = _darkModeEnabled.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            userPreferences.darkModeEnabledFlow().collectLatest { enabled ->
-                _darkModeEnabled.value = enabled
-            }
-        }
-    }
+    val darkModeEnabled: Flow<Boolean> = userPreferences.darkModeEnabledFlow()
 
     suspend fun completeOnboarding() {
         userPreferences.setOnboardingCompleted(true)
@@ -31,7 +20,6 @@ class OnboardingViewModel(private val userPreferences: UserPreferences): ViewMod
     }
 
     fun toggleDarkMode(enabled: Boolean) {
-        _darkModeEnabled.value = enabled
         viewModelScope.launch {
             userPreferences.setDarkModeEnabled(enabled)
         }
