@@ -15,7 +15,7 @@ class NavigationConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<KotlinMultiplatformExtension> {
-                sourceSets.getByName("commonMain").dependencies {
+                sourceSets.commonMain.dependencies {
                     implementation(libs.compose.nav3)
                     implementation(libs.koin.compose.viewmodel.navigation)
                     implementation(libs.kotlinx.serialization.json)

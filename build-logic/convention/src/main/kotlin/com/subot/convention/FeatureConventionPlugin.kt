@@ -18,7 +18,7 @@ class FeatureConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<KotlinMultiplatformExtension> {
-                sourceSets.getByName("commonMain").dependencies {
+                sourceSets.commonMain.dependencies {
                     implementation(project(":sharedUI"))
                 }
             }
