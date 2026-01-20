@@ -98,11 +98,20 @@ fun OnboardingScreen(
     val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
     val coroutineScope = rememberCoroutineScope()
     val viewModel = koinViewModel<OnboardingViewModel>()
+    
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val themeState = LocalThemeIsDark.current
-    val darkModeEnabled by viewModel.darkModeEnabled.collectAsStateWithLifecycle(initialValue = themeState.value)
 
-    LaunchedEffect(darkModeEnabled) {
-        themeState.value = darkModeEnabled
+    LaunchedEffect(state.isDarkMode) {
+        state.isDarkMode?.let {
+            themeState.value = it
+        }
+    }
+    
+    LaunchedEffect(state.isOnboardingCompleted) {
+        if (state.isOnboardingCompleted) {
+            onOnboardingComplete()
+        }
     }
 
     Scaffold(
@@ -118,10 +127,7 @@ fun OnboardingScreen(
                         AppTextButton(
                             text = stringResource(Res.string.skip),
                             onClick = {
-                                coroutineScope.launch {
-                                    viewModel.completeOnboarding()
-                                    onOnboardingComplete()
-                                }
+                                viewModel.onEvent(OnboardingEvent.CompleteOnboarding)
                             },
                             modifier = Modifier.padding(end = 8.dp)
                         )
@@ -129,16 +135,17 @@ fun OnboardingScreen(
                 },
                 navigationIcon = {
                     Box(modifier = Modifier.padding(start = 16.dp)) {
+                        val isDark = state.isDarkMode ?: themeState.value
                         SwitchButton(
-                            isSelected = darkModeEnabled,
-                            onStateChange = { viewModel.toggleDarkMode(it) },
+                            isSelected = isDark,
+                            onStateChange = { viewModel.onEvent(OnboardingEvent.ToggleDarkMode(it)) },
                             icon = {
                                 SwitchButtonIcon(
-                                    isSelected = darkModeEnabled,
+                                    isSelected = isDark,
                                     selectedIcon = Icons.Filled.WbSunny,
                                     iconColor = BluePrimary,
                                     unSelectedIcon = Icons.Filled.DarkMode,
-                                    contentDescription = if (darkModeEnabled) stringResource(Res.string.switch_to_light_mode) else stringResource(
+                                    contentDescription = if (isDark) stringResource(Res.string.switch_to_light_mode) else stringResource(
                                         Res.string.switch_to_dark_mode
                                     )
                                 )
@@ -194,7 +201,7 @@ fun OnboardingScreen(
                     AppPrimaryButton(
                         text = stringResource(Res.string.get_started),
                         onClick = {
-
+                             viewModel.onEvent(OnboardingEvent.CompleteOnboarding)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
