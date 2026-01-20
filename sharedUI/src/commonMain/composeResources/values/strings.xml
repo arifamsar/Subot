@@ -16,8 +16,8 @@
     <string name="login_successful">Login Successful</string>
     <string name="logged_in_successfully">You have been logged in successfully.</string>
     <string name="continue_text">Continue</string>
-    <string name="halo">Halo!</string>
-    <string name="login_subtitle">Masuk dengan aman menggunakan email dan kata sandi Anda.</string>
+    <string name="halo">Hello!</string>
+    <string name="login_subtitle">Sign in securely using your email and password.</string>
     <string name="sign_in">Sign in</string>
     <string name="email_label">Email</string>
     <string name="email_placeholder">Enter your mail</string>
