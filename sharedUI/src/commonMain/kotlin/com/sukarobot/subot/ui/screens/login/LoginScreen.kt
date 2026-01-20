@@ -1,5 +1,6 @@
 package com.sukarobot.subot.ui.screens.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ import com.sukarobot.subot.ui.components.FullScreenLoading
 import com.sukarobot.subot.ui.components.icons.EmailOutlined
 import com.sukarobot.subot.ui.components.icons.Hicon
 import com.sukarobot.subot.ui.components.icons.LockOutlined
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import subot.sharedui.generated.resources.Res
 import subot.sharedui.generated.resources.close
@@ -61,7 +63,7 @@ import subot.sharedui.generated.resources.login_failed
 import subot.sharedui.generated.resources.login_failed_general
 import subot.sharedui.generated.resources.login_subtitle
 import subot.sharedui.generated.resources.login_successful
-import subot.sharedui.generated.resources.no_account_text
+import subot.sharedui.generated.resources.logo_horizontal
 import subot.sharedui.generated.resources.number_required
 import subot.sharedui.generated.resources.password_label
 import subot.sharedui.generated.resources.password_length_requirement
@@ -69,7 +71,6 @@ import subot.sharedui.generated.resources.password_placeholder
 import subot.sharedui.generated.resources.password_required
 import subot.sharedui.generated.resources.retry
 import subot.sharedui.generated.resources.sign_in
-import subot.sharedui.generated.resources.sign_up
 import subot.sharedui.generated.resources.signing_in
 import subot.sharedui.generated.resources.uppercase_required
 import subot.sharedui.generated.resources.valid_email_required
@@ -155,7 +156,8 @@ fun LoginScreen(
 
                 // Bottom Section (White Card)
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize(),
                     shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
                     color = MaterialTheme.colorScheme.background
                 ) {
@@ -240,7 +242,7 @@ fun LoginScreen(
                             Spacer(modifier = Modifier.height(24.dp))
                         }
 
-                        // Footer (Sign up link)
+                        // Footer
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -248,14 +250,10 @@ fun LoginScreen(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = stringResource(Res.string.no_account_text),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            AppTextButton(
-                                text = stringResource(Res.string.sign_up),
-                                onClick = { /* Handle sign up */ }
+                            Image(
+                                painter = painterResource(Res.drawable.logo_horizontal),
+                                contentDescription = "Logo",
+                                modifier = Modifier.height(24.dp)
                             )
                         }
                     }
