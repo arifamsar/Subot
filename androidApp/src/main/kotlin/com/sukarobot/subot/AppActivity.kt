@@ -1,15 +1,12 @@
 package com.sukarobot.subot
 
-import android.app.Activity
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowCompat
 import com.subot.core.data.service.initPreferencesDataStore
 
 class AppActivity : ComponentActivity() {
@@ -18,21 +15,20 @@ class AppActivity : ComponentActivity() {
         initPreferencesDataStore(applicationContext)
         enableEdgeToEdge()
         setContent { 
-            App(onThemeChanged = { ThemeChanged(it) }) 
-        }
-
-    }
-}
-
-@Composable
-private fun ThemeChanged(isDark: Boolean) {
-    val view = LocalView.current
-    LaunchedEffect(isDark) {
-        val window = (view.context as Activity).window
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            val lightIcons = !isDark
-            isAppearanceLightStatusBars = lightIcons
-            isAppearanceLightNavigationBars = lightIcons
+            App(
+                onThemeChanged = { isDark ->
+                    val view = LocalView.current
+                    if (!view.isInEditMode) {
+                        SideEffect {
+                            val window = this@AppActivity.window
+                            val insetsController = WindowCompat.getInsetsController(window, view)
+                            insetsController.isAppearanceLightStatusBars = !isDark
+                            insetsController.isAppearanceLightNavigationBars = !isDark
+                        }
+                    }
+                }
+            )
         }
     }
 }
+
