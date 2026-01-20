@@ -28,7 +28,7 @@ kotlin {
         }
 
         androidMain.dependencies {
-
+            implementation(libs.compose.ui.tooling)
         }
 
         iosMain.dependencies {
