@@ -10,10 +10,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.sukarobot.subot.ui.screens.login.LoginScreen
 import com.sukarobot.subot.ui.screens.login.LoginViewModel
 import com.sukarobot.subot.ui.screens.onboarding.OnboardingScreen
-import com.sukarobot.subot.ui.screens.onboarding.OnboardingViewModel
 import com.sukarobot.subot.ui.screens.splash.SplashScreen
 import com.sukarobot.subot.ui.screens.splash.SplashViewModel
-import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -64,15 +62,10 @@ fun AppNavHost() {
                 }
 
                 entry<AppRoute.Onboarding> {
-
-                    val onboardingViewModel = koinViewModel<OnboardingViewModel>()
                     OnboardingScreen(
                         onOnboardingComplete = {
-                            coroutineScope.launch {
-                                onboardingViewModel.completeOnboarding()
-                                navigationState.startRoute = AppRoute.Login
-                                navigator.navigate(AppRoute.Login)
-                            }
+                            navigationState.startRoute = AppRoute.Login
+                            navigator.navigate(AppRoute.Login)
                         }
                     )
                 }

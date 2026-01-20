@@ -91,6 +91,7 @@ private val onboardingPages = listOf(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
+    modifier: Modifier = Modifier,
     onOnboardingComplete: () -> Unit
 ) {
 
@@ -116,7 +117,12 @@ fun OnboardingScreen(
                     ) {
                         AppTextButton(
                             text = stringResource(Res.string.skip),
-                            onClick = onOnboardingComplete,
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModel.completeOnboarding()
+                                    onOnboardingComplete()
+                                }
+                            },
                             modifier = Modifier.padding(end = 8.dp)
                         )
                     }
@@ -148,7 +154,7 @@ fun OnboardingScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
@@ -187,7 +193,9 @@ fun OnboardingScreen(
                 if (pagerState.currentPage == onboardingPages.size - 1) {
                     AppPrimaryButton(
                         text = stringResource(Res.string.get_started),
-                        onClick = onOnboardingComplete,
+                        onClick = {
+
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
