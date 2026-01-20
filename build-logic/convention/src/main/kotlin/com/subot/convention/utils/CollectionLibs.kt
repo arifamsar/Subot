@@ -5,13 +5,14 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 fun KotlinDependencyHandler.sharedUiDependencies(project: Project) {
     val libs = project.libs
-    implementation(libs.compose.runtime)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.resources)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
-    implementation(libs.material.icons.extended)
+    api(libs.compose.runtime)
+    api(libs.compose.ui)
+    api(libs.compose.foundation)
+    api(libs.compose.resources)
+    api(libs.compose.ui.tooling.preview)
+    api(libs.compose.material3)
+    api(libs.material.icons.extended)
+
     implementation(libs.kermit)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime)
