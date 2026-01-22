@@ -24,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,8 +36,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.subot.core.common.utils.durationUntil
+import com.subot.core.common.utils.getCurrentWeekDates
+import com.subot.core.common.utils.nowAsLocalDate
+import com.subot.core.common.utils.to12HourFormat
+import com.subot.core.common.utils.toDayName
+import com.subot.core.common.utils.toDayOfMonthString
+import com.subot.core.common.utils.toDurationString
+import com.subot.core.common.utils.toMonthYearString
 import com.subot.core.ui.components.AppPullToRefresh
-import com.subot.core.common.utils.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlin.time.Clock
@@ -105,82 +111,76 @@ fun ScheduleScreen(
         )
     }
 
-    Scaffold(
-        modifier = modifier
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Content
+        AppPullToRefresh(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                isRefreshing = false
+            }
         ) {
-            // Content
-            AppPullToRefresh(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    isRefreshing = true
-                    isRefreshing = false
-                }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    // Header
-                    item {
+                // Header
+                item {
+                    Text(
+                        text = "Schedule",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                // Date info
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
-                            text = "Schedule",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = currentDate.toMonthYearString(),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    // Date info
-                    item {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            Text(
-                                text = currentDate.toMonthYearString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Date selector
+                item {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(dates.size) { index ->
+                            DateCard(
+                                date = dates[index],
+                                isSelected = index == selectedDateIndex,
+                                onClick = { selectedDateIndex = index }
                             )
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                    // Date selector
-                    item {
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(dates.size) { index ->
-                                DateCard(
-                                    date = dates[index],
-                                    isSelected = index == selectedDateIndex,
-                                    onClick = { selectedDateIndex = index }
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+                // Today's schedule header
+                item {
+                    Text(
+                        text = "Today's Schedule",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Today's schedule header
-                    item {
-                        Text(
-                            text = "Today's Schedule",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    // Events
-                    items(events) { event ->
-                        ScheduleEventCard(
-                            event = event,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
+                // Events
+                items(events) { event ->
+                    ScheduleEventCard(
+                        event = event,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
                 }
             }
         }

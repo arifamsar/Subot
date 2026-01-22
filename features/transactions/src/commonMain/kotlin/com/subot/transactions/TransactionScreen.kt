@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +28,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -106,73 +104,67 @@ fun TransactionScreen(
         )
     }
 
-    Scaffold(
-        modifier = modifier
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Content
+        AppPullToRefresh(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                isRefreshing = false
+            }
         ) {
-            // Content
-            AppPullToRefresh(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    isRefreshing = true
-                    isRefreshing = false
-                }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    // Header
-                    item {
+                // Header
+                item {
+                    Text(
+                        text = "Transactions",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                // Subtitle
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
-                            text = "Transactions",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = "Track your income & expenses",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    // Subtitle
-                    item {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            Text(
-                                text = "Track your income & expenses",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                    // Balance card
-                    item {
-                        BalanceCard(
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+                // Balance card
+                item {
+                    BalanceCard(
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                    // Recent transactions header
-                    item {
-                        Text(
-                            text = "Recent Transactions",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
+                // Recent transactions header
+                item {
+                    Text(
+                        text = "Recent Transactions",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Transaction list
-                    items(transactions) { transaction ->
-                        TransactionCard(
-                            transaction = transaction,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
+                // Transaction list
+                items(transactions) { transaction ->
+                    TransactionCard(
+                        transaction = transaction,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
                 }
             }
         }

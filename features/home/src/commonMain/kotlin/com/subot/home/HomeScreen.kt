@@ -25,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -80,91 +79,85 @@ fun HomeScreen(
         )
     }
 
-    Scaffold(
-        modifier = modifier
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Content
+        AppPullToRefresh(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                // Simulate refresh
+                isRefreshing = false
+            }
         ) {
-            // Content
-            AppPullToRefresh(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    isRefreshing = true
-                    // Simulate refresh
-                    isRefreshing = false
-                }
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
 //                    contentPadding = PaddingValues(vertical = 16.dp)
-                ) {
-                    // Greeting
-                    item {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) {
-                            Text(
-                                text = "Hello, User! 👋",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "What would you like to do today?",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-                    // Quick Actions
-                    item {
+            ) {
+                // Greeting
+                item {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
                         Text(
-                            text = "Quick Actions",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = "Hello, User! 👋",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(quickActions) { action ->
-                                QuickActionCard(action = action)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-
-                    // Recent Activity header
-                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Recent Activity",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = "What would you like to do today?",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                // Quick Actions
+                item {
+                    Text(
+                        text = "Quick Actions",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Recent Activities
-                    if (isLoading) {
-                        item {
-                            ShimmerList(itemCount = 3, modifier = Modifier.padding(horizontal = 16.dp))
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(quickActions) { action ->
+                            QuickActionCard(action = action)
                         }
-                    } else {
-                        items(recentActivities) { activity ->
-                            RecentActivityCard(
-                                activity = activity,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                            )
-                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Recent Activity header
+                item {
+                    Text(
+                        text = "Recent Activity",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                // Recent Activities
+                if (isLoading) {
+                    item {
+                        ShimmerList(itemCount = 3, modifier = Modifier.padding(horizontal = 16.dp))
+                    }
+                } else {
+                    items(recentActivities) { activity ->
+                        RecentActivityCard(
+                            activity = activity,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
                     }
                 }
             }
@@ -272,4 +265,3 @@ private fun QuickActionPreview() {
         )
     )
 }
-

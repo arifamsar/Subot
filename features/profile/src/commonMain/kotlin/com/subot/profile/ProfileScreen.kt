@@ -27,7 +27,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -115,159 +114,154 @@ fun ProfileScreen(
         )
     }
     
-        val support = remember {
-            listOf(
-                ProfileMenuItem(
-                    title = "Help & Support",
-                    icon = Hicon.FAQCircle,
-                    route = Route.SettingsDetail("help")
-                ),
-                ProfileMenuItem(
-                    title = "Logout",
-                    icon = Hicon.Logout,
-                    isDestructive = true
-                )
+    val support = remember {
+        listOf(
+            ProfileMenuItem(
+                title = "Help & Support",
+                icon = Hicon.FAQCircle,
+                route = Route.SettingsDetail("help")
+            ),
+            ProfileMenuItem(
+                title = "Logout",
+                icon = Hicon.Logout,
+                isDestructive = true
             )
-        }
-        
-        Scaffold(
-            modifier = modifier
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Content
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    // Header
-                    item {
-                        Text(
-                            text = "Profile",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-                    // Profile Card
-                    item {
-                        ProfileCard(
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+        )
+    }
     
-                    // General Settings
-                    item {
-                        Text(
-                            text = "General",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-    
-                    item {
-                        SettingsGroup(
-                            items = generalSettings,
-                            switchStates = mapOf("Notifications" to notificationsEnabled),
-                            onSwitchChange = { title, value ->
-                                if (title == "Notifications") notificationsEnabled = value
-                            },
-                            onClick = { item ->
-                                item.route?.let { onNavigate(it) }
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-    
-                    // Preferences
-                    item {
-                        Text(
-                            text = "Preferences",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-    
-                    item {
-                        SettingsGroup(
-                            items = preferences,
-                            switchStates = mapOf("Dark Mode" to darkModeEnabled),
-                            onSwitchChange = { title, value ->
-                                if (title == "Dark Mode") viewModel.toggleDarkMode(value)
-                            },
-                            onClick = { item ->
-                                item.route?.let { onNavigate(it) }
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-    
-                    // Support
-                    item {
-                        Text(
-                            text = "Support",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-    
-                    item {
-                        SettingsGroup(
-                            items = support,
-                            onClick = { item ->
-                                if (item.title == "Logout") showLogoutDialog = true
-                                else item.route?.let { onNavigate(it) }
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-    
-                    // Version
-                    item {
-                        Text(
-                            text = "Version 1.0.0",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                        )
-                    }
-                }
-    
-                // Logout Confirmation Dialog
-                if (showLogoutDialog) {
-                    AppDialog(
-                        title = "Logout",
-                        message = "Are you sure you want to logout?",
-                        confirmText = "Logout",
-                        onConfirm = {
-                            showLogoutDialog = false
-                            viewModel.logout { onLogout() }
-                        },
-                        dismissText = "Cancel",
-                        onDismiss = { showLogoutDialog = false }
-                    )
-                }
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Content
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            // Header
+            item {
+                Text(
+                    text = "Profile",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            // Profile Card
+            item {
+                ProfileCard(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // General Settings
+            item {
+                Text(
+                    text = "General",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                SettingsGroup(
+                    items = generalSettings,
+                    switchStates = mapOf("Notifications" to notificationsEnabled),
+                    onSwitchChange = { title, value ->
+                        if (title == "Notifications") notificationsEnabled = value
+                    },
+                    onClick = { item ->
+                        item.route?.let { onNavigate(it) }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Preferences
+            item {
+                Text(
+                    text = "Preferences",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                SettingsGroup(
+                    items = preferences,
+                    switchStates = mapOf("Dark Mode" to darkModeEnabled),
+                    onSwitchChange = { title, value ->
+                        if (title == "Dark Mode") viewModel.toggleDarkMode(value)
+                    },
+                    onClick = { item ->
+                        item.route?.let { onNavigate(it) }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Support
+            item {
+                Text(
+                    text = "Support",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                SettingsGroup(
+                    items = support,
+                    onClick = { item ->
+                        if (item.title == "Logout") showLogoutDialog = true
+                        else item.route?.let { onNavigate(it) }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Version
+            item {
+                Text(
+                    text = "Version 1.0.0",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
             }
         }
+
+        // Logout Confirmation Dialog
+        if (showLogoutDialog) {
+            AppDialog(
+                title = "Logout",
+                message = "Are you sure you want to logout?",
+                confirmText = "Logout",
+                onConfirm = {
+                    showLogoutDialog = false
+                    viewModel.logout { onLogout() }
+                },
+                dismissText = "Cancel",
+                onDismiss = { showLogoutDialog = false }
+            )
+        }
     }
+}
+
 @Composable
 private fun ProfileCard(
     modifier: Modifier = Modifier
