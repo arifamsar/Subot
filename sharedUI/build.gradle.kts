@@ -18,7 +18,14 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             sharedUiDependencies(project)
-            api(projects.core)
+            api(projects.core.common)
+            api(projects.core.domain)
+            api(projects.core.data)
+            api(projects.core.ui)
+            api(projects.features.home)
+            api(projects.features.profile)
+            api(projects.features.schedule)
+            api(projects.features.transactions)
         }
 
         commonTest.dependencies {
@@ -37,8 +44,8 @@ kotlin {
     }
 }
 
-compose.resources {
-    publicResClass = true
-    packageOfResClass = "subot.sharedui.generated.resources"
-    generateResClass = always
-}
+//compose.resources {
+//    publicResClass = true
+//    packageOfResClass = "subot.sharedui.generated.resources"
+//    generateResClass = always
+//}

@@ -121,7 +121,46 @@ Each screen follows this structure:
 ```kotlin
 // FeatureScreen.kt - Composable UI
 // FeatureViewModel.kt - State management with StateFlow
+// FeatureUiState.kt - UI state data class
+// FeatureEvent.kt - Sealed class for UI events (MVI pattern)
 // FeatureValidator.kt - Form validation (if needed)
+```
+
+### MVI Architecture Pattern
+
+Use the MVI (Model-View-Intent) pattern with `onEvent` callbacks:
+
+- **Model**: `FeatureUiState` - immutable data class representing UI state
+- **View**: `FeatureScreen` - composable that displays state and emits events
+- **Intent**: `FeatureEvent` - sealed class representing all possible UI events
+
+**Event handling in ViewModels**:
+```kotlin
+// In ViewModel
+fun onEvent(event: FeatureEvent) {
+    when (event) {
+        is FeatureEvent.Action -> handleAction()
+        is FeatureEvent.DataChanged -> handleDataChanged(event.data)
+    }
+}
+
+// In Composable
+FeatureScreen(
+    onEvent = { viewModel.onEvent(it) }
+)
+```
+
+**Event handling in Composables**:
+```kotlin
+// Instead of direct method calls, use onEvent pattern
+AppTextField(
+    value = uiState.email,
+    onValueChange = { onEvent(FeatureEvent.EmailChanged(it)) }
+)
+
+AppPrimaryButton(
+    onClick = { onEvent(FeatureEvent.Submit) }
+)
 ```
 
 ### Compose Resources

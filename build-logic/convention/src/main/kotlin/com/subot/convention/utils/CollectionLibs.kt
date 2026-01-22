@@ -35,6 +35,7 @@ fun KotlinDependencyHandler.sharedUiDependencies(project: Project) {
 
 fun KotlinDependencyHandler.coreDependencies(project: Project) {
     val libs = project.libs
+    api(libs.kotlinx.datetime)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)

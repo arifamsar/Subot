@@ -35,7 +35,10 @@ dependencyResolutionManagement {
 include(":sharedUI")
 include(":androidApp")
 
-include(":core")
+include(":core:common")
+include(":core:data")
+include(":core:domain")
+include(":core:ui")
 include(":features:home")
 include(":features:schedule")
 include(":features:transactions")

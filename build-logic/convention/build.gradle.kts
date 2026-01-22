@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
 }
 
 group = "com.subot.buildlogic"

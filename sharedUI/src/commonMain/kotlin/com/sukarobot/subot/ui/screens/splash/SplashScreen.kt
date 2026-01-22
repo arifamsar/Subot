@@ -23,8 +23,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
-import subot.sharedui.generated.resources.Res
-import subot.sharedui.generated.resources.logo
+import subot.core.ui.generated.resources.Res
+import subot.core.ui.generated.resources.logo
 
 @Composable
 fun SplashScreen(
