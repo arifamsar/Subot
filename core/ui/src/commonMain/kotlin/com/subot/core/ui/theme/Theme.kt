@@ -1,6 +1,7 @@
 package com.subot.core.ui.theme
 
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -90,6 +91,7 @@ private val DarkColorScheme = darkColorScheme(
 
 val LocalThemeIsDark = compositionLocalOf { mutableStateOf(false) }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(
     isDark: Boolean,
@@ -105,7 +107,7 @@ fun AppTheme(
     ) {
         val currentIsDark by isDarkState
         onThemeChanged(currentIsDark)
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = if (currentIsDark) DarkColorScheme else LightColorScheme,
             content = { Surface(content = content) },
             typography = appTypography()
