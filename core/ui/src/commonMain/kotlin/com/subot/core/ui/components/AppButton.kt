@@ -3,9 +3,9 @@ package com.subot.core.ui.components
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppPrimaryButton(
     text: String,
@@ -26,11 +27,11 @@ fun AppPrimaryButton(
 ) {
     Button(
         onClick = onClick,
+        shapes = ButtonDefaults.shapes(),
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -47,6 +48,7 @@ fun AppPrimaryButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppOutlinedButton(
     text: String,
@@ -60,7 +62,7 @@ fun AppOutlinedButton(
             .fillMaxWidth()
             .height(52.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
+        shapes = ButtonDefaults.shapes(),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp)
     ) {
         Text(
@@ -71,6 +73,7 @@ fun AppOutlinedButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTextButton(
     text: String,
@@ -80,6 +83,7 @@ fun AppTextButton(
 ) {
     TextButton(
         onClick = onClick,
+        shapes = ButtonDefaults.shapes(),
         modifier = modifier
     ) {
         Text(
