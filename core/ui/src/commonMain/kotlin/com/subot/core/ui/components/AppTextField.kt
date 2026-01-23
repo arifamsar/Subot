@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -50,7 +52,12 @@ fun AppTextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = if (placeholder.isNotEmpty()) {
-                { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) }
+                {
+                    Text(
+                        placeholder,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                }
             } else null,
             leadingIcon = leadingIcon?.let {
                 {
@@ -110,6 +117,7 @@ fun AppTextField(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppPasswordTextField(
     value: String,
@@ -133,7 +141,12 @@ fun AppPasswordTextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = if (placeholder.isNotEmpty()) {
-                { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) }
+                {
+                    Text(
+                        placeholder,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                }
             } else null,
             leadingIcon = leadingIcon?.let {
                 {
@@ -146,7 +159,9 @@ fun AppPasswordTextField(
                 }
             },
             trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                IconButton(
+                    shapes = IconButtonDefaults.shapes(),
+                    onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         imageVector = if (passwordVisible) visibilityOffIcon else visibilityIcon,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
@@ -155,7 +170,7 @@ fun AppPasswordTextField(
                 }
             },
             visualTransformation = if (passwordVisible) VisualTransformation.None
-                else PasswordVisualTransformation(),
+            else PasswordVisualTransformation(),
             isError = isError,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
