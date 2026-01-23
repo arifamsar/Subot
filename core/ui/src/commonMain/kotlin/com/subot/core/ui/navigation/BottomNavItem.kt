@@ -22,7 +22,7 @@ import subot.core.ui.generated.resources.transaction
  * Data class representing a bottom navigation item
  */
 data class BottomNavItem(
-    val label: String,
+    val label: StringResource,
     val icon: ImageVector,
     val selectedIcon: ImageVector,
 )
@@ -32,22 +32,22 @@ data class BottomNavItem(
  */
 val TOP_LEVEL_DESTINATIONS: Map<NavKey, BottomNavItem> = mapOf(
     Route.Home to BottomNavItem(
-        label = "Home",
+        label = Res.string.home,
         icon = Hicon.HomeOutlined,
         selectedIcon = Hicon.HomeFilled,
     ),
     Route.Schedule to BottomNavItem(
-        label = "Schedule",
+        label = Res.string.schedule,
         icon = Hicon.CalenderOutlined,
         selectedIcon = Hicon.CalenderFilled,
     ),
     Route.Transaction to BottomNavItem(
-        label = "Transaction",
+        label = Res.string.transaction,
         icon = Hicon.WalletOutlined,
         selectedIcon = Hicon.WalletFilled,
     ),
     Route.Profile to BottomNavItem(
-        label = "Profile",
+        label = Res.string.profile,
         icon = Hicon.ProfileOutlined,
         selectedIcon = Hicon.ProfileFilled,
     )
