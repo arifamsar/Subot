@@ -28,7 +28,6 @@ fun App(
         isDark?.let { darkMode ->
             AppTheme(isDark = darkMode, onThemeChanged = onThemeChanged) {
                 AppNavigation(
-                    backStack = appState.navBackStack,
                     appState = appState
                 )
             }
