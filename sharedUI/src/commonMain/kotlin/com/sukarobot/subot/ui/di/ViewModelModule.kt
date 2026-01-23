@@ -1,6 +1,7 @@
 package com.sukarobot.subot.ui.di
 
 import com.subot.profile.ProfileViewModel
+import com.sukarobot.subot.ui.screens.forgot_password.ForgotPasswordViewModel
 import com.sukarobot.subot.ui.screens.login.LoginViewModel
 import com.sukarobot.subot.ui.screens.onboarding.OnboardingViewModel
 import com.sukarobot.subot.ui.screens.splash.SplashViewModel
@@ -12,4 +13,5 @@ val viewModelModule = module {
     viewModelOf(::SplashViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::ForgotPasswordViewModel)
 }
