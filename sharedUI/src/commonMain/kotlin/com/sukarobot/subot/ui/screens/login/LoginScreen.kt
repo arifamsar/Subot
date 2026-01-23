@@ -80,6 +80,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     onEvent: (LoginEvent) -> Unit,
     uiState: LoginUiState,
+    navigateToForgot: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -225,7 +226,7 @@ fun LoginScreen(
                             ) {
                                 AppTextButton(
                                     text = stringResource(Res.string.forgot_password),
-                                    onClick = { onEvent(LoginEvent.ForgotPassword) }
+                                    onClick = { navigateToForgot() }
                                 )
                             }
 
@@ -312,6 +313,7 @@ private fun LoginScreenPreview() {
     LoginScreen(
         onEvent = {},
         uiState = LoginUiState(),
-        onLoginSuccess = {}
+        onLoginSuccess = {},
+        navigateToForgot = {}
     )
 }
