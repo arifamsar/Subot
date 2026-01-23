@@ -1,5 +1,6 @@
 package com.subot.core.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -24,7 +25,7 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun AppDialog(
     title: String,
-    message: String,
+    message: String? = null,
     confirmText: String,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
@@ -32,7 +33,8 @@ fun AppDialog(
     dismissText: String? = null,
     icon: ImageVector? = null,
     dismissOnClickOutside: Boolean = true,
-    dismissOnBackPress: Boolean = true
+    dismissOnBackPress: Boolean = true,
+    content: (@Composable () -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss?.invoke() }, modifier = modifier, icon = icon?.let {
@@ -51,12 +53,17 @@ fun AppDialog(
             color = MaterialTheme.colorScheme.onSurface
         )
     }, text = {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+        Column {
+            if (message != null) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            content?.invoke()
+        }
     }, confirmButton = {
         TextButton(
             shapes = ButtonDefaults.shapes(), onClick = onConfirm
