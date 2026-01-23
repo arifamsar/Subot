@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -15,6 +14,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.subot.core.ui.navigation.Route
 import com.sukarobot.subot.AppState
 import com.sukarobot.subot.ui.screens.MainScreen
+import com.sukarobot.subot.ui.screens.forgot_password.ForgotPasswordScreen
+import com.sukarobot.subot.ui.screens.forgot_password.ForgotPasswordViewModel
 import com.sukarobot.subot.ui.screens.login.LoginScreen
 import com.sukarobot.subot.ui.screens.login.LoginViewModel
 import com.sukarobot.subot.ui.screens.onboarding.OnboardingScreen
@@ -25,17 +26,18 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppNavigation(
-    backStack: SnapshotStateList<Route>,
     appState: AppState
 ) {
+    val rootNavigator = appState.rootNavigator
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         SharedTransitionLayout {
             NavDisplay(
-                backStack = backStack,
+                backStack = appState.rootBackStack,
                 onBack = {
-                    backStack.removeLastOrNull()
+                    rootNavigator.goBack()
                 },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
@@ -49,26 +51,14 @@ fun AppNavigation(
                         SplashScreen(
                             uiState = splashUiState,
                             onEvent = splashViewModel::onEvent,
-                            onNavigateToHome = {
-                                backStack.clear()
-                                backStack.add(Route.Main)
-                            },
-                            onNavigateToOnboarding = {
-                                backStack.clear()
-                                backStack.add(Route.Onboarding)
-                            },
-                            onNavigateToLogin = {
-                                backStack.clear()
-                                backStack.add(Route.Login)
-                            }
+                            onNavigateToHome = rootNavigator::navigateToMain,
+                            onNavigateToOnboarding = rootNavigator::navigateToOnboarding,
+                            onNavigateToLogin = rootNavigator::navigateToLogin
                         )
                     }
                     entry<Route.Onboarding> {
                         OnboardingScreen(
-                            onOnboardingComplete = {
-                                backStack.clear()
-                                backStack.add(Route.Login)
-                            }
+                            onOnboardingComplete = rootNavigator::navigateToLogin
                         )
                     }
 
@@ -79,17 +69,29 @@ fun AppNavigation(
                         LoginScreen(
                             uiState = loginUiState,
                             onEvent = viewModel::onEvent,
-                            onLoginSuccess = {
-                                backStack.clear()
-                                backStack.add(Route.Main)
+                            onLoginSuccess = rootNavigator::navigateToMain,
+                            navigateToForgot = {
+                                rootNavigator.backStack.add(Route.ForgetPassword)
+                            }
+                        )
+                    }
+
+                    entry<Route.ForgetPassword> {
+                        val viewModel = koinViewModel<ForgotPasswordViewModel>()
+                        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                        ForgotPasswordScreen(
+                            uiState = uiState,
+                            onEvent = viewModel::onEvent,
+                            onBack = {
+                                rootNavigator.goBack()
                             }
                         )
                     }
 
                     entry<Route.Main> {
                         MainScreen(
-                            appState = appState,
-                            homeBackStack = appState.homeBackStack
+                            rootNavigator = rootNavigator
                         )
                     }
                 }
