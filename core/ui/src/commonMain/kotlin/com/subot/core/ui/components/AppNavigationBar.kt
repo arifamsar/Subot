@@ -3,6 +3,8 @@ package com.subot.core.ui.components
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,6 +25,39 @@ fun SubotNavigationBar(
             val selected = topLevelDestination == selectedKey
             val label = stringResource(data.label)
             NavigationBarItem(
+                selected = selected,
+                onClick = {
+                    onSelectKey(topLevelDestination)
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) data.selectedIcon else data.icon,
+                        contentDescription = label
+                    )
+                },
+                label = {
+                    Text(
+                        text = label,
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun SubotNavigationRail(
+    selectedKey: NavKey,
+    onSelectKey: (NavKey) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NavigationRail(
+        modifier = modifier
+    ) {
+        TOP_LEVEL_DESTINATIONS.forEach { (topLevelDestination, data) ->
+            val selected = topLevelDestination == selectedKey
+            val label = stringResource(data.label)
+            NavigationRailItem(
                 selected = selected,
                 onClick = {
                     onSelectKey(topLevelDestination)
