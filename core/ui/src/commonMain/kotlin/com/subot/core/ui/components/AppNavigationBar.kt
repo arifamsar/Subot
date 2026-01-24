@@ -2,8 +2,10 @@ package com.subot.core.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +14,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -32,12 +34,16 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -151,6 +157,17 @@ fun NavigationLiquidBottomBar(
 ) {
     val liquidState = LocalBottomNavigationLiquid.current
     val shape = RoundedCornerShape(28.dp)
+    val items = remember { TOP_LEVEL_DESTINATIONS.entries.toList() }
+    val selectedIndex = items.indexOfFirst { it.key == selectedKey }
+
+    val animatedBias by animateFloatAsState(
+        targetValue = if (selectedIndex == -1) 0f else -1f + (2f * selectedIndex) / (items.size - 1).coerceAtLeast(1),
+        animationSpec = spring(
+            stiffness = Spring.StiffnessLow,
+            dampingRatio = Spring.DampingRatioLowBouncy
+        ),
+        label = "bias"
+    )
 
     Box(
         modifier = modifier
@@ -166,11 +183,16 @@ fun NavigationLiquidBottomBar(
             .background(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
             )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.2f),
+                shape = shape
+            )
             .then(
                 if (isLiquidEnabled()) {
                     Modifier.liquid(liquidState) {
                         this.shape = shape
-                        this.frost = 4.dp
+                        this.frost = 12.dp
                         this.curve = 0.35f
                         this.refraction = 0.08f
                         this.dispersion = 0.15f
@@ -180,23 +202,43 @@ fun NavigationLiquidBottomBar(
             )
             .pointerInput(Unit) {}
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            TOP_LEVEL_DESTINATIONS.forEach { (destination, data) ->
-                val selected = destination == selectedKey
+            // Sliding Capsule
+            if (selectedIndex != -1) {
+                Box(modifier = Modifier.matchParentSize()) {
+                    Box(
+                        modifier = Modifier
+                            .align(BiasAlignment(animatedBias, 0f))
+                            .fillMaxWidth(1f / items.size)
+                            .fillMaxHeight()
+                            .background(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(28.dp)
+                            )
 
-                LiquidNavItem(
-                    selected = selected,
-                    onClick = { onSelectKey(destination) },
-                    icon = if (selected) data.selectedIcon else data.icon,
-                    label = data.label,
-                    modifier = Modifier.weight(1f)
-                )
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items.forEach { (destination, data) ->
+                    val selected = destination == selectedKey
+                    LiquidNavItem(
+                        selected = selected,
+                        onClick = { onSelectKey(destination) },
+                        icon = if (selected) data.selectedIcon else data.icon,
+                        label = data.label,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -213,6 +255,7 @@ private fun LiquidNavItem(
     label: StringResource,
     modifier: Modifier = Modifier
 ) {
+    val haptic = LocalHapticFeedback.current
     val labelText = stringResource(label)
 
     val contentColor by animateColorAsState(
@@ -225,13 +268,25 @@ private fun LiquidNavItem(
         label = "contentColor"
     )
 
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.1f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "scale"
+    )
+
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(28.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 role = Role.Tab,
-                onClick = onClick
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onClick()
+                }
             )
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -242,7 +297,9 @@ private fun LiquidNavItem(
             Icon(
                 imageVector = icon,
                 contentDescription = labelText,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .scale(scale)
             )
         }
 
@@ -259,59 +316,6 @@ private fun LiquidNavItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-/**
- * Legacy liquid glass bottom bar - kept for backward compatibility
- * @see NavigationLiquidBottomBar for the improved version
- */
-@Composable
-fun LiquidGlassBottomBar(
-    modifier: Modifier = Modifier,
-    selectedKey: NavKey,
-    onSelectKey: (NavKey) -> Unit
-) {
-    val liquidState = LocalBottomNavigationLiquid.current
-    Row(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .then(
-                if (isLiquidEnabled()) {
-                    Modifier.liquid(liquidState) {
-                        shape = CircleShape
-                        this.frost = 16.dp
-                        this.curve = .4f
-                        this.refraction = .1f
-                        this.dispersion = .2f
-                        this.saturation = .5f
-                    }
-                } else Modifier
-            )
-            .pointerInput(Unit) {}
-    ) {
-        TOP_LEVEL_DESTINATIONS.forEach { (topLevelDestination, data) ->
-            val selected = topLevelDestination == selectedKey
-            val label = stringResource(data.label)
-            NavigationBarItem(
-                selected = selected,
-                onClick = {
-                    onSelectKey(topLevelDestination)
-                },
-                icon = {
-                    Icon(
-                        imageVector = if (selected) data.selectedIcon else data.icon,
-                        contentDescription = label
-                    )
-                },
-                label = {
-                    Text(
-                        text = label,
-                    )
-                }
-            )
-        }
     }
 }
 
