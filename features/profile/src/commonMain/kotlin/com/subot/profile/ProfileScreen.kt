@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.ui.navigation.Route
 import com.subot.core.ui.components.AppDialog
+import com.subot.core.ui.components.FloatingNavBarHeight
 import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Hicon
 import com.subot.core.ui.components.icons.Logout
@@ -135,6 +136,7 @@ fun ProfileScreen(
         // Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = FloatingNavBarHeight)
         ) {
             // Header
             item {

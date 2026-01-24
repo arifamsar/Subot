@@ -1,7 +1,10 @@
 package com.sukarobot.subot
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.data.di.dataModule
 import com.subot.core.data.service.UserPreferences
@@ -27,9 +30,12 @@ fun App(
         // Only render when theme preference is loaded to prevent flash
         isDark?.let { darkMode ->
             AppTheme(isDark = darkMode, onThemeChanged = onThemeChanged) {
-                AppNavigation(
-                    appState = appState
-                )
+                Scaffold { innerPadding ->
+                    AppNavigation(
+                        appState = appState,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
     }

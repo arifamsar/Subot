@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subot.core.ui.components.AppPullToRefresh
+import com.subot.core.ui.components.FloatingNavBarHeight
 import com.subot.core.ui.components.ShimmerList
 
 data class QuickAction(
@@ -93,7 +94,7 @@ fun HomeScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-//                    contentPadding = PaddingValues(vertical = 16.dp)
+                contentPadding = PaddingValues(bottom = FloatingNavBarHeight)
             ) {
                 // Greeting
                 item {
