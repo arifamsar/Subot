@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -79,23 +81,25 @@ fun MainScreen(
                     }
 
                     // Main content
-                    NavDisplay(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize(),
-                        onBack = navigator::goBack,
-                        entries = navigationState.toEntries(
-                            entryProvider {
-                                homeFlow(navigator = navigator)
-                                scheduleFlow(navigator = navigator)
-                                transactionFlow(navigator = navigator)
-                                profileFlow(
-                                    navigator = navigator,
-                                    onLogout = rootNavigator::logout
-                                )
-                            }
+                    Scaffold { innerPadding ->
+                        NavDisplay(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            onBack = navigator::goBack,
+                            entries = navigationState.toEntries(
+                                entryProvider {
+                                    homeFlow(navigator = navigator)
+                                    scheduleFlow(navigator = navigator)
+                                    transactionFlow(navigator = navigator)
+                                    profileFlow(
+                                        navigator = navigator,
+                                        onLogout = rootNavigator::logout
+                                    )
+                                }
+                            )
                         )
-                    )
+                    }
                 }
 
                 // Floating bottom navigation bar for phones

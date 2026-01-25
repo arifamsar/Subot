@@ -30,12 +30,9 @@ fun App(
         // Only render when theme preference is loaded to prevent flash
         isDark?.let { darkMode ->
             AppTheme(isDark = darkMode, onThemeChanged = onThemeChanged) {
-                Scaffold { innerPadding ->
-                    AppNavigation(
-                        appState = appState,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavigation(
+                    appState = appState
+                )
             }
         }
     }
