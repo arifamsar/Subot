@@ -39,75 +39,72 @@ fun AppNavigation(
     CompositionLocalProvider(
         value = LocalBottomNavigationLiquid provides liquidState
     ) {
-        Box(
+        SharedTransitionLayout(
             modifier = modifier
-                .fillMaxSize()
                 .liquefiable(liquidState)
         ) {
-            SharedTransitionLayout {
-                NavDisplay(
-                    backStack = appState.rootBackStack,
-                    onBack = {
-                        rootNavigator.goBack()
-                    },
-                    entryDecorators = listOf(
-                        rememberSaveableStateHolderNavEntryDecorator(),
-                        rememberViewModelStoreNavEntryDecorator()
-                    ),
-                    entryProvider = entryProvider {
-                        entry<Route.Splash> {
-                            val splashViewModel = koinViewModel<SplashViewModel>()
-                            val splashUiState by splashViewModel.uiState.collectAsStateWithLifecycle()
+            NavDisplay(
+                backStack = appState.rootBackStack,
+                onBack = {
+                    rootNavigator.goBack()
+                },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()
+                ),
+                entryProvider = entryProvider {
+                    entry<Route.Splash> {
+                        val splashViewModel = koinViewModel<SplashViewModel>()
+                        val splashUiState by splashViewModel.uiState.collectAsStateWithLifecycle()
 
-                            SplashScreen(
-                                uiState = splashUiState,
-                                onEvent = splashViewModel::onEvent,
-                                onNavigateToHome = rootNavigator::navigateToMain,
-                                onNavigateToOnboarding = rootNavigator::navigateToOnboarding,
-                                onNavigateToLogin = rootNavigator::navigateToLogin
-                            )
-                        }
-                        entry<Route.Onboarding> {
-                            OnboardingScreen(
-                                onOnboardingComplete = rootNavigator::navigateToLogin
-                            )
-                        }
-
-                        entry<Route.Login> {
-                            val viewModel = koinViewModel<LoginViewModel>()
-                            val loginUiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-                            LoginScreen(
-                                uiState = loginUiState,
-                                onEvent = viewModel::onEvent,
-                                onLoginSuccess = rootNavigator::navigateToMain,
-                                navigateToForgot = {
-                                    rootNavigator.backStack.add(Route.ForgetPassword)
-                                }
-                            )
-                        }
-
-                        entry<Route.ForgetPassword> {
-                            val viewModel = koinViewModel<ForgotPasswordViewModel>()
-                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-                            ForgotPasswordScreen(
-                                uiState = uiState,
-                                onEvent = viewModel::onEvent,
-                                onBack = {
-                                    rootNavigator.goBack()
-                                }
-                            )
-                        }
-
-                        entry<Route.Main> {
-                            MainScreen(
-                                rootNavigator = rootNavigator
-                            )
-                        }
+                        SplashScreen(
+                            uiState = splashUiState,
+                            onEvent = splashViewModel::onEvent,
+                            onNavigateToHome = rootNavigator::navigateToMain,
+                            onNavigateToOnboarding = rootNavigator::navigateToOnboarding,
+                            onNavigateToLogin = rootNavigator::navigateToLogin
+                        )
                     }
-                )
-            }
+                    entry<Route.Onboarding> {
+                        OnboardingScreen(
+                            onOnboardingComplete = rootNavigator::navigateToLogin
+                        )
+                    }
+
+                    entry<Route.Login> {
+                        val viewModel = koinViewModel<LoginViewModel>()
+                        val loginUiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                        LoginScreen(
+                            uiState = loginUiState,
+                            onEvent = viewModel::onEvent,
+                            onLoginSuccess = rootNavigator::navigateToMain,
+                            navigateToForgot = {
+                                rootNavigator.backStack.add(Route.ForgetPassword)
+                            }
+                        )
+                    }
+
+                    entry<Route.ForgetPassword> {
+                        val viewModel = koinViewModel<ForgotPasswordViewModel>()
+                        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                        ForgotPasswordScreen(
+                            uiState = uiState,
+                            onEvent = viewModel::onEvent,
+                            onBack = {
+                                rootNavigator.goBack()
+                            }
+                        )
+                    }
+
+                    entry<Route.Main> {
+                        MainScreen(
+                            rootNavigator = rootNavigator
+                        )
+                    }
+                }
+            )
         }
     }
 }
