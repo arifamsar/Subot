@@ -37,15 +37,5 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling)
         }
-
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
     }
 }
-
-//compose.resources {
-//    publicResClass = true
-//    packageOfResClass = "subot.sharedui.generated.resources"
-//    generateResClass = always
-//}
