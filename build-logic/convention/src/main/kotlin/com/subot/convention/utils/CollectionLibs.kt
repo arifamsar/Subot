@@ -33,20 +33,18 @@ fun KotlinDependencyHandler.sharedUiDependencies(project: Project) {
     implementation(libs.liquid)
 }
 
-fun KotlinDependencyHandler.coreDependencies(project: Project) {
+fun KotlinDependencyHandler.coreDataDependencies(project: Project) {
     val libs = project.libs
     api(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.serialization)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.logging)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.kermit)
+
     implementation(libs.room.runtime)
-    implementation(libs.koin.core)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.paging.common)
+    implementation(libs.koin.core)
 }
