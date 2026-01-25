@@ -10,3 +10,11 @@ plugins {
     alias(libs.plugins.buildConfig).apply(false)
     alias(libs.plugins.android.lint) apply false
 }
+
+project(":features") {
+    apply(plugin = "base")
+}
+
+project(":core") {
+    apply(plugin = "base")
+}
