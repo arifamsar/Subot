@@ -2,6 +2,7 @@
     <string name="welcome_to_subot">Selamat Datang di Subot</string>
     <string name="smart_scheduling">Penjadwalan Cerdas</string>
     <string name="stay_notified">Tetap Terinformasi</string>
+    <string name="subot_logo">Logo Subot</string>
     <string name="onboarding_description_1">Asisten cerdas Anda yang membantu mengelola tugas dan aktivitas harian dengan mudah.</string>
     <string name="onboarding_description_2">Atur jadwal Anda dengan mudah. Jangan pernah melewatkan janji atau tenggat waktu penting lagi.</string>
     <string name="onboarding_description_3">Dapatkan pengingat dan notifikasi tepat waktu agar Anda tetap di jalur sepanjang hari.</string>

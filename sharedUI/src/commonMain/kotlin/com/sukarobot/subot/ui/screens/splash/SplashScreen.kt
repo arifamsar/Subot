@@ -23,8 +23,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import subot.core.ui.generated.resources.Res
 import subot.core.ui.generated.resources.logo
+import subot.core.ui.generated.resources.subot_logo
 
 @Composable
 fun SplashScreen(
@@ -85,7 +87,7 @@ fun SplashScreen(
         ) {
             Image(
                 painter = painterResource(Res.drawable.logo),
-                contentDescription = "Subot Logo",
+                contentDescription = stringResource(Res.string.subot_logo),
                 modifier = Modifier
                     .size(120.dp)
                     .scale(scale.value)
