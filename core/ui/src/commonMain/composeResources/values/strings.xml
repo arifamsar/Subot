@@ -48,4 +48,20 @@
     <string name="phone_number_label">Phone Number</string>
     <string name="phone_number_placeholder">Enter your phone number</string>
     <string name="submit">Submit</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="edit_profile_subtitle">Update your personal information</string>
+    <string name="security">Security</string>
+    <string name="security_subtitle">Password and authentication</string>
+    <string name="notifications">Notifications</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="app_settings">App Settings</string>
+    <string name="app_settings_subtitle">Language, currency, and more</string>
+    <string name="help_and_support">Help &amp; Support</string>
+    <string name="logout">Logout</string>
+    <string name="general_settings">General</string>
+    <string name="preferences">Preferences</string>
+    <string name="support">Support</string>
+    <string name="logout_confirmation_message">Are you sure you want to logout?</string>
+    <string name="cancel">Cancel</string>
+    <string name="version_label">Version 1.0.0</string>
 </resources>

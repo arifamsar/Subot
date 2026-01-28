@@ -53,11 +53,31 @@ import com.subot.core.ui.components.icons.Notification3
 import com.subot.core.ui.components.icons.ProfileOutlined
 import com.subot.core.ui.components.icons.SecuritySafe
 import com.subot.core.ui.components.icons.Setting
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import subot.core.ui.generated.resources.Res
+import subot.core.ui.generated.resources.app_settings
+import subot.core.ui.generated.resources.app_settings_subtitle
+import subot.core.ui.generated.resources.cancel
+import subot.core.ui.generated.resources.dark_mode
+import subot.core.ui.generated.resources.edit_profile
+import subot.core.ui.generated.resources.edit_profile_subtitle
+import subot.core.ui.generated.resources.general_settings
+import subot.core.ui.generated.resources.help_and_support
+import subot.core.ui.generated.resources.logout
+import subot.core.ui.generated.resources.logout_confirmation_message
+import subot.core.ui.generated.resources.notifications
+import subot.core.ui.generated.resources.preferences
+import subot.core.ui.generated.resources.profile
+import subot.core.ui.generated.resources.security
+import subot.core.ui.generated.resources.security_subtitle
+import subot.core.ui.generated.resources.support
+import subot.core.ui.generated.resources.version_label
 
 data class ProfileMenuItem(
-    val title: String,
-    val subtitle: String? = null,
+    val title: StringResource,
+    val subtitle: StringResource? = null,
     val icon: ImageVector,
     val hasSwitch: Boolean = false,
     val isDestructive: Boolean = false,
@@ -80,19 +100,19 @@ fun ProfileScreen(
     val generalSettings = remember {
         listOf(
             ProfileMenuItem(
-                title = "Edit Profile",
-                subtitle = "Update your personal information",
+                title = Res.string.edit_profile,
+                subtitle = Res.string.edit_profile_subtitle,
                 icon = Hicon.ProfileOutlined,
                 route = Route.SettingsDetail("edit_profile")
             ),
             ProfileMenuItem(
-                title = "Security",
-                subtitle = "Password and authentication",
+                title = Res.string.security,
+                subtitle = Res.string.security_subtitle,
                 icon = Hicon.SecuritySafe,
                 route = Route.SettingsDetail("security")
             ),
             ProfileMenuItem(
-                title = "Notifications",
+                title = Res.string.notifications,
                 icon = Hicon.Notification3,
                 hasSwitch = true
             )
@@ -102,13 +122,13 @@ fun ProfileScreen(
     val preferences = remember {
         listOf(
             ProfileMenuItem(
-                title = "Dark Mode",
+                title = Res.string.dark_mode,
                 icon = Hicon.MoonOutlined,
                 hasSwitch = true
             ),
             ProfileMenuItem(
-                title = "App Settings",
-                subtitle = "Language, currency, and more",
+                title = Res.string.app_settings,
+                subtitle = Res.string.app_settings_subtitle,
                 icon = Hicon.Setting,
                 route = Route.Settings
             )
@@ -118,12 +138,12 @@ fun ProfileScreen(
     val support = remember {
         listOf(
             ProfileMenuItem(
-                title = "Help & Support",
+                title = Res.string.help_and_support,
                 icon = Hicon.FAQCircle,
                 route = Route.SettingsDetail("help")
             ),
             ProfileMenuItem(
-                title = "Logout",
+                title = Res.string.logout,
                 icon = Hicon.Logout,
                 isDestructive = true
             )
@@ -141,7 +161,7 @@ fun ProfileScreen(
             // Header
             item {
                 Text(
-                    text = "Profile",
+                    text = stringResource(Res.string.profile),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -159,7 +179,7 @@ fun ProfileScreen(
             // General Settings
             item {
                 Text(
-                    text = "General",
+                    text = stringResource(Res.string.general_settings),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -171,9 +191,9 @@ fun ProfileScreen(
             item {
                 SettingsGroup(
                     items = generalSettings,
-                    switchStates = mapOf("Notifications" to notificationsEnabled),
+                    switchStates = mapOf(Res.string.notifications to notificationsEnabled),
                     onSwitchChange = { title, value ->
-                        if (title == "Notifications") notificationsEnabled = value
+                        if (title == Res.string.notifications) notificationsEnabled = value
                     },
                     onClick = { item ->
                         item.route?.let { onNavigate(it) }
@@ -186,7 +206,7 @@ fun ProfileScreen(
             // Preferences
             item {
                 Text(
-                    text = "Preferences",
+                    text = stringResource(Res.string.preferences),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -198,9 +218,9 @@ fun ProfileScreen(
             item {
                 SettingsGroup(
                     items = preferences,
-                    switchStates = mapOf("Dark Mode" to darkModeEnabled),
+                    switchStates = mapOf(Res.string.dark_mode to darkModeEnabled),
                     onSwitchChange = { title, value ->
-                        if (title == "Dark Mode") viewModel.toggleDarkMode(value)
+                        if (title == Res.string.dark_mode) viewModel.toggleDarkMode(value)
                     },
                     onClick = { item ->
                         item.route?.let { onNavigate(it) }
@@ -213,7 +233,7 @@ fun ProfileScreen(
             // Support
             item {
                 Text(
-                    text = "Support",
+                    text = stringResource(Res.string.support),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -226,7 +246,7 @@ fun ProfileScreen(
                 SettingsGroup(
                     items = support,
                     onClick = { item ->
-                        if (item.title == "Logout") showLogoutDialog = true
+                        if (item.title == Res.string.logout) showLogoutDialog = true
                         else item.route?.let { onNavigate(it) }
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -237,7 +257,7 @@ fun ProfileScreen(
             // Version
             item {
                 Text(
-                    text = "Version 1.0.0",
+                    text = stringResource(Res.string.version_label),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
                     modifier = Modifier
@@ -250,14 +270,14 @@ fun ProfileScreen(
         // Logout Confirmation Dialog
         if (showLogoutDialog) {
             AppDialog(
-                title = "Logout",
-                message = "Are you sure you want to logout?",
-                confirmText = "Logout",
+                title = stringResource(Res.string.logout),
+                message = stringResource(Res.string.logout_confirmation_message),
+                confirmText = stringResource(Res.string.logout),
                 onConfirm = {
                     showLogoutDialog = false
                     viewModel.logout { onLogout() }
                 },
-                dismissText = "Cancel",
+                dismissText = stringResource(Res.string.cancel),
                 onDismiss = { showLogoutDialog = false }
             )
         }
@@ -316,7 +336,7 @@ private fun ProfileCard(
             IconButton(onClick = { /* Edit profile */ }) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Profile",
+                    contentDescription = stringResource(Res.string.edit_profile),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
@@ -328,8 +348,8 @@ private fun ProfileCard(
 private fun SettingsGroup(
     items: List<ProfileMenuItem>,
     modifier: Modifier = Modifier,
-    switchStates: Map<String, Boolean> = emptyMap(),
-    onSwitchChange: (String, Boolean) -> Unit = { _, _ -> },
+    switchStates: Map<StringResource, Boolean> = emptyMap(),
+    onSwitchChange: (StringResource, Boolean) -> Unit = { _, _ -> },
     onClick: (ProfileMenuItem) -> Unit = {}
 ) {
     Card(
@@ -401,13 +421,13 @@ private fun SettingsItem(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.title,
+                text = stringResource(item.title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = contentColor
             )
             if (item.subtitle != null) {
                 Text(
-                    text = item.subtitle,
+                    text = stringResource(item.subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
