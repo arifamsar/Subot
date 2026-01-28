@@ -64,4 +64,9 @@
     <string name="logout_confirmation_message">Apakah Anda yakin ingin keluar?</string>
     <string name="cancel">Batal</string>
     <string name="version_label">Versi 1.0.0</string>
+    <string name="language">Bahasa</string>
+    <string name="language_subtitle">Pilih bahasa pilihan Anda</string>
+    <string name="select_language">Pilih Bahasa</string>
+    <string name="english">Inggris</string>
+    <string name="indonesian">Indonesia</string>
 </resources>

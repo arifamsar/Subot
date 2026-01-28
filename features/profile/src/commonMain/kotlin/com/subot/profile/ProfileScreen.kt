@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,8 +29,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,10 +46,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.subot.core.data.service.UserPreferences
+import com.subot.core.domain.AppLanguage
 import com.subot.core.ui.navigation.Route
 import com.subot.core.ui.components.AppDialog
+import com.subot.core.ui.components.AppTextButton
 import com.subot.core.ui.components.FloatingNavBarHeight
 import com.subot.core.ui.components.icons.FAQCircle
+import com.subot.core.ui.components.icons.Global
 import com.subot.core.ui.components.icons.Hicon
 import com.subot.core.ui.components.icons.Logout
 import com.subot.core.ui.components.icons.MoonOutlined
@@ -63,8 +71,12 @@ import subot.core.ui.generated.resources.cancel
 import subot.core.ui.generated.resources.dark_mode
 import subot.core.ui.generated.resources.edit_profile
 import subot.core.ui.generated.resources.edit_profile_subtitle
+import subot.core.ui.generated.resources.english
 import subot.core.ui.generated.resources.general_settings
 import subot.core.ui.generated.resources.help_and_support
+import subot.core.ui.generated.resources.indonesian
+import subot.core.ui.generated.resources.language
+import subot.core.ui.generated.resources.language_subtitle
 import subot.core.ui.generated.resources.logout
 import subot.core.ui.generated.resources.logout_confirmation_message
 import subot.core.ui.generated.resources.notifications
@@ -72,6 +84,7 @@ import subot.core.ui.generated.resources.preferences
 import subot.core.ui.generated.resources.profile
 import subot.core.ui.generated.resources.security
 import subot.core.ui.generated.resources.security_subtitle
+import subot.core.ui.generated.resources.select_language
 import subot.core.ui.generated.resources.support
 import subot.core.ui.generated.resources.version_label
 
@@ -93,8 +106,10 @@ fun ProfileScreen(
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val darkModeEnabled by viewModel.darkModeEnabled.collectAsStateWithLifecycle()
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
 
     val generalSettings = remember {
@@ -121,6 +136,11 @@ fun ProfileScreen(
     
     val preferences = remember {
         listOf(
+            ProfileMenuItem(
+                title = Res.string.language,
+                subtitle = Res.string.language_subtitle,
+                icon = Hicon.Global
+            ),
             ProfileMenuItem(
                 title = Res.string.dark_mode,
                 icon = Hicon.MoonOutlined,
@@ -223,7 +243,10 @@ fun ProfileScreen(
                         if (title == Res.string.dark_mode) viewModel.toggleDarkMode(value)
                     },
                     onClick = { item ->
-                        item.route?.let { onNavigate(it) }
+                        when (item.title) {
+                            Res.string.language -> showLanguageDialog = true
+                            else -> item.route?.let { onNavigate(it) }
+                        }
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
@@ -279,6 +302,18 @@ fun ProfileScreen(
                 },
                 dismissText = stringResource(Res.string.cancel),
                 onDismiss = { showLogoutDialog = false }
+            )
+        }
+
+        // Language Selection Dialog
+        if (showLanguageDialog) {
+            LanguageSelectionDialog(
+                selectedLanguage = selectedLanguage,
+                onLanguageSelected = { languageCode ->
+                    viewModel.setLanguage(languageCode)
+                    showLanguageDialog = false
+                },
+                onDismiss = { showLanguageDialog = false }
             )
         }
     }
@@ -448,3 +483,73 @@ private fun SettingsItem(
         }
     }
 }
+
+@Composable
+private fun LanguageSelectionDialog(
+    selectedLanguage: String,
+    onLanguageSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(Res.string.select_language),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                LanguageOption(
+                    languageName = stringResource(Res.string.english),
+                    languageCode = AppLanguage.ENGLISH.code,
+                    isSelected = selectedLanguage == AppLanguage.ENGLISH.code,
+                    onSelect = { onLanguageSelected(AppLanguage.ENGLISH.code) }
+                )
+                LanguageOption(
+                    languageName = stringResource(Res.string.indonesian),
+                    languageCode = AppLanguage.INDONESIAN.code,
+                    isSelected = selectedLanguage == AppLanguage.INDONESIAN.code,
+                    onSelect = { onLanguageSelected(AppLanguage.INDONESIAN.code) }
+                )
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            AppTextButton(onClick = onDismiss, text = stringResource(Res.string.cancel))
+        }
+    )
+}
+
+@Composable
+private fun LanguageOption(
+    languageName: String,
+    languageCode: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = isSelected,
+                role = Role.RadioButton,
+                onClick = onSelect
+            )
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = isSelected,
+            onClick = onSelect
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = languageName,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+

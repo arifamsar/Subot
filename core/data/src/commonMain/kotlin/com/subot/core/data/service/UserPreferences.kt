@@ -4,6 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.subot.core.domain.AppLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -46,9 +48,21 @@ class UserPreferences(private val dataStore: DataStore<Preferences>) {
     fun darkModeEnabledFlow(): Flow<Boolean> =
         dataStore.data.map { preferences -> preferences[is_dark_mode] ?: false }
 
+    fun getSelectedLanguage(): Flow<String> =
+        dataStore.data.map { preferences ->
+            preferences[selected_language] ?: AppLanguage.INDONESIAN.code
+        }
+
+    suspend fun setSelectedLanguage(languageCode: String) {
+        dataStore.edit { preferences ->
+            preferences[selected_language] = languageCode
+        }
+    }
+
     companion object {
         val onboarding_completed = booleanPreferencesKey("onboarding_completed")
         val is_logged_in = booleanPreferencesKey("is_logged_in")
         val is_dark_mode = booleanPreferencesKey("is_dark_mode")
+        val selected_language = stringPreferencesKey("selected_language")
     }
 }
