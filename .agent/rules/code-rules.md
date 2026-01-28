@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Subot - AI Coding Instructions
 
 ## Project Overview
