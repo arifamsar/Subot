@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -27,6 +28,17 @@ import com.subot.core.ui.components.AppTextField
 import com.subot.core.ui.components.FullScreenLoading
 import com.subot.core.ui.components.icons.ArrowLeft
 import com.subot.core.ui.components.icons.Hicon
+import org.jetbrains.compose.resources.stringResource
+import subot.core.ui.generated.resources.Res
+import subot.core.ui.generated.resources.forgot_password_instruction
+import subot.core.ui.generated.resources.forgot_password_title
+import subot.core.ui.generated.resources.ok
+import subot.core.ui.generated.resources.password_reset_sent
+import subot.core.ui.generated.resources.phone_number_label
+import subot.core.ui.generated.resources.phone_number_placeholder
+import subot.core.ui.generated.resources.reset_your_password
+import subot.core.ui.generated.resources.submit
+import subot.core.ui.generated.resources.success
 
 @Composable
 fun ForgotPasswordScreen(
@@ -37,9 +49,9 @@ fun ForgotPasswordScreen(
 ) {
     if (uiState.isSuccess) {
         AppDialog(
-            title = "Success",
-            message = "Password reset instructions have been sent to your phone number.",
-            confirmText = "OK",
+            title = stringResource(Res.string.success),
+            message = stringResource(Res.string.password_reset_sent),
+            confirmText = stringResource(Res.string.ok),
             onConfirm = {
                 onEvent(ForgotPasswordEvent.ClearSuccess)
                 onBack()
@@ -49,7 +61,8 @@ fun ForgotPasswordScreen(
 
     AppScaffold(
         modifier = modifier,
-        topBarTitle = "Forgot Password",
+        topBarTitle = stringResource(Res.string.forgot_password_title),
+        navigationIcon = Hicon.ArrowLeft,
         onNavigationClick = onBack,
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -66,16 +79,19 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Text(
-                    text = "Reset your password",
+                    text = stringResource(Res.string.reset_your_password),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "Please enter the phone number associated with your account to receive reset instructions.",
+                    text = stringResource(Res.string.forgot_password_instruction),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -85,8 +101,8 @@ fun ForgotPasswordScreen(
                 AppTextField(
                     value = uiState.phoneNumber,
                     onValueChange = { onEvent(ForgotPasswordEvent.PhoneNumberChanged(it)) },
-                    label = "Phone Number",
-                    placeholder = "Enter your phone number",
+                    label = stringResource(Res.string.phone_number_label),
+                    placeholder = stringResource(Res.string.phone_number_placeholder),
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Done,
                     onImeAction = { onEvent(ForgotPasswordEvent.Submit) },
@@ -98,7 +114,7 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 AppPrimaryButton(
-                    text = "Submit",
+                    text = stringResource(Res.string.submit),
                     onClick = { onEvent(ForgotPasswordEvent.Submit) },
                     enabled = !uiState.isLoading && uiState.phoneNumber.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()

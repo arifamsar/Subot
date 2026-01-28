@@ -39,4 +39,13 @@
     <string name="schedule">Jadwal</string>
     <string name="transaction">Transaksi</string>
     <string name="profile">Profil</string>
+    <string name="success">Berhasil</string>
+    <string name="password_reset_sent">Instruksi reset kata sandi telah dikirim ke nomor telepon Anda.</string>
+    <string name="ok">OK</string>
+    <string name="forgot_password_title">Lupa Kata Sandi</string>
+    <string name="reset_your_password">Reset kata sandi Anda</string>
+    <string name="forgot_password_instruction">Silakan masukkan nomor telepon yang terkait dengan akun Anda untuk menerima instruksi reset.</string>
+    <string name="phone_number_label">Nomor Telepon</string>
+    <string name="phone_number_placeholder">Masukkan nomor telepon Anda</string>
+    <string name="submit">Kirim</string>
 </resources>

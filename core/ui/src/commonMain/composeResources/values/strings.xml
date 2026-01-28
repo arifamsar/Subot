@@ -39,4 +39,13 @@
     <string name="schedule">Schedule</string>
     <string name="transaction">Transaction</string>
     <string name="profile">Profile</string>
+    <string name="success">Success</string>
+    <string name="password_reset_sent">Password reset instructions have been sent to your phone number.</string>
+    <string name="ok">OK</string>
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="reset_your_password">Reset your password</string>
+    <string name="forgot_password_instruction">Please enter the phone number associated with your account to receive reset instructions.</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="phone_number_placeholder">Enter your phone number</string>
+    <string name="submit">Submit</string>
 </resources>
