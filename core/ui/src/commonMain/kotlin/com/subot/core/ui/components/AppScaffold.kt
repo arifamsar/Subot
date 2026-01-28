@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
@@ -12,13 +13,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppScaffold(
     modifier: Modifier = Modifier,
@@ -45,7 +47,10 @@ fun AppScaffold(
                     },
                     navigationIcon = {
                         if (navigationIcon != null && onNavigationClick != null) {
-                            IconButton(onClick = onNavigationClick) {
+                            IconButton(
+                                onClick = onNavigationClick,
+                                shapes = IconButtonDefaults.shapes()
+                                ) {
                                 Icon(
                                     imageVector = navigationIcon,
                                     contentDescription = "Navigate back"
