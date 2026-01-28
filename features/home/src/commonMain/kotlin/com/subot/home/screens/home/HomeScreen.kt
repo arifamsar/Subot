@@ -1,4 +1,4 @@
-package com.subot.home
+package com.subot.home.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
