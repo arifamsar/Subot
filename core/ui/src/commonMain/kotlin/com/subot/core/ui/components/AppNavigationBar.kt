@@ -20,19 +20,36 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuOpen
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.WideNavigationRail
+import androidx.compose.material3.WideNavigationRailDefaults
+import androidx.compose.material3.WideNavigationRailItem
+import androidx.compose.material3.WideNavigationRailItemDefaults
+import androidx.compose.material3.WideNavigationRailValue
+import androidx.compose.material3.rememberTooltipState
+import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -45,6 +62,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -55,6 +74,7 @@ import com.subot.core.ui.isLiquidEnabled
 import com.subot.core.ui.navigation.TOP_LEVEL_DESTINATIONS
 import io.github.fletchmckee.liquid.LiquidState
 import io.github.fletchmckee.liquid.liquid
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -106,20 +126,76 @@ fun SubotNavigationBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SubotNavigationRail(
     selectedKey: NavKey,
     onSelectKey: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationRail(
-        modifier = modifier
+    val state = rememberWideNavigationRailState()
+    val scope = rememberCoroutineScope()
+    val headerDescription =
+        if (state.targetValue == WideNavigationRailValue.Expanded) {
+            "Collapse rail"
+        } else {
+            "Expand rail"
+        }
+
+    WideNavigationRail(
+        modifier = modifier,
+        colors = WideNavigationRailDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.background,
+            modalContainerColor = MaterialTheme.colorScheme.background
+        ),
+        state = state,
+//        expandedHeaderTopPadding = 64.dp,
+        header = {
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                tooltip = { PlainTooltip { Text(headerDescription) } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(
+                    modifier =
+                        Modifier.padding(start = 24.dp).semantics {
+                            stateDescription =
+                                if (state.currentValue == WideNavigationRailValue.Expanded) {
+                                    "Expanded"
+                                } else {
+                                    "Collapsed"
+                                }
+                        },
+                    shapes = IconButtonDefaults.shapes(),
+                    onClick = {
+                        scope.launch {
+                            if (state.targetValue == WideNavigationRailValue.Expanded)
+                                state.collapse()
+                            else state.expand()
+                        }
+                    },
+                ) {
+                    if (state.targetValue == WideNavigationRailValue.Expanded) {
+                        Icon(Icons.AutoMirrored.Filled.MenuOpen, headerDescription)
+                    } else {
+                        Icon(Icons.Filled.Menu, headerDescription)
+                    }
+                }
+            }
+        },
     ) {
         TOP_LEVEL_DESTINATIONS.forEach { (topLevelDestination, data) ->
             val selected = topLevelDestination == selectedKey
             val label = stringResource(data.label)
-            NavigationRailItem(
+            WideNavigationRailItem(
+                railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
                 selected = selected,
+                colors = WideNavigationRailItemDefaults.colors(
+                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer
+                ),
                 onClick = {
                     onSelectKey(topLevelDestination)
                 },
