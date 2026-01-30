@@ -1,6 +1,6 @@
 package com.sukarobot.subot.ui.di
 
-import com.subot.profile.ProfileViewModel
+import com.subot.profile.screens.profile.ProfileViewModel
 import com.sukarobot.subot.ui.screens.forgot_password.ForgotPasswordViewModel
 import com.sukarobot.subot.ui.screens.login.LoginViewModel
 import com.sukarobot.subot.ui.screens.onboarding.OnboardingViewModel
