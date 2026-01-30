@@ -1,6 +1,7 @@
 package com.subot.core.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -37,58 +38,62 @@ fun AppDialog(
     content: (@Composable () -> Unit)? = null
 ) {
     AlertDialog(
-        onDismissRequest = { onDismiss?.invoke() }, modifier = modifier, icon = icon?.let {
-        {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }, title = {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }, text = {
-        Column {
-            if (message != null) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
+        onDismissRequest = {
+            onDismiss?.invoke()
+        },
+        modifier = modifier.fillMaxWidth(),
+        icon = icon?.let {
+            {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
-            content?.invoke()
-        }
-    }, confirmButton = {
-        TextButton(
-            shapes = ButtonDefaults.shapes(), onClick = onConfirm
-        ) {
+        }, title = {
             Text(
-                text = confirmText,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-        }
-    }, dismissButton = dismissText?.let {
-        @Composable {
+        }, text = {
+            Column {
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                content?.invoke()
+            }
+        }, confirmButton = {
             TextButton(
-                shapes = ButtonDefaults.shapes(), onClick = { onDismiss?.invoke() }) {
+                shapes = ButtonDefaults.shapes(), onClick = onConfirm
+            ) {
                 Text(
-                    text = it,
+                    text = confirmText,
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-        }
-    }, shape = RoundedCornerShape(16.dp), tonalElevation = 8.dp, properties = DialogProperties(
-        dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = dismissOnClickOutside
-    )
+        }, dismissButton = dismissText?.let {
+            @Composable {
+                TextButton(
+                    shapes = ButtonDefaults.shapes(), onClick = { onDismiss?.invoke() }) {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }, shape = RoundedCornerShape(16.dp), tonalElevation = 8.dp, properties = DialogProperties(
+            dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = dismissOnClickOutside
+        )
     )
 }
 
