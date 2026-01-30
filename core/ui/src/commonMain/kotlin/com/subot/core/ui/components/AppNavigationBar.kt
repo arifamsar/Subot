@@ -78,6 +78,12 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
+import subot.core.ui.generated.resources.Res
+import subot.core.ui.generated.resources.collapse_rail
+import subot.core.ui.generated.resources.collapsed
+import subot.core.ui.generated.resources.expand_rail
+import subot.core.ui.generated.resources.expanded
+
 /**
  * Height of the floating navigation bar including padding.
  * Use this value for bottom content padding in scrollable screens.
@@ -137,9 +143,9 @@ fun SubotNavigationRail(
     val scope = rememberCoroutineScope()
     val headerDescription =
         if (state.targetValue == WideNavigationRailValue.Expanded) {
-            "Collapse rail"
+            stringResource(Res.string.collapse_rail)
         } else {
-            "Expand rail"
+            stringResource(Res.string.expand_rail)
         }
 
     WideNavigationRail(
@@ -159,14 +165,16 @@ fun SubotNavigationRail(
                 tooltip = { PlainTooltip { Text(headerDescription) } },
                 state = rememberTooltipState(),
             ) {
+                val expandedString = stringResource(Res.string.expanded)
+                val collapsedString = stringResource(Res.string.collapsed)
                 IconButton(
                     modifier =
                         Modifier.padding(start = 24.dp).semantics {
                             stateDescription =
                                 if (state.currentValue == WideNavigationRailValue.Expanded) {
-                                    "Expanded"
+                                    expandedString
                                 } else {
-                                    "Collapsed"
+                                    collapsedString
                                 }
                         },
                     shapes = IconButtonDefaults.shapes(),

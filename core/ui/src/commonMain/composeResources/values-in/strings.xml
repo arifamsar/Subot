@@ -69,4 +69,8 @@
     <string name="select_language">Pilih Bahasa</string>
     <string name="english">Inggris</string>
     <string name="indonesian">Indonesia</string>
+    <string name="collapse_rail">Ciutkan bilah</string>
+    <string name="expand_rail">Perluas bilah</string>
+    <string name="expanded">Diperluas</string>
+    <string name="collapsed">Diciutkan</string>
 </resources>

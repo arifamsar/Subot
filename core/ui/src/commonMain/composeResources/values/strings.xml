@@ -69,4 +69,8 @@
     <string name="select_language">Select Language</string>
     <string name="english">English</string>
     <string name="indonesian">Indonesian</string>
+    <string name="collapse_rail">Collapse rail</string>
+    <string name="expand_rail">Expand rail</string>
+    <string name="expanded">Expanded</string>
+    <string name="collapsed">Collapsed</string>
 </resources>
