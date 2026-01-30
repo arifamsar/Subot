@@ -1,4 +1,4 @@
-package com.subot.profile
+package com.subot.profile.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,11 +44,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.subot.core.data.service.UserPreferences
 import com.subot.core.domain.AppLanguage
 import com.subot.core.ui.navigation.Route
 import com.subot.core.ui.components.AppDialog
-import com.subot.core.ui.components.AppTextButton
 import com.subot.core.ui.components.FloatingNavBarHeight
 import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Global
@@ -490,34 +486,26 @@ private fun LanguageSelectionDialog(
     onLanguageSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = stringResource(Res.string.select_language),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
+    AppDialog(
+        title = stringResource(Res.string.select_language),
+        confirmText = stringResource(Res.string.cancel),
+        onConfirm = onDismiss,
+        onDismiss = onDismiss,
+        content = {
             Column {
-                LanguageOption(
-                    languageName = stringResource(Res.string.english),
-                    languageCode = AppLanguage.ENGLISH.code,
-                    isSelected = selectedLanguage == AppLanguage.ENGLISH.code,
-                    onSelect = { onLanguageSelected(AppLanguage.ENGLISH.code) }
-                )
-                LanguageOption(
-                    languageName = stringResource(Res.string.indonesian),
-                    languageCode = AppLanguage.INDONESIAN.code,
-                    isSelected = selectedLanguage == AppLanguage.INDONESIAN.code,
-                    onSelect = { onLanguageSelected(AppLanguage.INDONESIAN.code) }
-                )
+                AppLanguage.entries.forEach { language ->
+                    val languageName = when (language) {
+                        AppLanguage.ENGLISH -> stringResource(Res.string.english)
+                        AppLanguage.INDONESIAN -> stringResource(Res.string.indonesian)
+                    }
+                    
+                    LanguageOption(
+                        languageName = languageName,
+                        isSelected = selectedLanguage == language.code,
+                        onSelect = { onLanguageSelected(language.code) }
+                    )
+                }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            AppTextButton(onClick = onDismiss, text = stringResource(Res.string.cancel))
         }
     )
 }
@@ -525,7 +513,6 @@ private fun LanguageSelectionDialog(
 @Composable
 private fun LanguageOption(
     languageName: String,
-    languageCode: String,
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {

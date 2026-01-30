@@ -1,4 +1,4 @@
-package com.subot.profile
+package com.subot.profile.screens.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

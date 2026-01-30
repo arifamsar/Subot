@@ -1,4 +1,4 @@
-package com.subot.profile
+package com.subot.profile.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
