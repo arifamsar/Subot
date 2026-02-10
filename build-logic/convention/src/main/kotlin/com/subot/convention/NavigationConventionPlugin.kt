@@ -20,6 +20,8 @@ class NavigationConventionPlugin : Plugin<Project> {
                     implementation(libs.koin.compose.viewmodel.navigation)
                     implementation(libs.kotlinx.serialization.json)
                     implementation(libs.androidx.lifecycle.viewmodel.nav3)
+                    implementation(libs.androidx.material3.adaptive)
+                    implementation(libs.androidx.material3.adaptive.nav3)
                 }
             }
         }

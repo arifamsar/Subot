@@ -20,7 +20,7 @@ fun EntryProviderScope<NavKey>.profileFlow(
     ) {
         ProfileScreen(
             onNavigate = { route ->
-                navigator.navigate(route)
+                navigator.navigateToDetail(route)
             },
             onLogout = onLogout
         )
