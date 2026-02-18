@@ -132,30 +132,6 @@ fun OnboardingScreen(
                             modifier = Modifier.padding(end = 8.dp)
                         )
                     }
-                },
-                navigationIcon = {
-                    Box(modifier = Modifier.padding(start = 16.dp)) {
-                        val isDark = state.isDarkMode ?: themeState.value
-                        SwitchButton(
-                            isSelected = isDark,
-                            onStateChange = { viewModel.onEvent(OnboardingEvent.ToggleDarkMode(it)) },
-                            icon = {
-                                SwitchButtonIcon(
-                                    isSelected = isDark,
-                                    selectedIcon = Icons.Filled.WbSunny,
-                                    iconColor = BluePrimary,
-                                    unSelectedIcon = Icons.Filled.DarkMode,
-                                    contentDescription = if (isDark) stringResource(Res.string.switch_to_light_mode) else stringResource(
-                                        Res.string.switch_to_dark_mode
-                                    )
-                                )
-                            },
-                            switchButtonConfig = SwitchButtonConfig(
-                                selectedBackgroundColor = MaterialTheme.colorScheme.primary,
-//                                innerBoxColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        )
-                    }
                 }
             )
         }
