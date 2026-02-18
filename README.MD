@@ -6,12 +6,23 @@ Subot is a Kotlin Multiplatform (KMP) application targeting Android and iOS usin
 
 ### Module Structure
 ```
-:androidApp    → Android app shell (thin wrapper, only entry point)
-:sharedUI      → Shared UI layer (Compose Multiplatform screens, themes, ViewModels)
-:core          → Shared business logic (data/domain layers, platform abstractions)
+:androidApp             → Android app shell (thin wrapper, only entry point)
+:iosApp                 → iOS app shell (Xcode project and Swift wrapper)
+:sharedUI               → Shared UI layer (Base screens: Login, Splash, Onboarding; App entry point)
+:features               → Specific feature modules
+    ├── :home           → Home dashboard
+    ├── :profile        → User profile and settings
+    ├── :schedule       → Schedule management
+    └── :transactions   → Transaction history
+:core                   → Shared infrastructure
+    ├── :common         → Utilities, Dispatchers, Extensions
+    ├── :domain         → Business logic, Entities, Repository interfaces
+    ├── :data           → Repositories, Room DB, Ktor services, DataStore
+    └── :ui             → Reusable UI components, Icons, Theme, Navigation
+:build-logic            → Centralized Gradle convention plugins
 ```
 
-**Dependency flow**: `androidApp → sharedUI → core`
+**Dependency flow**: `App (Android/iOS) → sharedUI → features → core → common`
 
 ### MVI Pattern with onEvent
 The application uses MVI (Model-View-Intent) architecture:
