@@ -45,7 +45,6 @@ import com.subot.core.common.utils.toDayOfMonthString
 import com.subot.core.common.utils.toDurationString
 import com.subot.core.common.utils.toMonthYearString
 import com.subot.core.ui.components.AppPullToRefresh
-import com.subot.core.ui.components.FloatingNavBarHeight
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlin.time.Clock
@@ -124,8 +123,7 @@ fun ScheduleScreen(
             }
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = FloatingNavBarHeight)
+                modifier = Modifier.fillMaxSize()
             ) {
                 // Header
                 item {

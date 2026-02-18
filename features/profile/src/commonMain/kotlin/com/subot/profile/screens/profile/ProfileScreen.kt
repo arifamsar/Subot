@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,9 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.AppLanguage
-import com.subot.core.ui.navigation.Route
 import com.subot.core.ui.components.AppDialog
-import com.subot.core.ui.components.FloatingNavBarHeight
 import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Global
 import com.subot.core.ui.components.icons.Hicon
@@ -57,6 +54,7 @@ import com.subot.core.ui.components.icons.Notification3
 import com.subot.core.ui.components.icons.ProfileOutlined
 import com.subot.core.ui.components.icons.SecuritySafe
 import com.subot.core.ui.components.icons.Setting
+import com.subot.core.ui.navigation.Route
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -172,7 +170,6 @@ fun ProfileScreen(
         // Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = FloatingNavBarHeight)
         ) {
             // Header
             item {
