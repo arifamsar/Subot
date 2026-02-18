@@ -1,36 +1,16 @@
 package com.subot.core.ui.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
@@ -45,59 +25,20 @@ import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
-import com.subot.core.ui.isLiquidEnabled
 import com.subot.core.ui.navigation.TOP_LEVEL_DESTINATIONS
-import io.github.fletchmckee.liquid.LiquidState
-import io.github.fletchmckee.liquid.liquid
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-
 import subot.core.ui.generated.resources.Res
 import subot.core.ui.generated.resources.collapse_rail
 import subot.core.ui.generated.resources.collapsed
 import subot.core.ui.generated.resources.expand_rail
 import subot.core.ui.generated.resources.expanded
-
-/**
- * Height of the floating navigation bar including padding.
- * Use this value for bottom content padding in scrollable screens.
- */
-val FloatingNavBarHeight: Dp = 120.dp
-
-/**
- * Content padding to use in LazyColumn/LazyRow for screens with floating navbar.
- * Includes top padding for status bar area and bottom padding for floating navbar.
- */
-fun floatingNavBarContentPadding(
-    top: Dp = 16.dp,
-    bottom: Dp = FloatingNavBarHeight
-): PaddingValues = PaddingValues(top = top, bottom = bottom)
 
 @Composable
 fun SubotNavigationBar(
@@ -105,7 +46,7 @@ fun SubotNavigationBar(
     onSelectKey: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BottomAppBar(
+    NavigationBar(
         modifier = modifier
     ) {
         TOP_LEVEL_DESTINATIONS.forEach { (topLevelDestination, data) ->
@@ -155,7 +96,6 @@ fun SubotNavigationRail(
             modalContainerColor = MaterialTheme.colorScheme.background
         ),
         state = state,
-//        expandedHeaderTopPadding = 64.dp,
         header = {
             TooltipBox(
                 positionProvider =
@@ -221,188 +161,4 @@ fun SubotNavigationRail(
             )
         }
     }
-}
-
-/**
- * iOS-style Liquid Glass Navigation Bottom Bar
- *
- * A translucent navigation bar with frosted glass effect similar to iOS liquid glass design.
- * Features animated selection indicator, blur effect, and subtle refraction.
- *
- * @param selectedKey Currently selected navigation key
- * @param onSelectKey Callback when a navigation item is selected
- * @param modifier Modifier to apply to the navigation bar
- */
-@Composable
-fun NavigationLiquidBottomBar(
-    selectedKey: NavKey,
-    onSelectKey: (NavKey) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val liquidState = LocalBottomNavigationLiquid.current
-    val shape = RoundedCornerShape(28.dp)
-    val items = remember { TOP_LEVEL_DESTINATIONS.entries.toList() }
-    val selectedIndex = items.indexOfFirst { it.key == selectedKey }
-
-    val animatedBias by animateFloatAsState(
-        targetValue = if (selectedIndex == -1) 0f else -1f + (2f * selectedIndex) / (items.size - 1).coerceAtLeast(1),
-        animationSpec = spring(
-            stiffness = Spring.StiffnessLow,
-            dampingRatio = Spring.DampingRatioLowBouncy
-        ),
-        label = "bias"
-    )
-
-    Box(
-        modifier = modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .fillMaxWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = shape,
-                ambientColor = Color.Black.copy(alpha = 0.1f),
-                spotColor = Color.Black.copy(alpha = 0.15f)
-            )
-            .clip(shape)
-            .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
-            )
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.2f),
-                shape = shape
-            )
-            .then(
-                if (isLiquidEnabled()) {
-                    Modifier.liquid(liquidState) {
-                        this.shape = shape
-                        this.frost = 12.dp
-                        this.curve = 0.35f
-                        this.refraction = 0.08f
-                        this.dispersion = 0.15f
-                        this.saturation = 0.6f
-                    }
-                } else Modifier
-            )
-            .pointerInput(Unit) {}
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-        ) {
-            // Sliding Capsule
-            if (selectedIndex != -1) {
-                Box(modifier = Modifier.matchParentSize()) {
-                    Box(
-                        modifier = Modifier
-                            .align(BiasAlignment(animatedBias, 0f))
-                            .fillMaxWidth(1f / items.size)
-                            .fillMaxHeight()
-                            .background(
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                shape = RoundedCornerShape(28.dp)
-                            )
-
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                items.forEach { (destination, data) ->
-                    val selected = destination == selectedKey
-                    LiquidNavItem(
-                        selected = selected,
-                        onClick = { onSelectKey(destination) },
-                        icon = if (selected) data.selectedIcon else data.icon,
-                        label = data.label,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * Individual navigation item for the liquid glass bottom bar
- */
-@Composable
-private fun LiquidNavItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: ImageVector,
-    label: StringResource,
-    modifier: Modifier = Modifier
-) {
-    val haptic = LocalHapticFeedback.current
-    val labelText = stringResource(label)
-
-    val contentColor by animateColorAsState(
-        targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "contentColor"
-    )
-
-    val scale by animateFloatAsState(
-        targetValue = if (selected) 1.1f else 1.0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "scale"
-    )
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(28.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                role = Role.Tab,
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onClick()
-                }
-            )
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Icon with animated color
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            Icon(
-                imageVector = icon,
-                contentDescription = labelText,
-                modifier = Modifier
-                    .size(24.dp)
-                    .scale(scale)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Label with animated color
-        Text(
-            text = labelText,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                fontSize = 11.sp
-            ),
-            color = contentColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-val LocalBottomNavigationLiquid = compositionLocalOf<LiquidState> {
-    error("State not declared")
 }
