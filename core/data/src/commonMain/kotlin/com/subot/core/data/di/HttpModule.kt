@@ -1,9 +1,14 @@
 package com.subot.core.data.di
 
+import Subot.core.data.BuildConfig
+import com.subot.core.data.repository.AuthRepositoryImpl
 import com.subot.core.data.repository.ListItemRepositoryImpl
+import com.subot.core.data.repository.SchoolRepositoryImpl
 import com.subot.core.data.service.ApiService
 import com.subot.core.data.service.ApiServiceImpl
+import com.subot.core.domain.repository.AuthRepository
 import com.subot.core.domain.repository.ListItemRepository
+import com.subot.core.domain.repository.SchoolRepository
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -17,6 +22,8 @@ val httpModule = module {
     single { createHttpClient() }
     single<ApiService> { ApiServiceImpl(get()) }
     single<ListItemRepository> { ListItemRepositoryImpl(get()) }
+    single<SchoolRepository> { SchoolRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 }
 
 fun createHttpClient(): HttpClient = HttpClient {
@@ -29,9 +36,17 @@ fun createHttpClient(): HttpClient = HttpClient {
     }
     install(Logging) {
         logger = Logger.DEFAULT
-        level = LogLevel.INFO
+        level = LogLevel.ALL
+        logger = object : Logger {
+            override fun log(message: String) {
+                co.touchlab.kermit.Logger.d("HttpClient") { message }
+            }
+
+        }
     }
     install(DefaultRequest) {
+        url(BuildConfig.BASE_URL)
+        header("Accept", "application/json")
         header("Content-Type", "application/json")
     }
     install(HttpTimeout) {
