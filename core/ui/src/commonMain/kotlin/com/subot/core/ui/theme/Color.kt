@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 
 // Blue-based color palette for Subot
 
+val SeedColor = Color(0xFF1565C0)
+
 // Primary Blue Colors
 val BluePrimary = Color(0xFF1565C0)
 val BluePrimaryLight = Color(0xFF5E92F3)

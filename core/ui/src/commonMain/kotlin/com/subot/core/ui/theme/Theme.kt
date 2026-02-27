@@ -12,6 +12,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.materialkolor.dynamiccolor.ColorSpec
+import com.materialkolor.rememberDynamicColorScheme
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
@@ -106,9 +108,12 @@ fun AppTheme(
         LocalThemeIsDark provides isDarkState
     ) {
         val currentIsDark by isDarkState
+        val colorScheme = rememberDynamicColorScheme(seedColor = SeedColor, isDark = currentIsDark, specVersion = ColorSpec.SpecVersion.SPEC_2025)
+
         onThemeChanged(currentIsDark)
         MaterialExpressiveTheme(
-            colorScheme = if (currentIsDark) DarkColorScheme else LightColorScheme,
+//            colorScheme = if (currentIsDark) DarkColorScheme else LightColorScheme,
+            colorScheme = colorScheme,
             content = { Surface(content = content) },
             typography = appTypography()
         )
