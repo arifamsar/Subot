@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,13 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.subot.core.ui.components.AppDialog
+import com.subot.core.ui.components.AppDropdownField
 import com.subot.core.ui.components.AppPasswordTextField
 import com.subot.core.ui.components.AppPrimaryButton
-import com.subot.core.ui.components.AppScaffold
 import com.subot.core.ui.components.AppTextButton
 import com.subot.core.ui.components.AppTextField
 import com.subot.core.ui.components.FullScreenLoading
-import com.subot.core.ui.components.icons.EmailOutlined
+import com.subot.core.ui.components.icons.ArrowLeft
 import com.subot.core.ui.components.icons.Hicon
 import com.subot.core.ui.components.icons.LockOutlined
 import org.jetbrains.compose.resources.painterResource
@@ -53,15 +59,14 @@ import org.jetbrains.compose.resources.stringResource
 import subot.core.ui.generated.resources.Res
 import subot.core.ui.generated.resources.close
 import subot.core.ui.generated.resources.continue_text
-import subot.core.ui.generated.resources.email_label
-import subot.core.ui.generated.resources.email_placeholder
-import subot.core.ui.generated.resources.email_required
 import subot.core.ui.generated.resources.forgot_password
 import subot.core.ui.generated.resources.halo
+import subot.core.ui.generated.resources.invalid_unique_id_format
 import subot.core.ui.generated.resources.logged_in_successfully
 import subot.core.ui.generated.resources.login_failed
 import subot.core.ui.generated.resources.login_failed_general
-import subot.core.ui.generated.resources.login_subtitle
+import subot.core.ui.generated.resources.login_subtitle_member
+import subot.core.ui.generated.resources.login_subtitle_mitra
 import subot.core.ui.generated.resources.login_successful
 import subot.core.ui.generated.resources.logo_horizontal
 import subot.core.ui.generated.resources.number_required
@@ -70,8 +75,14 @@ import subot.core.ui.generated.resources.password_length_requirement
 import subot.core.ui.generated.resources.password_placeholder
 import subot.core.ui.generated.resources.password_required
 import subot.core.ui.generated.resources.retry
+import subot.core.ui.generated.resources.school_required
+import subot.core.ui.generated.resources.select_school
+import subot.core.ui.generated.resources.select_school_placeholder
 import subot.core.ui.generated.resources.sign_in
 import subot.core.ui.generated.resources.signing_in
+import subot.core.ui.generated.resources.unique_id_label
+import subot.core.ui.generated.resources.unique_id_placeholder
+import subot.core.ui.generated.resources.unique_id_required
 import subot.core.ui.generated.resources.uppercase_required
 import subot.core.ui.generated.resources.valid_email_required
 
@@ -80,6 +91,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     onEvent: (LoginEvent) -> Unit,
     uiState: LoginUiState,
+    navigateBack: () -> Unit,
     navigateToForgot: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
@@ -120,25 +132,43 @@ fun LoginScreen(
         )
     }
 
-    AppScaffold(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.primary
-    ) { paddingValues ->
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.primary
+    ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
+                FilledIconButton(
+                    onClick = navigateBack,
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .statusBarsPadding()
+                        .size(40.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Hicon.ArrowLeft,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 // Top Section (Blue Background)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = stringResource(Res.string.halo),
                         style = MaterialTheme.typography.displayMedium,
@@ -147,13 +177,16 @@ fun LoginScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = stringResource(Res.string.login_subtitle),
+                        text = when (uiState.loginType) {
+                            LoginType.MITRA -> stringResource(Res.string.login_subtitle_mitra)
+                            LoginType.MEMBER -> stringResource(Res.string.login_subtitle_member)
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Bottom Section (White Card)
                 Surface(
@@ -183,20 +216,21 @@ fun LoginScreen(
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // Email field
-                            AppTextField(
-                                value = uiState.email,
-                                onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
-                                label = stringResource(Res.string.email_label),
-                                placeholder = stringResource(Res.string.email_placeholder),
-                                leadingIcon = Hicon.EmailOutlined,
-                                isError = uiState.emailError != null,
-                                errorMessage = getErrorMessage(uiState.emailError),
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next,
-                                enabled = !uiState.isLoading,
-                                modifier = Modifier
-                            )
+                            // Form fields based on login type (set from Portal)
+                            when (uiState.loginType) {
+                                LoginType.MITRA -> {
+                                    MitraLoginFields(
+                                        uiState = uiState,
+                                        onEvent = onEvent
+                                    )
+                                }
+                                LoginType.MEMBER -> {
+                                    MemberLoginFields(
+                                        uiState = uiState,
+                                        onEvent = onEvent
+                                    )
+                                }
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -298,13 +332,63 @@ fun LoginScreen(
 private fun getErrorMessage(error: ValidationError?): String? {
     if (error == null) return null
     return when (error) {
-        ValidationError.EMAIL_REQUIRED -> stringResource(Res.string.email_required)
+        ValidationError.EMAIL_REQUIRED -> stringResource(Res.string.unique_id_required)
         ValidationError.INVALID_EMAIL_FORMAT -> stringResource(Res.string.valid_email_required)
         ValidationError.PASSWORD_REQUIRED -> stringResource(Res.string.password_required)
         ValidationError.PASSWORD_TOO_SHORT -> stringResource(Res.string.password_length_requirement)
         ValidationError.PASSWORD_NO_UPPERCASE -> stringResource(Res.string.uppercase_required)
         ValidationError.PASSWORD_NO_NUMBER -> stringResource(Res.string.number_required)
+        ValidationError.SCHOOL_REQUIRED -> stringResource(Res.string.school_required)
+        ValidationError.UNIQUE_ID_REQUIRED -> stringResource(Res.string.unique_id_required)
+        ValidationError.INVALID_UNIQUE_ID_FORMAT -> stringResource(Res.string.invalid_unique_id_format)
     }
+}
+
+/**
+ * Mitra login fields: School dropdown
+ */
+@Composable
+private fun MitraLoginFields(
+    uiState: LoginUiState,
+    onEvent: (LoginEvent) -> Unit
+) {
+    AppDropdownField(
+        selectedItem = uiState.selectedSchool,
+        items = uiState.schools,
+        onItemSelected = { onEvent(LoginEvent.SchoolSelected(it)) },
+        itemLabel = { it.name },
+        label = stringResource(Res.string.select_school),
+        placeholder = stringResource(Res.string.select_school_placeholder),
+        leadingIcon = Icons.Default.School,
+        expanded = uiState.isSchoolDropdownExpanded,
+        onExpandedChange = { onEvent(LoginEvent.ToggleSchoolDropdown) },
+        isError = uiState.schoolError != null,
+        errorMessage = getErrorMessage(uiState.schoolError),
+        enabled = !uiState.isLoading
+    )
+}
+
+/**
+ * Member login fields: Unique ID text field
+ */
+@Composable
+private fun MemberLoginFields(
+    uiState: LoginUiState,
+    onEvent: (LoginEvent) -> Unit
+) {
+    AppTextField(
+        value = uiState.uniqueId,
+        onValueChange = { onEvent(LoginEvent.UniqueIdChanged(it)) },
+        label = stringResource(Res.string.unique_id_label),
+        placeholder = stringResource(Res.string.unique_id_placeholder),
+        leadingIcon = Hicon.LockOutlined,
+        isError = uiState.uniqueIdError != null,
+        errorMessage = getErrorMessage(uiState.uniqueIdError),
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Next,
+        enabled = !uiState.isLoading,
+        modifier = Modifier
+    )
 }
 
 @Preview(showBackground = true)
@@ -313,6 +397,7 @@ private fun LoginScreenPreview() {
     LoginScreen(
         onEvent = {},
         uiState = LoginUiState(),
+        navigateBack = {},
         onLoginSuccess = {},
         navigateToForgot = {}
     )

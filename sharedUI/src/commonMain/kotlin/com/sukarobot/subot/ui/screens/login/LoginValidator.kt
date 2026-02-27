@@ -17,7 +17,10 @@ enum class ValidationError {
     PASSWORD_REQUIRED,
     PASSWORD_TOO_SHORT,
     PASSWORD_NO_UPPERCASE,
-    PASSWORD_NO_NUMBER
+    PASSWORD_NO_NUMBER,
+    SCHOOL_REQUIRED,
+    UNIQUE_ID_REQUIRED,
+    INVALID_UNIQUE_ID_FORMAT
 }
 
 /**
@@ -56,6 +59,31 @@ object LoginValidator {
             !password.any { it.isDigit() } -> ValidationResult(
                 isValid = false,
                 errorMessage = ValidationError.PASSWORD_NO_NUMBER.name
+            )
+            else -> ValidationResult(isValid = true)
+        }
+    }
+
+    fun validateSchoolSelection(school: School?): ValidationResult {
+        return if (school == null) {
+            ValidationResult(
+                isValid = false,
+                errorMessage = ValidationError.SCHOOL_REQUIRED.name
+            )
+        } else {
+            ValidationResult(isValid = true)
+        }
+    }
+
+    fun validateUniqueId(uniqueId: String): ValidationResult {
+        return when {
+            uniqueId.isBlank() -> ValidationResult(
+                isValid = false,
+                errorMessage = ValidationError.UNIQUE_ID_REQUIRED.name
+            )
+            uniqueId.length < 3 -> ValidationResult(
+                isValid = false,
+                errorMessage = ValidationError.INVALID_UNIQUE_ID_FORMAT.name
             )
             else -> ValidationResult(isValid = true)
         }
