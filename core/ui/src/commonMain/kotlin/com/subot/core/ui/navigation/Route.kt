@@ -12,7 +12,10 @@ sealed interface Route : NavKey {
     data object Onboarding : Route
 
     @Serializable
-    data object Login : Route
+    data object Portal : Route
+
+    @Serializable
+    data class Login(val loginType: String = "MITRA") : Route
 
     // Main Flow (with Bottom Navigation) - These require login
     @Serializable

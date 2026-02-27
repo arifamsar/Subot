@@ -14,9 +14,13 @@ class RootNavigator(
         backStack.add(Route.Onboarding)
     }
 
-    fun navigateToLogin() {
+    fun navigateToPortal() {
         backStack.clear()
-        backStack.add(Route.Login)
+        backStack.add(Route.Portal)
+    }
+
+    fun navigateToLogin(loginType: String = "MITRA") {
+        backStack.add(Route.Login(loginType))
     }
 
     fun navigateToMain() {
@@ -26,7 +30,7 @@ class RootNavigator(
 
     fun logout() {
         backStack.clear()
-        backStack.add(Route.Login)
+        backStack.add(Route.Portal)
     }
 
     fun goBack(): Boolean {
