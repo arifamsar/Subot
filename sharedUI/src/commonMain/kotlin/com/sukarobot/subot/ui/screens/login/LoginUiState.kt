@@ -1,15 +1,20 @@
 package com.sukarobot.subot.ui.screens.login
 
+import com.subot.core.domain.model.School
+
 /**
  * UI state for the login screen following MVI pattern.
  * Supports two login modes: Mitra (school + password) and Member (unique ID + password).
+ *
+ * Note: [schoolsPagingData] is intentionally kept outside this data class (in the ViewModel)
+ * because [kotlinx.coroutines.flow.Flow] does not support structural equality, which would
+ * break copy() semantics and Compose snapshot comparisons.
  */
 data class LoginUiState(
     // Login type
     val loginType: LoginType = LoginType.MITRA,
 
     // Mitra-specific fields
-    val schools: List<School> = emptyList(),
     val selectedSchool: School? = null,
     val schoolError: ValidationError? = null,
     val isSchoolDropdownExpanded: Boolean = false,
@@ -25,9 +30,6 @@ data class LoginUiState(
     val isLoginSuccessful: Boolean = false,
     val loginError: String? = null
 ) {
-    /**
-     * Check if the login form is valid based on the current login type
-     */
     val isFormValid: Boolean
         get() = when (loginType) {
             LoginType.MITRA -> selectedSchool != null && schoolError == null &&

@@ -2,22 +2,28 @@ package com.sukarobot.subot.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.subot.core.data.service.UserPreferences
-import kotlinx.coroutines.delay
+import androidx.paging.cachedIn
+import com.subot.core.domain.model.School
+import com.subot.core.domain.repository.LoginAs
+import com.subot.core.domain.result.ApiResult
+import com.subot.core.domain.usecase.GetSchoolsPagedUseCase
+import com.subot.core.domain.usecase.LoginUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel() {
+class LoginViewModel(
+    private val loginUseCase: LoginUseCase,
+    getSchoolsPagedUseCase: GetSchoolsPagedUseCase
+) : ViewModel() {
+
+    /** Paged stream of schools — collected in the UI via collectAsLazyPagingItems(). */
+    val schoolsPagingData = getSchoolsPagedUseCase(perPage = 20).cachedIn(viewModelScope)
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    init {
-        loadSchools()
-    }
 
     /**
      * Sets the initial login type from the navigation route parameter.
@@ -39,19 +45,6 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
             is LoginEvent.ClearLoginError -> handleClearLoginError()
             is LoginEvent.ForgotPassword -> handleForgotPassword()
         }
-    }
-
-    private fun loadSchools() {
-        // TODO: Replace with repository call to fetch schools from API
-        val schools = listOf(
-            School(id = "1", name = "SD Negeri 1 Jakarta"),
-            School(id = "2", name = "SD Negeri 2 Bandung"),
-            School(id = "3", name = "SMP Negeri 1 Surabaya"),
-            School(id = "4", name = "SMP Negeri 3 Yogyakarta"),
-            School(id = "5", name = "SMA Negeri 1 Semarang"),
-            School(id = "6", name = "SMA Negeri 2 Medan"),
-        )
-        _uiState.update { it.copy(schools = schools) }
     }
 
     private fun handleLoginTypeChanged(loginType: LoginType) {
@@ -90,21 +83,13 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
 
     private fun handleUniqueIdChanged(uniqueId: String) {
         _uiState.update {
-            it.copy(
-                uniqueId = uniqueId,
-                uniqueIdError = null,
-                loginError = null
-            )
+            it.copy(uniqueId = uniqueId, uniqueIdError = null, loginError = null)
         }
     }
 
     private fun handlePasswordChanged(password: String) {
         _uiState.update {
-            it.copy(
-                password = password,
-                passwordError = null,
-                loginError = null
-            )
+            it.copy(password = password, passwordError = null, loginError = null)
         }
     }
 
@@ -117,62 +102,55 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
             LoginType.MITRA -> {
                 val schoolValidation = LoginValidator.validateSchoolSelection(currentState.selectedSchool)
                 val schoolError = schoolValidation.errorMessage?.let { ValidationError.valueOf(it) }
-
-                _uiState.update {
-                    it.copy(
-                        schoolError = schoolError,
-                        passwordError = passwordError
-                    )
-                }
-
-                if (schoolValidation.isValid && passwordValidation.isValid) {
-                    performLogin()
-                }
+                _uiState.update { it.copy(schoolError = schoolError, passwordError = passwordError) }
+                if (schoolValidation.isValid && passwordValidation.isValid) performLogin()
             }
-
             LoginType.MEMBER -> {
                 val uniqueIdValidation = LoginValidator.validateUniqueId(currentState.uniqueId)
                 val uniqueIdError = uniqueIdValidation.errorMessage?.let { ValidationError.valueOf(it) }
-
-                _uiState.update {
-                    it.copy(
-                        uniqueIdError = uniqueIdError,
-                        passwordError = passwordError
-                    )
-                }
-
-                if (uniqueIdValidation.isValid && passwordValidation.isValid) {
-                    performLogin()
-                }
+                _uiState.update { it.copy(uniqueIdError = uniqueIdError, passwordError = passwordError) }
+                if (uniqueIdValidation.isValid && passwordValidation.isValid) performLogin()
             }
         }
     }
 
     private fun performLogin() {
+        val currentState = _uiState.value
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, loginError = null) }
 
-            try {
-                // Simulate network delay
-                delay(1500)
+            val loginAs: LoginAs
+            val identifier: String
+            when (currentState.loginType) {
+                LoginType.MITRA -> {
+                    loginAs = LoginAs.MITRA
+                    identifier = currentState.selectedSchool?.name ?: ""
+                }
+                LoginType.MEMBER -> {
+                    loginAs = LoginAs.MEMBER
+                    identifier = currentState.uniqueId
+                }
+            }
 
-                // For demo purposes, accept any valid credentials
-                // In real app, this would call a repository/use case
-                userPreferences.setLoggedIn(true)
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isLoginSuccessful = true,
-                        password = ""
-                    )
+            when (val result = loginUseCase(loginAs, identifier, currentState.password)) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            isLoginSuccessful = true,
+                            password = ""
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        loginError = e.message ?: "Login failed. Please try again."
-                    )
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            loginError = result.message
+                        )
+                    }
                 }
+                is ApiResult.Loading -> Unit
             }
         }
     }
@@ -186,6 +164,6 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
     }
 
     private fun handleForgotPassword() {
-        // Handle forgot password logic here
+        // Navigation handled by the Screen composable via navigateToForgot callback
     }
 }

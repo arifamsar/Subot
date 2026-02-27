@@ -1,5 +1,7 @@
 package com.sukarobot.subot.ui.screens.login
 
+import com.subot.core.domain.model.School
+
 /**
  * Sealed class representing all possible UI events for the login screen
  */

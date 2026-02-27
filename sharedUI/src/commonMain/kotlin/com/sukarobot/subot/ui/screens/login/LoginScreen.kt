@@ -44,6 +44,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.flow.Flow
+import com.subot.core.domain.model.School
 import com.subot.core.ui.components.AppDialog
 import com.subot.core.ui.components.AppDropdownField
 import com.subot.core.ui.components.AppPasswordTextField
@@ -62,6 +68,7 @@ import subot.core.ui.generated.resources.continue_text
 import subot.core.ui.generated.resources.forgot_password
 import subot.core.ui.generated.resources.halo
 import subot.core.ui.generated.resources.invalid_unique_id_format
+import subot.core.ui.generated.resources.loading_schools
 import subot.core.ui.generated.resources.logged_in_successfully
 import subot.core.ui.generated.resources.login_failed
 import subot.core.ui.generated.resources.login_failed_general
@@ -69,7 +76,6 @@ import subot.core.ui.generated.resources.login_subtitle_member
 import subot.core.ui.generated.resources.login_subtitle_mitra
 import subot.core.ui.generated.resources.login_successful
 import subot.core.ui.generated.resources.logo_horizontal
-import subot.core.ui.generated.resources.number_required
 import subot.core.ui.generated.resources.password_label
 import subot.core.ui.generated.resources.password_length_requirement
 import subot.core.ui.generated.resources.password_placeholder
@@ -83,14 +89,13 @@ import subot.core.ui.generated.resources.signing_in
 import subot.core.ui.generated.resources.unique_id_label
 import subot.core.ui.generated.resources.unique_id_placeholder
 import subot.core.ui.generated.resources.unique_id_required
-import subot.core.ui.generated.resources.uppercase_required
-import subot.core.ui.generated.resources.valid_email_required
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onEvent: (LoginEvent) -> Unit,
     uiState: LoginUiState,
+    schoolsPagingData: Flow<PagingData<School>>,
     navigateBack: () -> Unit,
     navigateToForgot: () -> Unit,
     onLoginSuccess: () -> Unit
@@ -221,6 +226,7 @@ fun LoginScreen(
                                 LoginType.MITRA -> {
                                     MitraLoginFields(
                                         uiState = uiState,
+                                        schoolsPagingData = schoolsPagingData,
                                         onEvent = onEvent
                                     )
                                 }
@@ -332,12 +338,8 @@ fun LoginScreen(
 private fun getErrorMessage(error: ValidationError?): String? {
     if (error == null) return null
     return when (error) {
-        ValidationError.EMAIL_REQUIRED -> stringResource(Res.string.unique_id_required)
-        ValidationError.INVALID_EMAIL_FORMAT -> stringResource(Res.string.valid_email_required)
         ValidationError.PASSWORD_REQUIRED -> stringResource(Res.string.password_required)
         ValidationError.PASSWORD_TOO_SHORT -> stringResource(Res.string.password_length_requirement)
-        ValidationError.PASSWORD_NO_UPPERCASE -> stringResource(Res.string.uppercase_required)
-        ValidationError.PASSWORD_NO_NUMBER -> stringResource(Res.string.number_required)
         ValidationError.SCHOOL_REQUIRED -> stringResource(Res.string.school_required)
         ValidationError.UNIQUE_ID_REQUIRED -> stringResource(Res.string.unique_id_required)
         ValidationError.INVALID_UNIQUE_ID_FORMAT -> stringResource(Res.string.invalid_unique_id_format)
@@ -345,26 +347,60 @@ private fun getErrorMessage(error: ValidationError?): String? {
 }
 
 /**
- * Mitra login fields: School dropdown
+ * Mitra login fields: School dropdown backed by PagingData.
+ * - Shows "Loading schools…" placeholder while the first page is fetching.
+ * - On error shows the error message with automatic retry on dropdown re-open.
+ * - Automatically loads the next page when the user scrolls to the bottom of the list.
  */
 @Composable
 private fun MitraLoginFields(
     uiState: LoginUiState,
+    schoolsPagingData: Flow<PagingData<School>>,
     onEvent: (LoginEvent) -> Unit
 ) {
+    val schools: LazyPagingItems<School> = schoolsPagingData.collectAsLazyPagingItems()
+
+    val isRefreshing = schools.loadState.refresh is LoadState.Loading
+    val refreshError = schools.loadState.refresh as? LoadState.Error
+    val isAppending = schools.loadState.append is LoadState.Loading
+
+    // Use get() — not peek() — so the paging library tracks access and triggers
+    // prefetch/append automatically as we approach the end of the loaded window.
+    val schoolList = remember(schools.itemCount) {
+        List(schools.itemCount) { index -> schools[index] }.filterNotNull()
+    }
+
+    // Whenever the dropdown is open and we are not already loading the next page,
+    // access the very last index to tell the PagingSource "we've reached the end,
+    // load more". This is the key driver for append pages in a non-lazy layout.
+    if (uiState.isSchoolDropdownExpanded && schools.itemCount > 0 && !isAppending) {
+        schools[schools.itemCount - 1]
+    }
+
     AppDropdownField(
         selectedItem = uiState.selectedSchool,
-        items = uiState.schools,
-        onItemSelected = { onEvent(LoginEvent.SchoolSelected(it)) },
+        items = schoolList,
+        onItemSelected = { school ->
+            onEvent(LoginEvent.SchoolSelected(school))
+        },
         itemLabel = { it.name },
         label = stringResource(Res.string.select_school),
-        placeholder = stringResource(Res.string.select_school_placeholder),
+        placeholder = when {
+            isRefreshing -> stringResource(Res.string.loading_schools)
+            refreshError != null -> refreshError.error.message
+                ?: stringResource(Res.string.login_failed_general)
+            else -> stringResource(Res.string.select_school_placeholder)
+        },
         leadingIcon = Icons.Default.School,
         expanded = uiState.isSchoolDropdownExpanded,
-        onExpandedChange = { onEvent(LoginEvent.ToggleSchoolDropdown) },
-        isError = uiState.schoolError != null,
-        errorMessage = getErrorMessage(uiState.schoolError),
-        enabled = !uiState.isLoading
+        onExpandedChange = {
+            onEvent(LoginEvent.ToggleSchoolDropdown)
+            // Retry a failed refresh when the user re-opens the dropdown
+            if (refreshError != null) schools.retry()
+        },
+        isError = uiState.schoolError != null || refreshError != null,
+        errorMessage = getErrorMessage(uiState.schoolError) ?: refreshError?.error?.message,
+        enabled = !uiState.isLoading && !isRefreshing
     )
 }
 
@@ -397,6 +433,7 @@ private fun LoginScreenPreview() {
     LoginScreen(
         onEvent = {},
         uiState = LoginUiState(),
+        schoolsPagingData = kotlinx.coroutines.flow.emptyFlow(),
         navigateBack = {},
         onLoginSuccess = {},
         navigateToForgot = {}
