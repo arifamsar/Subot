@@ -59,10 +59,28 @@ class UserPreferences(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    suspend fun getAccessToken(): String? {
+        val preferences = dataStore.data.first()
+        return preferences[access_token]
+    }
+
+    suspend fun setAccessToken(token: String) {
+        dataStore.edit { preferences ->
+            preferences[access_token] = token
+        }
+    }
+
+    suspend fun clearAccessToken() {
+        dataStore.edit { preferences ->
+            preferences.remove(access_token)
+        }
+    }
+
     companion object {
         val onboarding_completed = booleanPreferencesKey("onboarding_completed")
         val is_logged_in = booleanPreferencesKey("is_logged_in")
         val is_dark_mode = booleanPreferencesKey("is_dark_mode")
         val selected_language = stringPreferencesKey("selected_language")
+        val access_token = stringPreferencesKey("access_token")
     }
 }
