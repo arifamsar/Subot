@@ -32,6 +32,7 @@
     <string name="member">Member</string>
     <string name="select_school">Pilih Sekolah</string>
     <string name="select_school_placeholder">Pilih sekolah Anda</string>
+    <string name="loading_schools">Memuat sekolah...</string>
     <string name="school_required">Silakan pilih sekolah</string>
     <string name="unique_id_label">ID Unik</string>
     <string name="unique_id_placeholder">Masukkan ID unik Anda</string>
