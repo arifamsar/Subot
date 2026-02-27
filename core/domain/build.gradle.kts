@@ -13,6 +13,8 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core:common"))
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.koin.core)
+            implementation(libs.androidx.paging.common)
         }
     }
 }
