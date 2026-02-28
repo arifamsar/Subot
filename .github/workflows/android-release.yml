@@ -27,6 +27,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> local.properties
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
