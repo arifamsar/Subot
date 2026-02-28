@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.AppLanguage
 import com.subot.core.ui.components.AppDialog
+import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Global
 import com.subot.core.ui.components.icons.Hicon
@@ -99,11 +103,17 @@ fun ProfileScreen(
     onNavigate: (Route) -> Unit = {}
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
-    val darkModeEnabled by viewModel.darkModeEnabled.collectAsStateWithLifecycle()
-    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+
+    // Navigate out when logout is successful
+    LaunchedEffect(uiState.isLogoutSuccessful) {
+        if (uiState.isLogoutSuccessful) {
+            onLogout()
+        }
+    }
 
 
     val generalSettings = remember {
@@ -164,9 +174,10 @@ fun ProfileScreen(
         )
     }
     
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
         // Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -231,9 +242,9 @@ fun ProfileScreen(
             item {
                 SettingsGroup(
                     items = preferences,
-                    switchStates = mapOf(Res.string.dark_mode to darkModeEnabled),
+                    switchStates = mapOf(Res.string.dark_mode to uiState.darkModeEnabled),
                     onSwitchChange = { title, value ->
-                        if (title == Res.string.dark_mode) viewModel.toggleDarkMode(value)
+                        if (title == Res.string.dark_mode) viewModel.onEvent(ProfileEvent.ToggleDarkMode(value))
                     },
                     onClick = { item ->
                         when (item.title) {
@@ -291,7 +302,7 @@ fun ProfileScreen(
                 confirmText = stringResource(Res.string.logout),
                 onConfirm = {
                     showLogoutDialog = false
-                    viewModel.logout { onLogout() }
+                    viewModel.onEvent(ProfileEvent.Logout)
                 },
                 dismissText = stringResource(Res.string.cancel),
                 onDismiss = { showLogoutDialog = false }
@@ -301,13 +312,28 @@ fun ProfileScreen(
         // Language Selection Dialog
         if (showLanguageDialog) {
             LanguageSelectionDialog(
-                selectedLanguage = selectedLanguage,
+                selectedLanguage = uiState.selectedLanguage,
                 onLanguageSelected = { languageCode ->
-                    viewModel.setLanguage(languageCode)
+                    viewModel.onEvent(ProfileEvent.SetLanguage(languageCode))
                     showLanguageDialog = false
                 },
                 onDismiss = { showLanguageDialog = false }
             )
+        }
+        }
+
+        // Loading overlay during logout
+        if (uiState.isLoggingOut) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                AppLoadingIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 }
