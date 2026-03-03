@@ -5,10 +5,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -100,30 +101,19 @@ private fun MainScreenContent(
                     )
                 }
 
-                // Main content
-                Scaffold(
-                    bottomBar = {
-                        if (!useNavigationRail) {
-                            AnimatedVisibility(
-                                visible = navigationState.isOnTopLevelDestination,
-                                enter = slideInVertically { it },
-                                exit = slideOutVertically { it },
-                                modifier = Modifier
-                            ) {
-                                SubotNavigationBar(
-                                    selectedKey = navigationState.topLevelRoute,
-                                    onSelectKey = {
-                                        navigator.navigate(it)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                ) { innerPadding ->
+                // Main content without Scaffold - manual layout for better control
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                ) {
+                    // NavDisplay content
                     NavDisplay(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .then(if (!useNavigationRail) Modifier.navigationBarsPadding() else Modifier),
                         onBack = navigator::goBack,
                         sceneStrategy = listDetailStrategy,
                         entries = navigationState.toEntries(
@@ -138,6 +128,23 @@ private fun MainScreenContent(
                             }
                         )
                     )
+
+                    // Bottom Navigation Bar (phone layout only)
+                    if (!useNavigationRail) {
+                        AnimatedVisibility(
+                            visible = navigationState.isOnTopLevelDestination,
+                            enter = slideInVertically { it },
+                            exit = slideOutVertically { it },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            SubotNavigationBar(
+                                selectedKey = navigationState.topLevelRoute,
+                                onSelectKey = {
+                                    navigator.navigate(it)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
