@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,11 +49,14 @@ import com.subot.core.ui.components.switch_button.SwitchButton
 import com.subot.core.ui.components.switch_button.SwitchButtonConfig
 import com.subot.core.ui.components.switch_button.SwitchButtonIcon
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import subot.core.ui.generated.resources.Res
 import subot.core.ui.generated.resources.get_started
+import subot.core.ui.generated.resources.maskot
 import subot.core.ui.generated.resources.next
 import subot.core.ui.generated.resources.onboarding_description_1
 import subot.core.ui.generated.resources.onboarding_description_2
@@ -65,14 +69,15 @@ import subot.core.ui.generated.resources.switch_to_light_mode
 import subot.core.ui.generated.resources.welcome_to_subot
 
 data class OnboardingPage(
-    val icon: ImageVector,
+    val icon: ImageVector? = null,
+    val image: DrawableResource? = null,
     val title: StringResource,
     val description: StringResource
 )
 
 private val onboardingPages = listOf(
     OnboardingPage(
-        icon = Icons.Default.SmartToy,
+        image = Res.drawable.maskot,
         title = Res.string.welcome_to_subot,
         description = Res.string.onboarding_description_1
     ),
@@ -218,12 +223,20 @@ private fun OnboardingPageContent(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = page.icon,
-                contentDescription = null,
-                modifier = Modifier.size(100.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            if (page.image != null) {
+                Image(
+                    painter = painterResource(page.image),
+                    contentDescription = null,
+                    modifier = Modifier.size(160.dp)
+                )
+            } else if (page.icon != null) {
+                Icon(
+                    imageVector = page.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(48.dp))
