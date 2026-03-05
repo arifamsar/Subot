@@ -1,20 +1,33 @@
 package com.sukarobot.subot.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -100,45 +113,107 @@ private fun MainScreenContent(
                     )
                 }
 
-                // Main content
-                Scaffold(
-                    bottomBar = {
-                        if (!useNavigationRail) {
-                            AnimatedVisibility(
-                                visible = navigationState.isOnTopLevelDestination,
-                                enter = slideInVertically { it },
-                                exit = slideOutVertically { it },
-                                modifier = Modifier
-                            ) {
-                                SubotNavigationBar(
-                                    selectedKey = navigationState.topLevelRoute,
-                                    onSelectKey = {
-                                        navigator.navigate(it)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                ) { innerPadding ->
-                    NavDisplay(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        onBack = navigator::goBack,
-                        sceneStrategy = listDetailStrategy,
-                        entries = navigationState.toEntries(
-                            entryProvider {
-                                homeFlow(navigator = navigator)
-                                scheduleFlow(navigator = navigator)
-                                transactionFlow(navigator = navigator)
-                                profileFlow(
-                                    navigator = navigator,
-                                    onLogout = rootNavigator::logout
-                                )
-                            }
-                        )
+                // Main content with overlaid bottom bar
+                // Using Box instead of Scaffold's bottomBar slot to avoid innerPadding
+                // jitter during the bottom bar show/hide animation.
+                MainContent(
+                    modifier = Modifier.weight(1f).fillMaxSize(),
+                    navigationState = navigationState,
+                    navigator = navigator,
+                    rootNavigator = rootNavigator,
+                    listDetailStrategy = listDetailStrategy,
+                    useNavigationRail = useNavigationRail
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainContent(
+    navigationState: com.subot.core.ui.navigation.NavigationState,
+    navigator: Navigator,
+    rootNavigator: RootNavigator,
+    listDetailStrategy: com.subot.core.ui.navigation.ListDetailSceneStrategy<NavKey>,
+    useNavigationRail: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    // Track the actual measured height of the bottom bar in dp
+    var navBarHeightDp by remember { mutableStateOf(0.dp) }
+
+    // Animate a single offset value: 0 when visible, full height when hidden.
+    // The same value drives both the bar's visual offset and the content's bottom padding,
+    // so they always stay in sync — no overlap, no leftover gap.
+    val showBar = !useNavigationRail && navigationState.isOnTopLevelDestination
+    val barOffset by animateDpAsState(
+        targetValue = if (showBar) 0.dp else navBarHeightDp
+    )
+
+    val isTopLevel = navigationState.isOnTopLevelDestination
+
+    Box(modifier = modifier) {
+        val safeDrawingPadding = WindowInsets.safeDrawing.asPaddingValues()
+
+        NavDisplay(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = safeDrawingPadding.calculateTopPadding(),
+                    bottom = navBarHeightDp - barOffset,
+                ),
+            onBack = navigator::goBack,
+            sceneStrategy = listDetailStrategy,
+            transitionSpec = {
+                if (isTopLevel) {
+                    fadeIn() togetherWith fadeOut()
+                } else {
+                    slideInHorizontally { it } + fadeIn() togetherWith
+                            slideOutHorizontally { -it } + fadeOut()
+                }
+            },
+            popTransitionSpec = {
+                if (isTopLevel) {
+                    fadeIn() togetherWith fadeOut()
+                } else {
+                    slideInHorizontally { -it } + fadeIn() togetherWith
+                            slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            predictivePopTransitionSpec = {
+                if (isTopLevel) {
+                    fadeIn() togetherWith fadeOut()
+                } else {
+                    slideInHorizontally { -it } + fadeIn() togetherWith
+                            slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            entries = navigationState.toEntries(
+                entryProvider {
+                    homeFlow(navigator = navigator)
+                    scheduleFlow(navigator = navigator)
+                    transactionFlow(navigator = navigator)
+                    profileFlow(
+                        navigator = navigator,
+                        onLogout = rootNavigator::logout
                     )
                 }
+            )
+        )
+
+        if (!useNavigationRail) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged { size ->
+                        navBarHeightDp = with(density) { size.height.toDp() }
+                    }
+                    .offset { IntOffset(x = 0, y = with(density) { barOffset.roundToPx() }) }
+            ) {
+                SubotNavigationBar(
+                    selectedKey = navigationState.topLevelRoute,
+                    onSelectKey = { navigator.navigate(it) }
+                )
             }
         }
     }
