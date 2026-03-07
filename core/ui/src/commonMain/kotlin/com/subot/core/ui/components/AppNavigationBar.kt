@@ -60,6 +60,7 @@ fun SubotNavigationBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) data.selectedIcon else data.icon,
+                        tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground,
                         contentDescription = label
                     )
                 },
@@ -150,6 +151,7 @@ fun SubotNavigationRail(
                 icon = {
                     Icon(
                         imageVector = if (selected) data.selectedIcon else data.icon,
+                        tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground,
                         contentDescription = label
                     )
                 },
