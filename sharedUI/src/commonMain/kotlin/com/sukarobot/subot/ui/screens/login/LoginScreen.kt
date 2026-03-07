@@ -155,14 +155,13 @@ fun LoginScreen(
                         .statusBarsPadding()
                         .size(40.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
                         imageVector = Hicon.ArrowLeft,
                         contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
