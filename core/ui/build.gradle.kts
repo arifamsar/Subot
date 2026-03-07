@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.subot.core.ui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
 

@@ -19,7 +19,7 @@ buildConfig {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.subot.core.data"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }

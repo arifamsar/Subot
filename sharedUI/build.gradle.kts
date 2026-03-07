@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
 
-    androidLibrary {
+    android {
         namespace = "com.subot.sharedui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.subot.core.common"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
