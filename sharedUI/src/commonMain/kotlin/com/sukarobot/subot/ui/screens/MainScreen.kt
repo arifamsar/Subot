@@ -1,39 +1,38 @@
 package com.sukarobot.subot.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.subot.core.ui.components.SubotNavigationBar
 import com.subot.core.ui.components.SubotNavigationRail
+import com.subot.core.ui.navigation.ListDetailSceneStrategy
+import com.subot.core.ui.navigation.NavigationState
 import com.subot.core.ui.navigation.Navigator
 import com.subot.core.ui.navigation.RootNavigator
 import com.subot.core.ui.navigation.Route
@@ -95,7 +94,6 @@ private fun MainScreenContent(
         screenHeight = screenHeight
     )
 
-
     // Key on navigation type to force recomposition when switching between rail and bottom bar
     key(useNavigationRail) {
         Box(modifier = modifier.fillMaxSize()) {
@@ -113,9 +111,7 @@ private fun MainScreenContent(
                     )
                 }
 
-                // Main content with overlaid bottom bar
-                // Using Box instead of Scaffold's bottomBar slot to avoid innerPadding
-                // jitter during the bottom bar show/hide animation.
+                // Main content area with Scaffold-managed bottom bar
                 MainContent(
                     modifier = Modifier.weight(1f).fillMaxSize(),
                     navigationState = navigationState,
@@ -131,37 +127,32 @@ private fun MainScreenContent(
 
 @Composable
 private fun MainContent(
-    navigationState: com.subot.core.ui.navigation.NavigationState,
+    navigationState: NavigationState,
     navigator: Navigator,
     rootNavigator: RootNavigator,
-    listDetailStrategy: com.subot.core.ui.navigation.ListDetailSceneStrategy<NavKey>,
+    listDetailStrategy: ListDetailSceneStrategy<NavKey>,
     useNavigationRail: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
-    // Track the actual measured height of the bottom bar in dp
-    var navBarHeightDp by remember { mutableStateOf(0.dp) }
+    val isTopLevel = navigationState.isOnTopLevelDestination
+    val showBottomBar = !useNavigationRail && isTopLevel
 
-    // Animate a single offset value: 0 when visible, full height when hidden.
-    // The same value drives both the bar's visual offset and the content's bottom padding,
-    // so they always stay in sync — no overlap, no leftover gap.
-    val showBar = !useNavigationRail && navigationState.isOnTopLevelDestination
-    val barOffset by animateDpAsState(
-        targetValue = if (showBar) 0.dp else navBarHeightDp
+    // Measure the navigation bar inset so we know the system nav bar height
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    // Animate bottom padding: when bottom bar is visible use its full height (nav bar inset
+    // is already inside the bar), when hidden just keep the system nav bar inset.
+    val bottomBarHeight = 80.dp // matches SubotNavigationBar height
+    val animatedBottomPadding by animateDpAsState(
+        targetValue = if (showBottomBar) bottomBarHeight else navBarHeight,
+        label = "bottomPadding"
     )
 
-    val isTopLevel = navigationState.isOnTopLevelDestination
-
-    Box(modifier = modifier) {
-        val safeDrawingPadding = WindowInsets.safeDrawing.asPaddingValues()
-
+    Box(modifier = modifier.fillMaxSize()) {
         NavDisplay(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = safeDrawingPadding.calculateTopPadding(),
-                    bottom = navBarHeightDp - barOffset,
-                ),
+                .padding(bottom = animatedBottomPadding),
             onBack = navigator::goBack,
             sceneStrategy = listDetailStrategy,
             transitionSpec = {
@@ -201,20 +192,16 @@ private fun MainContent(
             )
         )
 
-        if (!useNavigationRail) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .onSizeChanged { size ->
-                        navBarHeightDp = with(density) { size.height.toDp() }
-                    }
-                    .offset { IntOffset(x = 0, y = with(density) { barOffset.roundToPx() }) }
-            ) {
-                SubotNavigationBar(
-                    selectedKey = navigationState.topLevelRoute,
-                    onSelectKey = { navigator.navigate(it) }
-                )
-            }
+        AnimatedVisibility(
+            visible = showBottomBar,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut()
+        ) {
+            SubotNavigationBar(
+                selectedKey = navigationState.topLevelRoute,
+                onSelectKey = { navigator.navigate(it) }
+            )
         }
     }
 }
