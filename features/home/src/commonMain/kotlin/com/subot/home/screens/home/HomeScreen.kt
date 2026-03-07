@@ -37,7 +37,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -49,6 +48,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppTextButton
 
 // --- Multiplatform Resources (Simulated for this context) ---
@@ -149,7 +149,6 @@ fun HomeScreen(dashboardData: DashboardData = sampleDashboardWithMeetings) {
                     scrolledContainerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
-                windowInsets = WindowInsets(0.dp)
             )
         },
         contentWindowInsets = WindowInsets(0.dp)
@@ -457,17 +456,14 @@ fun PaymentCard(dashboardData: DashboardData) {
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            
-            Button(
+
+            AppPrimaryButton(
                 onClick = { /* Handle Payment */ },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = dashboardData.hasUnpaidBills,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Payments, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Bayar Sekarang")
-            }
+                text = "Bayar Sekarang",
+                icon = Icons.Default.Payments,
+            )
         }
     }
 }
