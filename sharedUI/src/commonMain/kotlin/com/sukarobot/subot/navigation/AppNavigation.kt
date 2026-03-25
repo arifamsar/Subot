@@ -6,18 +6,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.subot.core.ui.navigation.ListDetailScene
 import com.subot.core.ui.navigation.Route
+import com.subot.core.ui.navigation.rememberListDetailSceneStrategy
 import com.sukarobot.subot.AppState
 import com.sukarobot.subot.ui.screens.MainScreen
 import com.sukarobot.subot.ui.screens.forgot_password.ForgotPasswordScreen
@@ -31,38 +34,46 @@ import com.sukarobot.subot.ui.screens.splash.SplashScreen
 import com.sukarobot.subot.ui.screens.splash.SplashViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavigation(
     appState: AppState,
     modifier: Modifier = Modifier
 ) {
     val rootNavigator = appState.rootNavigator
+    BoxWithConstraints(modifier = modifier) {
+        val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(
+            screenWidth = maxWidth,
+            screenHeight = maxHeight
+        )
 
-    SharedTransitionLayout(
-        modifier = modifier
-    ) {
-        NavDisplay(
-            backStack = appState.rootBackStack,
-            onBack = {
-                rootNavigator.goBack()
-            },
-            transitionSpec = {
-                slideInHorizontally { it } + fadeIn() togetherWith
-                        slideOutHorizontally { -it } + fadeOut()
-            },
-            popTransitionSpec = {
-                slideInHorizontally { -it } + fadeIn() togetherWith
-                        slideOutHorizontally { it } + fadeOut()
-            },
-            predictivePopTransitionSpec = {
-                slideInHorizontally { -it } + fadeIn() togetherWith
-                        slideOutHorizontally { it } + fadeOut()
-            },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider {
+        SharedTransitionLayout(
+            modifier = Modifier
+        ) {
+            NavDisplay(
+                backStack = appState.rootBackStack,
+                onBack = {
+                    rootNavigator.goBack()
+                },
+                sceneStrategies = listOf(listDetailStrategy),
+                sharedTransitionScope = this,
+                transitionSpec = {
+                    slideInHorizontally { it } + fadeIn() togetherWith
+                            slideOutHorizontally { -it } + fadeOut()
+                },
+                popTransitionSpec = {
+                    slideInHorizontally { -it } + fadeIn() togetherWith
+                            slideOutHorizontally { it } + fadeOut()
+                },
+                predictivePopTransitionSpec = {
+                    slideInHorizontally { -it } + fadeIn() togetherWith
+                            slideOutHorizontally { it } + fadeOut()
+                },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()
+                ),
+                entryProvider = entryProvider {
                 entry<Route.Splash> {
                     val splashViewModel = koinViewModel<SplashViewModel>()
                     val splashUiState by splashViewModel.uiState.collectAsStateWithLifecycle()
@@ -81,7 +92,9 @@ fun AppNavigation(
                     )
                 }
 
-                entry<Route.Portal> {
+                entry<Route.Portal>(
+                    metadata = ListDetailScene.listPane()
+                ) {
                     PortalScreen(
                         onMitraSelected = {
                             rootNavigator.navigateToLogin(LoginType.MITRA.name)
@@ -92,7 +105,9 @@ fun AppNavigation(
                     )
                 }
 
-                entry<Route.Login> { route ->
+                entry<Route.Login>(
+                    metadata = ListDetailScene.detailPane()
+                ) { route ->
                     val viewModel = koinViewModel<LoginViewModel>()
                     val loginUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -136,7 +151,8 @@ fun AppNavigation(
                         rootNavigator = rootNavigator
                     )
                 }
-            }
-        )
+                }
+            )
+        }
     }
 }
