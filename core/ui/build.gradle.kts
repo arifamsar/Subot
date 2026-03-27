@@ -15,15 +15,18 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.compose.ui.tooling.preview)
+        }
         commonMain.dependencies {
             sharedUiDependencies(project)
             implementation(project(":core:common"))
         }
-
-        androidMain.dependencies {
-            implementation(libs.compose.ui.tooling)
-        }
     }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 compose.resources {

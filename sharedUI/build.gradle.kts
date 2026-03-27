@@ -34,8 +34,5 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
 
-        androidMain.dependencies {
-            implementation(libs.compose.ui.tooling)
-        }
     }
 }
