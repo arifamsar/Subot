@@ -1,5 +1,6 @@
 package com.subot.profile.navigation
 
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -13,6 +14,7 @@ import com.subot.profile.screens.settings.SettingsScreen
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 fun EntryProviderScope<NavKey>.profileFlow(
     navigator: Navigator,
+    sharedTransitionScope: SharedTransitionScope,
     onLogout: () -> Unit
 ) {
     entry<Route.Profile>(
@@ -26,8 +28,9 @@ fun EntryProviderScope<NavKey>.profileFlow(
         )
     }
     entry<Route.Settings>(
-        metadata = ListDetailScene.detailPane()
-    ) {
+//        metadata = ListDetailScene.listPane() + ListDetailScene.detailPane()
+        metadata = ListDetailScene.detailPane(),
+        ) {
         SettingsScreen(
             onBack = { navigator.goBack() }
         )
