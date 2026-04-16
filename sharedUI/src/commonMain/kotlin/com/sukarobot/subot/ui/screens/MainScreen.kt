@@ -1,6 +1,7 @@
 package com.sukarobot.subot.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,10 +20,11 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -143,7 +145,13 @@ private fun MainContent(
     val isTopLevel = navigationState.isOnTopLevelDestination
     
     // State to track if the bottom bar should be visible based on scroll
-    var isBottomBarVisible by remember(navigationState.topLevelRoute) { mutableStateOf(true) }
+    var isBottomBarVisible by remember { mutableStateOf(true) }
+
+    // Route/context changes can recreate parts of the UI tree; force a visible reset so
+    // the nested scroll callback always drives the current visibility state afterward.
+    LaunchedEffect(navigationState.topLevelRoute, isTopLevel) {
+        isBottomBarVisible = true
+    }
     
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -180,48 +188,63 @@ private fun MainContent(
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
     ) {
-        NavDisplay(
+        SharedTransitionLayout(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = animatedBottomPadding),
-            onBack = navigator::goBack,
-            sceneStrategy = listDetailStrategy,
-            transitionSpec = {
-                if (isTopLevel) {
-                    fadeIn() togetherWith fadeOut()
-                } else {
-                    slideInHorizontally { it } + fadeIn() togetherWith
-                            slideOutHorizontally { -it } + fadeOut()
-                }
-            },
-            popTransitionSpec = {
-                if (isTopLevel) {
-                    fadeIn() togetherWith fadeOut()
-                } else {
-                    slideInHorizontally { -it } + fadeIn() togetherWith
-                            slideOutHorizontally { it } + fadeOut()
-                }
-            },
-            predictivePopTransitionSpec = {
-                if (isTopLevel) {
-                    fadeIn() togetherWith fadeOut()
-                } else {
-                    slideInHorizontally { -it } + fadeIn() togetherWith
-                            slideOutHorizontally { it } + fadeOut()
-                }
-            },
-            entries = navigationState.toEntries(
-                entryProvider {
-                    homeFlow(navigator = navigator)
-                    scheduleFlow(navigator = navigator)
-                    transactionFlow(navigator = navigator)
-                    profileFlow(
-                        navigator = navigator,
-                        onLogout = rootNavigator::logout
-                    )
-                }
+                .padding(bottom = animatedBottomPadding)
+        ) {
+            NavDisplay(
+                modifier = Modifier.fillMaxSize(),
+                onBack = navigator::goBack,
+                sceneStrategies = listOf(listDetailStrategy),
+                sharedTransitionScope = this,
+                transitionSpec = {
+                    if (isTopLevel) {
+                        fadeIn() togetherWith fadeOut()
+                    } else {
+                        slideInHorizontally { it } + fadeIn() togetherWith
+                                slideOutHorizontally { -it } + fadeOut()
+                    }
+                },
+                popTransitionSpec = {
+                    if (isTopLevel) {
+                        fadeIn() togetherWith fadeOut()
+                    } else {
+                        slideInHorizontally { -it } + fadeIn() togetherWith
+                                slideOutHorizontally { it } + fadeOut()
+                    }
+                },
+                predictivePopTransitionSpec = {
+                    if (isTopLevel) {
+                        fadeIn() togetherWith fadeOut()
+                    } else {
+                        slideInHorizontally { -it } + fadeIn() togetherWith
+                                slideOutHorizontally { it } + fadeOut()
+                    }
+                },
+                entries = navigationState.toEntries(
+                    entryProvider {
+                        homeFlow(
+                            navigator = navigator,
+                            sharedTransitionScope = this@SharedTransitionLayout
+                        )
+                        scheduleFlow(
+                            navigator = navigator,
+                            sharedTransitionScope = this@SharedTransitionLayout
+                        )
+                        transactionFlow(
+                            navigator = navigator,
+                            sharedTransitionScope = this@SharedTransitionLayout
+                        )
+                        profileFlow(
+                            navigator = navigator,
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            onLogout = rootNavigator::logout
+                        )
+                    }
+                )
             )
-        )
+        }
 
         AnimatedVisibility(
             visible = showBottomBar,
