@@ -1,10 +1,13 @@
 package com.subot.core.domain.di
 
 import com.subot.core.domain.usecase.GetAuthMeUseCase
+import com.subot.core.domain.usecase.GetProfileMembersUseCase
+import com.subot.core.domain.usecase.GetProfileUseCase
 import com.subot.core.domain.usecase.GetSchoolsPagedUseCase
 import com.subot.core.domain.usecase.GetSchoolsUseCase
 import com.subot.core.domain.usecase.LoginUseCase
 import com.subot.core.domain.usecase.LogoutUseCase
+import com.subot.core.domain.usecase.UpdatePenanggungJawabUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -13,5 +16,7 @@ val domainModule = module {
     factory { GetAuthMeUseCase(get()) }
     factory { GetSchoolsUseCase(get()) }
     factory { GetSchoolsPagedUseCase(get()) }
+    factory { GetProfileUseCase(get()) }
+    factory { GetProfileMembersUseCase(get()) }
+    factory { UpdatePenanggungJawabUseCase(get()) }
 }
-

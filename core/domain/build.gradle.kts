@@ -16,5 +16,11 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.androidx.paging.common)
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
 }

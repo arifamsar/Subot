@@ -17,6 +17,16 @@ data class AuthUser(
 
 data class UserProfileSummary(
     val id: Int,
-    val nis: String?
+    val nis: String?,
+    val role: String? = null,
+    val idSekolah: String? = null,
+    val sekolah: String? = null,
+    val alamat: String? = null,
+    val namaLengkap: String? = null,
+    val email: String? = null,
+    val profileImageUrl: String? = null,
+    val namaPenanggungJawab: String? = null,
+    val emailPenanggungJawab: String? = null,
+    val telephonePenanggungJawab: String? = null,
+    val status: String? = null
 )
-
