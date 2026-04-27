@@ -13,6 +13,7 @@ import com.subot.core.domain.AppLanguage
 import com.sukarobot.subot.navigation.AppNavigation
 import com.sukarobot.subot.ui.Localization
 import com.sukarobot.subot.ui.di.viewModelModule
+import com.subot.profile.di.profileModule
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 
@@ -22,7 +23,7 @@ fun App(
 ) {
     KoinApplication(
         application = {
-            modules(dataModule, viewModelModule)
+            modules(dataModule, viewModelModule, profileModule)
         }
     ) {
         val appState: AppState = rememberAppState()

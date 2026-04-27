@@ -55,6 +55,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.AppLanguage
 import com.subot.core.ui.components.AppDialog
 import com.subot.core.ui.components.AppLoadingIndicator
+import com.subot.core.ui.components.ShimmerBox
+import com.subot.core.ui.components.ShimmerCircle
 import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Global
 import com.subot.core.ui.components.icons.Hicon
@@ -83,14 +85,23 @@ import subot.core.ui.generated.resources.language
 import subot.core.ui.generated.resources.language_subtitle
 import subot.core.ui.generated.resources.logout
 import subot.core.ui.generated.resources.logout_confirmation_message
+import subot.core.ui.generated.resources.member
 import subot.core.ui.generated.resources.notifications
 import subot.core.ui.generated.resources.preferences
+import subot.core.ui.generated.resources.profile_management
 import subot.core.ui.generated.resources.profile
+import subot.core.ui.generated.resources.members_menu
+import subot.core.ui.generated.resources.members_menu_subtitle
+import subot.core.ui.generated.resources.mitra
+import subot.core.ui.generated.resources.penanggung_jawab_menu
+import subot.core.ui.generated.resources.penanggung_jawab_menu_subtitle
 import subot.core.ui.generated.resources.security
 import subot.core.ui.generated.resources.security_subtitle
 import subot.core.ui.generated.resources.select_language
 import subot.core.ui.generated.resources.support
 import subot.core.ui.generated.resources.version_label
+
+import com.subot.core.ui.components.icons.ProfileCircleFilled
 
 data class ProfileMenuItem(
     val title: StringResource,
@@ -110,6 +121,25 @@ fun ProfileScreen(
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val profileSummary = uiState.profile?.profile
+    val role = profileSummary?.role ?: uiState.profile?.type
+    val roleLabel = when {
+        role.equals("mitra", ignoreCase = true) -> stringResource(Res.string.mitra)
+        role.equals("member", ignoreCase = true) -> stringResource(Res.string.member)
+        role.isNullOrBlank() -> stringResource(Res.string.profile)
+        else -> role
+    }
+    val displayName = profileSummary?.namaPenanggungJawab
+        ?.takeIf { it.isNotBlank() }
+        ?: profileSummary?.namaLengkap?.takeIf { it.isNotBlank() }
+        ?: profileSummary?.sekolah?.takeIf { it.isNotBlank() }
+        ?: "-"
+    val displaySecondary = profileSummary?.emailPenanggungJawab
+        ?.takeIf { it.isNotBlank() }
+        ?: profileSummary?.email?.takeIf { it.isNotBlank() }
+        ?: profileSummary?.nis?.takeIf { it.isNotBlank() }
+        ?: "-"
+    val isMitra = role.equals("mitra", ignoreCase = true)
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -181,6 +211,23 @@ fun ProfileScreen(
             )
         )
     }
+
+    val profileManagement = remember {
+        listOf(
+            ProfileMenuItem(
+                title = Res.string.members_menu,
+                subtitle = Res.string.members_menu_subtitle,
+                icon = Hicon.ProfileOutlined,
+                route = Route.Members
+            ),
+            ProfileMenuItem(
+                title = Res.string.penanggung_jawab_menu,
+                subtitle = Res.string.penanggung_jawab_menu_subtitle,
+                icon = Hicon.SecuritySafe,
+                route = Route.PenanggungJawab
+            )
+        )
+    }
     
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -189,7 +236,7 @@ fun ProfileScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Mitra",
+                            text = roleLabel,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -222,9 +269,44 @@ fun ProfileScreen(
                 // Profile Card
                 item {
                     ProfileCard(
+                        name = displayName,
+                        secondaryText = displaySecondary,
+                        isLoading = uiState.isProfileLoading,
+                        onEditClick = {
+                            val editRoute = if (isMitra) {
+                                Route.PenanggungJawab
+                            } else {
+                                Route.SettingsDetail("edit_profile")
+                            }
+                            onNavigate(editRoute)
+                        },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                if (isMitra) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.profile_management),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = profileManagement,
+                            onClick = { item ->
+                                item.route?.let { onNavigate(it) }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
 
                 // General Settings
@@ -367,8 +449,21 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileCard(
+    name: String,
+    secondaryText: String,
+    isLoading: Boolean = false,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val initials = name
+        .split(" ")
+        .filter { it.isNotBlank() }
+        .take(2)
+        .joinToString("") { token ->
+            token.first().uppercase()
+        }
+        .ifBlank { "?" }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -382,44 +477,70 @@ private fun ProfileCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "JD",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "John Doe",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = "john.doe@email.com",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
-            }
-            
-            IconButton(onClick = { /* Edit profile */ }) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(Res.string.edit_profile),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            if (isLoading) {
+                ShimmerCircle(size = 64.dp)
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Column(modifier = Modifier.weight(1f)) {
+                    ShimmerBox(
+                        width = 120.dp,
+                        height = 20.dp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ShimmerBox(
+                        width = 160.dp,
+                        height = 16.dp
+                    )
+                }
+                
+                IconButton(onClick = {}, enabled = false) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
+                    )
+                }
+            } else {
+                // Avatar
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Hicon.ProfileCircleFilled,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = secondaryText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
+                }
+                
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(Res.string.edit_profile),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
         }
     }

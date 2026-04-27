@@ -40,5 +40,11 @@ sealed interface Route : NavKey {
     data class SettingsDetail(val settingId: String) : Route
 
     @Serializable
+    data object Members : Route
+
+    @Serializable
+    data object PenanggungJawab : Route
+
+    @Serializable
     data object ForgetPassword : Route
 }

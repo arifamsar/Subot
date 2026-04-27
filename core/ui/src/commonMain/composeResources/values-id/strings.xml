@@ -68,6 +68,11 @@
     <string name="submit">Kirim</string>
     <string name="edit_profile">Ubah Profil</string>
     <string name="edit_profile_subtitle">Perbarui informasi pribadi Anda</string>
+    <string name="profile_management">Manajemen Profil</string>
+    <string name="members_menu">Anggota</string>
+    <string name="members_menu_subtitle">Lihat dan kelola daftar anggota</string>
+    <string name="penanggung_jawab_menu">Penanggung Jawab</string>
+    <string name="penanggung_jawab_menu_subtitle">Perbarui data penanggung jawab</string>
     <string name="security">Keamanan</string>
     <string name="security_subtitle">Kata sandi dan otentikasi</string>
     <string name="notifications">Notifikasi</string>

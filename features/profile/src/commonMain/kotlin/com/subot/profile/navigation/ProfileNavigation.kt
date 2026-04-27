@@ -7,9 +7,14 @@ import androidx.navigation3.runtime.NavKey
 import com.subot.core.ui.navigation.ListDetailScene
 import com.subot.core.ui.navigation.Navigator
 import com.subot.core.ui.navigation.Route
+import com.subot.profile.screens.members.MembersScreen
+import com.subot.profile.screens.members.MembersViewModel
+import com.subot.profile.screens.penanggung_jawab.PenanggungJawabScreen
+import com.subot.profile.screens.penanggung_jawab.PenanggungJawabViewModel
 import com.subot.profile.screens.profile.ProfileScreen
 import com.subot.profile.screens.settings.SettingsDetailScreen
 import com.subot.profile.screens.settings.SettingsScreen
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 fun EntryProviderScope<NavKey>.profileFlow(
@@ -40,6 +45,24 @@ fun EntryProviderScope<NavKey>.profileFlow(
     ) { route ->
         SettingsDetailScreen(
             settingId = route.settingId,
+            onBack = { navigator.goBack() }
+        )
+    }
+    entry<Route.Members>(
+        metadata = ListDetailScene.detailPane()
+    ) {
+        val membersViewModel: MembersViewModel = koinViewModel()
+        MembersScreen(
+            viewModel = membersViewModel,
+            onBack = { navigator.goBack() }
+        )
+    }
+    entry<Route.PenanggungJawab>(
+        metadata = ListDetailScene.detailPane()
+    ) {
+        val penanggungJawabViewModel: PenanggungJawabViewModel = koinViewModel()
+        PenanggungJawabScreen(
+            viewModel = penanggungJawabViewModel,
             onBack = { navigator.goBack() }
         )
     }

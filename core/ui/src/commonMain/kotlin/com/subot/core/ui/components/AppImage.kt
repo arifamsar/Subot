@@ -36,7 +36,9 @@ fun AppNetworkImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
     shape: Shape = RoundedCornerShape(8.dp),
-    placeholderColor: Color = MaterialTheme.colorScheme.surfaceVariant
+    placeholderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    fallbackIcon: ImageVector? = null,
+    fallbackIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     val context = LocalPlatformContext.current
     val imageLoader = ImageLoader(context)
@@ -62,8 +64,18 @@ fun AppNetworkImage(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(placeholderColor)
-                )
+                        .background(placeholderColor),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    if (fallbackIcon != null) {
+                        Icon(
+                            imageVector = fallbackIcon,
+                            contentDescription = null,
+                            tint = fallbackIconTint,
+                            modifier = Modifier.fillMaxSize(0.6f)
+                        )
+                    }
+                }
             }
         )
     }
@@ -75,14 +87,18 @@ fun AppCircleImage(
     contentDescription: String?,
     size: Dp = 48.dp,
     modifier: Modifier = Modifier,
-    placeholderColor: Color = MaterialTheme.colorScheme.surfaceVariant
+    placeholderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    fallbackIcon: ImageVector? = null,
+    fallbackIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     AppNetworkImage(
         url = url,
         contentDescription = contentDescription,
         modifier = modifier.size(size),
         shape = CircleShape,
-        placeholderColor = placeholderColor
+        placeholderColor = placeholderColor,
+        fallbackIcon = fallbackIcon,
+        fallbackIconTint = fallbackIconTint
     )
 }
 

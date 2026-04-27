@@ -68,6 +68,11 @@
     <string name="submit">Submit</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="edit_profile_subtitle">Update your personal information</string>
+    <string name="profile_management">Profile Management</string>
+    <string name="members_menu">Members</string>
+    <string name="members_menu_subtitle">View and manage member list</string>
+    <string name="penanggung_jawab_menu">Person in Charge</string>
+    <string name="penanggung_jawab_menu_subtitle">Update person in charge data</string>
     <string name="security">Security</string>
     <string name="security_subtitle">Password and authentication</string>
     <string name="notifications">Notifications</string>

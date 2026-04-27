@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subot.core.data.service.UserPreferences
 import com.subot.core.domain.result.ApiResult
+import com.subot.core.domain.usecase.GetProfileUseCase
 import com.subot.core.domain.usecase.LogoutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val userPreferences: UserPreferences,
+    private val getProfileUseCase: GetProfileUseCase,
     private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
@@ -31,14 +33,43 @@ class ProfileViewModel(
                 _uiState.update { it.copy(selectedLanguage = language) }
             }
         }
+        loadProfile()
     }
 
     fun onEvent(event: ProfileEvent) {
         when (event) {
+            is ProfileEvent.RefreshProfile -> loadProfile()
+            is ProfileEvent.ClearProfileError -> _uiState.update { it.copy(profileError = null) }
             is ProfileEvent.ToggleDarkMode -> toggleDarkMode(event.enabled)
             is ProfileEvent.SetLanguage -> setLanguage(event.languageCode)
             is ProfileEvent.Logout -> logout()
             is ProfileEvent.ClearLogoutError -> _uiState.update { it.copy(logoutError = null) }
+        }
+    }
+
+    private fun loadProfile() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isProfileLoading = true, profileError = null) }
+            when (val result = getProfileUseCase()) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isProfileLoading = false,
+                            profile = result.data,
+                            profileError = null
+                        )
+                    }
+                }
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isProfileLoading = false,
+                            profileError = result.message
+                        )
+                    }
+                }
+                is ApiResult.Loading -> Unit
+            }
         }
     }
 
