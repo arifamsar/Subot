@@ -3,6 +3,7 @@ package com.subot.core.data.service
 import com.subot.core.data.dto.ListItemDto
 import com.subot.core.data.dto.ListResponseDto
 import com.subot.core.data.dto.LoginRequestDto
+import com.subot.core.data.dto.PenanggungJawabRequestDto
 import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -62,6 +63,25 @@ class ApiServiceImpl(
     override suspend fun getProfile(token: String): HttpResponse {
         return httpClient.get("profile/me") {
             bearerAuth(token)
+        }
+    }
+
+    override suspend fun getProfileMembers(token: String, page: Int, perPage: Int, search: String?): HttpResponse {
+        return httpClient.get("profile/members") {
+            bearerAuth(token)
+            parameter("page", page)
+            parameter("per_page", perPage)
+            if (search != null && search.isNotEmpty()) {
+                parameter("search", search)
+            }
+        }
+    }
+
+    override suspend fun updatePenanggungJawab(token: String, request: PenanggungJawabRequestDto): HttpResponse {
+        return httpClient.put("profile/penanggung-jawab") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(request)
         }
     }
 }

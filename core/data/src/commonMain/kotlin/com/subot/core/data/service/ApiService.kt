@@ -3,6 +3,7 @@ package com.subot.core.data.service
 import com.subot.core.data.dto.ListItemDto
 import com.subot.core.data.dto.ListResponseDto
 import com.subot.core.data.dto.LoginRequestDto
+import com.subot.core.data.dto.PenanggungJawabRequestDto
 import io.ktor.client.statement.HttpResponse
 
 interface ApiService {
@@ -20,4 +21,6 @@ interface ApiService {
 
     // --- Profile ---
     suspend fun getProfile(token: String): HttpResponse
+    suspend fun getProfileMembers(token: String, page: Int = 1, perPage: Int = 10, search: String? = null): HttpResponse
+    suspend fun updatePenanggungJawab(token: String, request: PenanggungJawabRequestDto): HttpResponse
 }

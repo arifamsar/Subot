@@ -11,7 +11,18 @@ import com.subot.core.domain.model.UserProfileSummary
 
 fun UserProfileSummaryDto.toDomain(): UserProfileSummary = UserProfileSummary(
     id = id,
-    nis = nis
+    nis = nis,
+    role = role,
+    idSekolah = idSekolah,
+    sekolah = sekolah,
+    alamat = alamat,
+    namaLengkap = namaLengkap,
+    email = email,
+    profileImageUrl = profileImageUrl,
+    namaPenanggungJawab = namaPenanggungJawab,
+    emailPenanggungJawab = emailPenanggungJawab,
+    telephonePenanggungJawab = telephonePenanggungJawab,
+    status = status
 )
 
 fun AuthUserDto.toDomain(): AuthUser = AuthUser(
@@ -30,4 +41,3 @@ fun UserProfileDto.toDomain(): UserProfile = UserProfile(
     type = type,
     profile = profile.toDomain()
 )
-

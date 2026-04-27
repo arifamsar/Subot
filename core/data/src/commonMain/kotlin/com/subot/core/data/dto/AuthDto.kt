@@ -24,7 +24,40 @@ data class UserProfileSummaryDto(
     val id: Int,
 
     @SerialName("nis")
-    val nis: String? = null
+    val nis: String? = null,
+
+    @SerialName("role")
+    val role: String? = null,
+
+    @SerialName("id_sekolah")
+    val idSekolah: String? = null,
+
+    @SerialName("sekolah")
+    val sekolah: String? = null,
+
+    @SerialName("alamat")
+    val alamat: String? = null,
+
+    @SerialName("nama_lengkap")
+    val namaLengkap: String? = null,
+
+    @SerialName("email")
+    val email: String? = null,
+
+    @SerialName("profile_image_url")
+    val profileImageUrl: String? = null,
+
+    @SerialName("nama_penanggung_jawab")
+    val namaPenanggungJawab: String? = null,
+
+    @SerialName("email_penanggung_jawab")
+    val emailPenanggungJawab: String? = null,
+
+    @SerialName("telephone_penanggung_jawab")
+    val telephonePenanggungJawab: String? = null,
+
+    @SerialName("status")
+    val status: String? = null
 )
 
 @Serializable
@@ -59,4 +92,3 @@ data class UserProfileDto(
     @SerialName("profile")
     val profile: UserProfileSummaryDto
 )
-
