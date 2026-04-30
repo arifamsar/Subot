@@ -44,19 +44,47 @@ data class SummaryMetricsDto(
     @SerialName("remainingSchedules")
     val remainingSchedules: Int = 0,
     @SerialName("nextSchedule")
-    val nextSchedule: String? = null
+    val nextSchedule: NextScheduleDto? = null
+)
+
+@Serializable
+data class NextScheduleDto(
+    @SerialName("dateLabel")
+    val dateLabel: String = "",
+    @SerialName("timeRange")
+    val timeRange: String = "",
+    @SerialName("program")
+    val program: String = "",
+    @SerialName("trainer")
+    val trainer: String = ""
 )
 
 @Serializable
 data class SchedulePreviewDto(
     @SerialName("id")
     val id: Int? = null,
-    @SerialName("title")
-    val title: String = "",
+    @SerialName("program")
+    val program: String = "",
+    @SerialName("trainer")
+    val trainer: String = "",
     @SerialName("date")
     val date: String = "",
-    @SerialName("time")
-    val time: String = ""
+    @SerialName("start_time")
+    val startTime: String = "",
+    @SerialName("end_time")
+    val endTime: String = "",
+    @SerialName("time_range")
+    val timeRange: String = "",
+    @SerialName("date_label")
+    val dateLabel: String = "",
+    @SerialName("status")
+    val status: String = "",
+    @SerialName("status_label")
+    val statusLabel: String = "",
+    @SerialName("status_badges")
+    val statusBadges: List<String> = emptyList(),
+    @SerialName("row_classes")
+    val rowClasses: String = ""
 )
 
 @Serializable
@@ -77,14 +105,16 @@ data class UnpaidInvoicesDto(
 data class InvoiceItemDto(
     @SerialName("id")
     val id: Int? = null,
+    @SerialName("label")
+    val label: String = "",
+    @SerialName("description")
+    val description: String = "",
     @SerialName("amount")
     val amount: Long = 0L,
     @SerialName("amount_formatted")
     val amountFormatted: String = "",
-    @SerialName("due_date")
-    val dueDate: String = "",
-    @SerialName("status")
-    val status: String = ""
+    @SerialName("due_date_formatted")
+    val dueDateFormatted: String = ""
 )
 
 @Serializable

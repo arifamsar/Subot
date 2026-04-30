@@ -23,16 +23,18 @@ data class InvoiceDto(
 data class TransactionHistoryDto(
     @SerialName("id")
     val id: Int,
-    @SerialName("invoice_number")
-    val invoiceNumber: String,
-    @SerialName("amount")
-    val amount: Long,
-    @SerialName("payment_date")
-    val paymentDate: String,
-    @SerialName("payment_method")
-    val paymentMethod: String? = null,
+    @SerialName("nomor_tagihan")
+    val nomorTagihan: String,
+    @SerialName("total_tagihan")
+    val totalTagihan: Long,
     @SerialName("status")
-    val status: String
+    val status: String,
+    @SerialName("jatuh_tempo")
+    val jatuhTempo: String,
+    @SerialName("tipe_tagihan")
+    val tipeTagihan: String,
+    @SerialName("program")
+    val program: String
 )
 
 @Serializable

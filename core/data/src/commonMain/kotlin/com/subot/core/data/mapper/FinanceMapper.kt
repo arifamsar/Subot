@@ -18,11 +18,12 @@ fun InvoiceDto.toDomain(): Invoice = Invoice(
 
 fun TransactionHistoryDto.toDomain(): TransactionHistory = TransactionHistory(
     id = id,
-    invoiceNumber = invoiceNumber,
-    amount = amount,
-    paymentDate = paymentDate,
-    paymentMethod = paymentMethod,
-    status = status
+    nomorTagihan = nomorTagihan,
+    totalTagihan = totalTagihan,
+    status = status,
+    jatuhTempo = jatuhTempo,
+    tipeTagihan = tipeTagihan,
+    program = program
 )
 
 fun SnapTokenDto.toDomain(): SnapToken = SnapToken(

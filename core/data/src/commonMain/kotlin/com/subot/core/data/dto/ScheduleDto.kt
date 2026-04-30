@@ -21,26 +21,38 @@ data class ScheduleDto(
 data class ScheduleDetailDto(
     @SerialName("id")
     val id: Int,
-    @SerialName("trainer_name")
-    val trainerName: String,
-    @SerialName("time")
-    val time: String,
-    @SerialName("description")
-    val description: String,
-    @SerialName("material")
-    val material: String,
-    @SerialName("attendance_list")
-    val attendanceList: List<AttendanceDto>,
-    @SerialName("location")
-    val location: String? = null
+    @SerialName("dateLabel")
+    val dateLabel: String = "",
+    @SerialName("program")
+    val program: String = "",
+    @SerialName("level")
+    val level: String = "",
+    @SerialName("classroom")
+    val classroom: String = "",
+    @SerialName("trainer")
+    val trainer: String = "",
+    @SerialName("timeRange")
+    val timeRange: String = "",
+    @SerialName("statusBadges")
+    val statusBadges: List<String> = emptyList(),
+    @SerialName("notes")
+    val notes: String = "",
+    @SerialName("students")
+    val students: List<AttendanceDto> = emptyList()
 )
 
 @Serializable
 data class AttendanceDto(
     @SerialName("id")
     val id: Int,
-    @SerialName("member_name")
-    val memberName: String,
-    @SerialName("status")
-    val status: String
+    @SerialName("nis")
+    val nis: String = "",
+    @SerialName("name")
+    val name: String = "",
+    @SerialName("absensi_status")
+    val absensiStatus: String = "",
+    @SerialName("absensi_label")
+    val absensiLabel: String = "",
+    @SerialName("row_class")
+    val rowClass: String = ""
 )

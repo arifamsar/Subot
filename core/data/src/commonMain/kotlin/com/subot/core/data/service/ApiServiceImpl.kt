@@ -85,6 +85,12 @@ class ApiServiceImpl(
         }
     }
 
+    override suspend fun getSupervise(token: String): HttpResponse {
+        return httpClient.get("supervise") {
+            bearerAuth(token)
+        }
+    }
+
     // ---------- Dashboard ----------
 
     override suspend fun getDashboard(token: String): HttpResponse {

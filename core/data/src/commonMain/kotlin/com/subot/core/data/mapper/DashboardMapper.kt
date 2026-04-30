@@ -1,21 +1,14 @@
 package com.subot.core.data.mapper
 
 import com.subot.core.data.dto.DashboardDto
-import com.subot.core.data.dto.MeetingDto
+import com.subot.core.data.dto.NextScheduleDto
 import com.subot.core.data.dto.SchedulePreviewDto
 import com.subot.core.domain.model.Dashboard
-import com.subot.core.domain.model.Meeting
+import com.subot.core.domain.model.NextSchedule
 import com.subot.core.domain.model.SchedulePreview
 
 fun DashboardDto.toDomain(): Dashboard {
-    // Use first schedule preview as upcoming meeting if available
-    val upcomingMeeting = schedulePreview.firstOrNull()?.let { schedule ->
-        Meeting(
-            trainerName = schedule.title,
-            time = schedule.time,
-            description = schedule.date
-        )
-    }
+    val upcomingMeeting = summaryMetrics?.nextSchedule?.toDomain()
     
     return Dashboard(
         userName = user?.displayName ?: "",
@@ -32,13 +25,22 @@ fun DashboardDto.toDomain(): Dashboard {
 
 fun SchedulePreviewDto.toDomain(): SchedulePreview = SchedulePreview(
     id = id ?: 0,
-    title = title,
+    program = program,
+    trainer = trainer,
     date = date,
-    time = time
+    startTime = startTime,
+    endTime = endTime,
+    timeRange = timeRange,
+    dateLabel = dateLabel,
+    status = status,
+    statusLabel = statusLabel,
+    statusBadges = statusBadges,
+    rowClasses = rowClasses
 )
 
-fun MeetingDto.toDomain(): Meeting = Meeting(
-    trainerName = trainerName,
-    time = time,
-    description = description
+fun NextScheduleDto.toDomain(): NextSchedule = NextSchedule(
+    dateLabel = dateLabel,
+    timeRange = timeRange,
+    program = program,
+    trainer = trainer
 )

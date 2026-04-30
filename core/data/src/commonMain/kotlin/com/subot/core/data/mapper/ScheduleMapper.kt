@@ -17,16 +17,22 @@ fun ScheduleDto.toDomain(): Schedule = Schedule(
 
 fun ScheduleDetailDto.toDomain(): ScheduleDetail = ScheduleDetail(
     id = id,
-    trainerName = trainerName,
-    time = time,
-    description = description,
-    material = material,
-    attendanceList = attendanceList.map { it.toDomain() },
-    location = location
+    dateLabel = dateLabel,
+    program = program,
+    level = level,
+    classroom = classroom,
+    trainer = trainer,
+    timeRange = timeRange,
+    statusBadges = statusBadges,
+    notes = notes,
+    students = students.map { it.toDomain() }
 )
 
 fun AttendanceDto.toDomain(): Attendance = Attendance(
     id = id,
-    memberName = memberName,
-    status = status
+    nis = nis,
+    name = name,
+    absensiStatus = absensiStatus,
+    absensiLabel = absensiLabel,
+    rowClass = rowClass
 )
