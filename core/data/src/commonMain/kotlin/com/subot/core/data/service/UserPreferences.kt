@@ -76,11 +76,32 @@ class UserPreferences(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    fun userRoleFlow(): Flow<String?> =
+        dataStore.data.map { preferences -> preferences[user_role] }
+
+    suspend fun getUserRole(): String? {
+        val preferences = dataStore.data.first()
+        return preferences[user_role]
+    }
+
+    suspend fun setUserRole(role: String) {
+        dataStore.edit { preferences ->
+            preferences[user_role] = role
+        }
+    }
+
+    suspend fun clearUserRole() {
+        dataStore.edit { preferences ->
+            preferences.remove(user_role)
+        }
+    }
+
     companion object {
         val onboarding_completed = booleanPreferencesKey("onboarding_completed")
         val is_logged_in = booleanPreferencesKey("is_logged_in")
         val is_dark_mode = booleanPreferencesKey("is_dark_mode")
         val selected_language = stringPreferencesKey("selected_language")
         val access_token = stringPreferencesKey("access_token")
+        val user_role = stringPreferencesKey("user_role")
     }
 }

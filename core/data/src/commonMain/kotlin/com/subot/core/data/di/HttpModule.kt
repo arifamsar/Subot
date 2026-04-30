@@ -2,14 +2,20 @@ package com.subot.core.data.di
 
 import Subot.core.data.BuildConfig
 import com.subot.core.data.repository.AuthRepositoryImpl
+import com.subot.core.data.repository.DashboardRepositoryImpl
+import com.subot.core.data.repository.FinanceRepositoryImpl
 import com.subot.core.data.repository.ListItemRepositoryImpl
 import com.subot.core.data.repository.ProfileRepositoryImpl
+import com.subot.core.data.repository.ScheduleRepositoryImpl
 import com.subot.core.data.repository.SchoolRepositoryImpl
 import com.subot.core.data.service.ApiService
 import com.subot.core.data.service.ApiServiceImpl
 import com.subot.core.domain.repository.AuthRepository
+import com.subot.core.domain.repository.DashboardRepository
+import com.subot.core.domain.repository.FinanceRepository
 import com.subot.core.domain.repository.ListItemRepository
 import com.subot.core.domain.repository.ProfileRepository
+import com.subot.core.domain.repository.ScheduleRepository
 import com.subot.core.domain.repository.SchoolRepository
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -27,6 +33,9 @@ val httpModule = module {
     single<SchoolRepository> { SchoolRepositoryImpl(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
+    single<DashboardRepository> { DashboardRepositoryImpl(get(), get()) }
+    single<ScheduleRepository> { ScheduleRepositoryImpl(get(), get()) }
+    single<FinanceRepository> { FinanceRepositoryImpl(get(), get()) }
 }
 
 fun createHttpClient(): HttpClient = HttpClient {

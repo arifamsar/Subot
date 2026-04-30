@@ -67,5 +67,11 @@ class AuthRepositoryImpl(
     override suspend fun clearAccessToken() = userPreferences.clearAccessToken()
 
     override suspend fun setLoggedIn(loggedIn: Boolean) = userPreferences.setLoggedIn(loggedIn)
+
+    override suspend fun saveUserRole(role: String) = userPreferences.setUserRole(role)
+
+    override suspend fun getUserRole(): String? = userPreferences.getUserRole()
+
+    override suspend fun clearUserRole() = userPreferences.clearUserRole()
 }
 

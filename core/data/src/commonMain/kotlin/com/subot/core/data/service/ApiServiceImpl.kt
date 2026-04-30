@@ -84,4 +84,50 @@ class ApiServiceImpl(
             setBody(request)
         }
     }
+
+    // ---------- Dashboard ----------
+
+    override suspend fun getDashboard(token: String): HttpResponse {
+        return httpClient.get("dashboard") {
+            bearerAuth(token)
+        }
+    }
+
+    // ---------- Schedules ----------
+
+    override suspend fun getSchedules(token: String): HttpResponse {
+        return httpClient.get("schedules") {
+            bearerAuth(token)
+        }
+    }
+
+    override suspend fun getScheduleDetail(token: String, id: Int): HttpResponse {
+        return httpClient.get("schedules/$id") {
+            bearerAuth(token)
+        }
+    }
+
+    // ---------- Finance ----------
+
+    override suspend fun getInvoices(token: String): HttpResponse {
+        return httpClient.get("finance/invoices") {
+            bearerAuth(token)
+        }
+    }
+
+    override suspend fun getPaymentHistory(token: String, page: Int, perPage: Int): HttpResponse {
+        return httpClient.get("finance/history") {
+            bearerAuth(token)
+            parameter("page", page)
+            parameter("per_page", perPage)
+        }
+    }
+
+    override suspend fun requestSnapToken(token: String, tagihanId: Int): HttpResponse {
+        return httpClient.post("finance/request-token") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(com.subot.core.data.dto.SnapTokenRequestDto(tagihanId))
+        }
+    }
 }
