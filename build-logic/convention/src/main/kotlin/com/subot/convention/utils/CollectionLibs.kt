@@ -14,8 +14,8 @@ fun KotlinDependencyHandler.sharedUiDependencies(project: Project) {
     api(libs.material.icons.extended)
 
     implementation(libs.kermit)
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.runtime)
+    api(libs.androidx.lifecycle.viewmodel)
+    api(libs.androidx.lifecycle.runtime)
     implementation(libs.compose.nav3)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil)

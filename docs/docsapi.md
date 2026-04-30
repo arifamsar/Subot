@@ -110,7 +110,16 @@ Success response data:
     "type": "member",
     "profile": {
       "id": 123,
-      "nis": "..."
+      "role": "member",
+      "nis": "12345",
+      "nama_lengkap": "Budi Santoso",
+      "id_sekolah": "SCH-01",
+      "kelas": "6A",
+      "tempat_lahir": "Jakarta",
+      "tanggal_lahir": "2014-05-12",
+      "alamat": "Jl. Contoh",
+      "telephone": "08123456789",
+      "status_siswa": "Aktif"
     }
   }
 }
@@ -204,65 +213,174 @@ Example response data:
 }
 ```
 
-### 8) Dashboard
+### 8) Dashboard Summary
 - **GET** `/dashboard`
 - Auth: `Authorization: Bearer <access_token>`
-- Returns dashboard summary, schedule previews, and unpaid invoices for member/mitra.
+- Returns metrics, schedule previews, and unpaid invoices summary.
 
-### 9) Schedule List
+Example response data:
+```json
+{
+  "user": {
+    "display_name": "Budi Santoso",
+    "type": "member",
+    "profile_image_url": "..."
+  },
+  "summary_metrics": {
+    "totalSchedules": 10,
+    "completedSchedules": 2,
+    "remainingSchedules": 8,
+    "nextSchedule": {
+      "dateLabel": "28 Apr 2026",
+      "timeRange": "08:00 - 10:00",
+      "program": "Robotics Level 1",
+      "trainer": "Kak Ahmad"
+    }
+  },
+  "schedule_preview": [
+    {
+      "id": 1,
+      "program": "Robotics Level 1",
+      "trainer": "Kak Ahmad",
+      "date": "2026-04-28",
+      "start_time": "08:00:00",
+      "end_time": "10:00:00",
+      "time_range": "08:00 - 10:00",
+      "date_label": "28 Apr 2026",
+      "status": "terjadwal",
+      "status_label": "Terjadwal",
+      "status_badges": ["terjadwal"],
+      "row_classes": "bg-gray-50"
+    }
+  ],
+  "unpaid_invoices": {
+    "items": [
+      {
+        "id": 123,
+        "label": "Cicilan ke-1",
+        "description": "Budi Santoso • Robotics Level 1",
+        "amount": 150000,
+        "amount_formatted": "Rp 150.000",
+        "due_date_formatted": "30 Apr 2026"
+      }
+    ],
+    "total_amount": 150000,
+    "total_formatted": "Rp 150.000",
+    "has_more": false,
+    "remaining_count": 0
+  }
+}
+```
+
+### 9) Schedules List
 - **GET** `/schedules`
 - Auth: `Authorization: Bearer <access_token>`
-- Returns list of relevant schedules for member/mitra.
+- Returns list of schedules similar to `schedule_preview` in dashboard.
 
 ### 10) Schedule Detail
-- **GET** `/schedules/{schedule}`
+- **GET** `/schedules/{id}`
 - Auth: `Authorization: Bearer <access_token>`
-- Returns complete detail for a specific schedule including trainer, material, and attendance list.
-- Note: Authorization check applies (returns 403 if user not part of schedule's school/group).
+- Returns full details of a specific schedule including students/attendance.
 
-### 11) Finance - Unpaid Invoices
+Example response data:
+```json
+{
+  "scheduleContext": "member",
+  "schedule": {
+    "id": 1,
+    "dateLabel": "28 April 2026",
+    "program": "Robotics Level 1",
+    "level": "Basic",
+    "classroom": "Grade 6A",
+    "trainer": "Kak Ahmad",
+    "timeRange": "08:00 - 10:00",
+    "statusBadges": ["terjadwal"],
+    "notes": "Pertemuan pertama pengenalan komponen.",
+    "students": [
+      {
+        "id": 10,
+        "nis": "12345",
+        "name": "Budi Santoso",
+        "absensi_status": "Hadir",
+        "absensi_label": "Hadir",
+        "row_class": "bg-emerald-50 hover:bg-emerald-100"
+      }
+    ]
+  }
+}
+```
+
+### 11) Unpaid Invoices (Full List)
 - **GET** `/finance/invoices`
 - Auth: `Authorization: Bearer <access_token>`
-- Returns list of unpaid invoices for current user.
+- Returns all unpaid invoices for current user.
 
-### 12) Finance - Payment History
+### 12) Payment History (Paginated)
 - **GET** `/finance/history`
 - Auth: `Authorization: Bearer <access_token>`
-- Query Params:
-  - `page` (optional)
-  - `per_page` (optional, default 10)
-- Returns paginated list of paid invoices (payment history).
+- Query Params: `page`, `per_page`
+- Returns paginated list of paid invoices.
 
-### 13) Finance - Request Snap Token
+Example response data:
+```json
+{
+  "items": [
+    {
+      "id": 10,
+      "nomor_tagihan": "INV-2026-001",
+      "total_tagihan": 150000,
+      "status": "Lunas",
+      "jatuh_tempo": "2026-04-30",
+      "tipe_tagihan": "individu",
+      "program": "Robotics Level 1"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 10,
+    "total": 1,
+    "has_more_pages": false
+  }
+}
+```
+
+### 13) Request Payment Token (Midtrans)
 - **POST** `/finance/request-token`
 - Auth: `Authorization: Bearer <access_token>`
-- Headers: `Accept: application/json`, `Content-Type: application/json`
-
-Body:
+- Body:
 ```json
 {
   "tagihan_id": 123
 }
 ```
-- Returns Midtrans Snap Token to be used in Mobile SDK.
+
+Example response data:
+```json
+{
+  "token": "snap-token-xyz-123"
+}
+```
+
+### 14) Supervise Raw Profile Test
+- **GET** `/supervise`
+- Auth: `Authorization: Bearer <access_token>`
+- Returns raw generic user object. Used mainly for quick sanity check and testing auth mechanism.
 
 ## Error/Status Matrix per Endpoint
 
 | Endpoint | Method | 200 | 401 | 422 | 429 | 500 |
 |---|---|---|---|---|---|---|
-| `/public/schools` | GET | Success + paginated schools list | - | - | Too many requests (60/min per IP, default) | Unexpected server error |
-| `/auth/login` | POST | Login success + bearer token (**valid for 3 days**) | - | Validation failed or invalid credentials | Too many login attempts (10/min per `identifier+IP`, also 30/min per IP) | Unexpected server error |
-| `/auth/me` | GET | Current authenticated user | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/auth/logout` | POST | Current token revoked | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/profile/me` | GET | Current authenticated profile | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/profile/members` | GET | Mitra member list (paginated) | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/profile/penanggung-jawab` | PUT | Penanggung jawab updated | Missing/invalid/revoked/**expired** token | Validation failed | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/dashboard` | GET | Dashboard data retrieved | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/schedules` | GET | Schedules retrieved | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/schedules/{schedule}` | GET | Schedule detail retrieved | Missing/invalid/revoked/**expired** token <br> `403` Unauthorized access | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/finance/invoices` | GET | Unpaid invoices retrieved | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/finance/history` | GET | Payment history retrieved | Missing/invalid/revoked/**expired** token | - | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
-| `/finance/request-token` | POST | Token generated | Missing/invalid/revoked/**expired** token | Validation failed (`tagihan_id` invalid/missing) | Too many requests (120/min per authenticated user+IP, default) | Unexpected server error |
+| `/public/schools` | GET | Success + paginated schools list | - | - | Too many requests | Unexpected server error |
+| `/auth/login` | POST | Login success + bearer token | - | Validation failed | Too many attempts | Unexpected server error |
+| `/dashboard` | GET | Dashboard data | Missing token | - | Too many requests | Unexpected server error |
+| `/schedules` | GET | Schedules list | Missing token | - | Too many requests | Unexpected server error |
+| `/schedules/{id}` | GET | Schedule detail | Missing token | - | Too many requests | Unexpected server error |
+| `/finance/invoices` | GET | Unpaid invoices | Missing token | - | Too many requests | Unexpected server error |
+| `/finance/history` | GET | Payment history | Missing token | - | Too many requests | Unexpected server error |
+| `/finance/request-token` | POST | Midtrans Snap Token | Missing token | Validation failed | Too many requests | Unexpected server error |
+| `/profile/me` | GET | Current profile | Missing token | - | Too many requests | Unexpected server error |
+| `/supervise` | GET | Raw user profile test | Missing token | - | Too many requests | Unexpected server error |
 
 ### Error Cases (Current Behavior)
 
@@ -283,12 +401,6 @@ Body:
 #### `PUT /profile/penanggung-jawab`
 - `403` when authenticated user is not `mitra` role.
 - `422` when payload validation fails (`nama_penanggung_jawab`, `email_penanggung_jawab`, `telephone_penanggung_jawab`).
-
-#### `GET /schedules/{schedule}`
-- `403` when user tries to access a schedule not belonging to their school/group.
-
-#### `POST /finance/request-token`
-- `422` when payload validation fails (e.g. `tagihan_id` missing or invalid).
 
 ### Notes
 - Current token lifetime: **3 days** (`SANCTUM_EXPIRATION=4320`).
@@ -351,11 +463,12 @@ Body:
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/me`
 - `GET /api/v1/profile/me`
+- `GET /api/v1/supervise`
 - `GET /api/v1/profile/members` (login as mitra)
 - `PUT /api/v1/profile/penanggung-jawab` (login as mitra)
 - `GET /api/v1/dashboard`
 - `GET /api/v1/schedules`
-- `GET /api/v1/schedules/1`
+- `GET /api/v1/schedules/{id}`
 - `GET /api/v1/finance/invoices`
 - `GET /api/v1/finance/history`
 - `POST /api/v1/finance/request-token`
