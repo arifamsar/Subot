@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Badge
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,8 +49,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subot.core.domain.model.Dashboard
+import com.subot.core.domain.model.Meeting
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppTextButton
+import com.subot.core.ui.components.AppLoadingIndicator
+import org.koin.compose.viewmodel.koinViewModel
 
 // --- Multiplatform Resources (Simulated for this context) ---
 object Res {
@@ -74,54 +79,19 @@ object Res {
     }
 }
 
-// --- Domain Models ---
-data class Meeting(
-    val trainerName: String,
-    val time: String,
-    val description: String
-)
-
-data class DashboardData(
-    val userName: String,
-    val schoolName: String,
-    val upcomingMeeting: Meeting?,
-    val remainingMeetingsCount: Int,
-    val hasUnpaidBills: Boolean,
-    val totalUnpaidAmount: Long
-)
-
-// --- Color Palette ---
-val UnpaidAlert = Color(0xFFB3261E) 
-val PaidSuccess = Color(0xFF2E7D32)
-
-// --- Sample Data ---
-val sampleDashboardWithMeetings = DashboardData(
-    userName = "Andi Prasetyo",
-    schoolName = "SUKAROBOT ACADEMY",
-    upcomingMeeting = Meeting("Coach Budi", "Senin, 10:00 WIB", "Robotika Lanjutan"),
-    remainingMeetingsCount = 12,
-    hasUnpaidBills = false,
-    totalUnpaidAmount = 0
-)
-
-val sampleDashboardUnpaid = DashboardData(
-    userName = "Andi Prasetyo",
-    schoolName = "SUKAROBOT ACADEMY",
-    upcomingMeeting = Meeting("Coach Budi", "Senin, 10:00 WIB", "Robotika Lanjutan"),
-    remainingMeetingsCount = 12,
-    hasUnpaidBills = true,
-    totalUnpaidAmount = 1500000
-)
-
 // --- Composables ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(dashboardData: DashboardData = sampleDashboardWithMeetings) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = {
@@ -132,7 +102,7 @@ fun HomeScreen(dashboardData: DashboardData = sampleDashboardWithMeetings) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = dashboardData.userName,
+                            text = uiState.dashboard?.userName ?: "...",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -153,31 +123,49 @@ fun HomeScreen(dashboardData: DashboardData = sampleDashboardWithMeetings) {
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            SchoolProfileSection(dashboardData.schoolName)
-            
-            MetricsSection(dashboardData)
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            if (uiState.isLoading) {
+                AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (uiState.error != null) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    AppPrimaryButton(
+                        onClick = { viewModel.onEvent(HomeEvent.Refresh) },
+                        text = "Coba Lagi"
+                    )
+                }
+            } else {
+                uiState.dashboard?.let { dashboard ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        SchoolProfileSection(dashboard.schoolName)
+                        
+                        MetricsSection(dashboard)
 
-            SectionHeader(
-                title = Res.String.schedule_header,
-                onActionClick = { /* Navigate to Schedule */ }
-            )
-            ScheduleCard(dashboardData.upcomingMeeting)
+                        SectionHeader(
+                            title = Res.String.schedule_header,
+                            onActionClick = { /* Navigate to Schedule */ }
+                        )
+                        ScheduleCard(dashboard.upcomingMeeting)
 
-            SectionHeader(
-                title = Res.String.payment_overview_card,
-                onActionClick = { /* Navigate to Payments */ }
-            )
-            PaymentCard(dashboardData)
-            
-            Spacer(modifier = Modifier.height(24.dp))
+                        SectionHeader(
+                            title = Res.String.payment_overview_card,
+                            onActionClick = { /* Navigate to Payments */ }
+                        )
+                        PaymentCard(dashboard)
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                }
+            }
         }
     }
 }
@@ -245,14 +233,14 @@ fun SchoolProfileSection(schoolName: String) {
 }
 
 @Composable
-fun MetricsSection(dashboardData: DashboardData) {
+fun MetricsSection(dashboard: Dashboard) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         MetricCardM3(
             title = Res.String.remaining_meetings_card,
-            value = dashboardData.remainingMeetingsCount.toString(),
+            value = dashboard.remainingMeetingsCount.toString(),
             unit = "Sesi",
             icon = Icons.Default.Schedule,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -261,14 +249,14 @@ fun MetricsSection(dashboardData: DashboardData) {
         )
         MetricCardM3(
             title = "Status Tagihan",
-            value = if (dashboardData.hasUnpaidBills) "Belum Lunas" else "Lunas",
-            unit = if (dashboardData.hasUnpaidBills) "Menunggu" else "Terkendali",
+            value = if (dashboard.hasUnpaidBills) "Belum Lunas" else "Lunas",
+            unit = if (dashboard.hasUnpaidBills) "Menunggu" else "Terkendali",
             icon = Icons.Default.Payments,
-            containerColor = if (dashboardData.hasUnpaidBills) 
+            containerColor = if (dashboard.hasUnpaidBills) 
                 MaterialTheme.colorScheme.errorContainer 
             else 
                 MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = if (dashboardData.hasUnpaidBills) 
+            contentColor = if (dashboard.hasUnpaidBills) 
                 MaterialTheme.colorScheme.onErrorContainer 
             else 
                 MaterialTheme.colorScheme.onTertiaryContainer,
@@ -412,7 +400,7 @@ fun ScheduleCard(upcomingMeeting: Meeting?) {
 }
 
 @Composable
-fun PaymentCard(dashboardData: DashboardData) {
+fun PaymentCard(dashboard: Dashboard) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -433,18 +421,18 @@ fun PaymentCard(dashboardData: DashboardData) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (dashboardData.hasUnpaidBills) 
-                            "Rp ${dashboardData.totalUnpaidAmount}" 
+                        text = if (dashboard.hasUnpaidBills) 
+                            dashboard.totalUnpaidFormatted
                         else "Rp 0",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.ExtraBold,
-                        color = if (dashboardData.hasUnpaidBills) 
+                        color = if (dashboard.hasUnpaidBills) 
                             MaterialTheme.colorScheme.error 
                         else 
                             MaterialTheme.colorScheme.primary
                     )
                 }
-                if (dashboardData.hasUnpaidBills) {
+                if (dashboard.hasUnpaidBills) {
                     Badge(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.onErrorContainer,
@@ -460,26 +448,10 @@ fun PaymentCard(dashboardData: DashboardData) {
             AppPrimaryButton(
                 onClick = { /* Handle Payment */ },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = dashboardData.hasUnpaidBills,
+                enabled = dashboard.hasUnpaidBills,
                 text = "Bayar Sekarang",
                 icon = Icons.Default.Payments,
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    MaterialTheme {
-        HomeScreen(sampleDashboardWithMeetings)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenUnpaidPreview() {
-    MaterialTheme {
-        HomeScreen(sampleDashboardUnpaid)
     }
 }

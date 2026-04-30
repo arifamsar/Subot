@@ -14,6 +14,9 @@ import com.sukarobot.subot.navigation.AppNavigation
 import com.sukarobot.subot.ui.Localization
 import com.sukarobot.subot.ui.di.viewModelModule
 import com.subot.profile.di.profileModule
+import com.subot.home.di.homeModule
+import com.subot.schedule.di.scheduleModule
+import com.subot.transactions.di.transactionModule
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 
@@ -23,7 +26,7 @@ fun App(
 ) {
     KoinApplication(
         application = {
-            modules(dataModule, viewModelModule, profileModule)
+            modules(dataModule, viewModelModule, profileModule, homeModule, scheduleModule, transactionModule)
         }
     ) {
         val appState: AppState = rememberAppState()

@@ -11,5 +11,6 @@ data class ProfileUiState(
     val selectedLanguage: String = AppLanguage.INDONESIAN.code,
     val isLoggingOut: Boolean = false,
     val isLogoutSuccessful: Boolean = false,
-    val logoutError: String? = null
+    val logoutError: String? = null,
+    val userRole: String? = null
 )

@@ -33,6 +33,11 @@ class ProfileViewModel(
                 _uiState.update { it.copy(selectedLanguage = language) }
             }
         }
+        viewModelScope.launch {
+            userPreferences.userRoleFlow().collectLatest { role ->
+                _uiState.update { it.copy(userRole = role) }
+            }
+        }
         loadProfile()
     }
 

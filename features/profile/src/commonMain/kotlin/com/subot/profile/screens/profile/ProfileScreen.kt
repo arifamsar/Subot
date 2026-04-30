@@ -122,7 +122,7 @@ fun ProfileScreen(
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val profileSummary = uiState.profile?.profile
-    val role = profileSummary?.role ?: uiState.profile?.type
+    val role = uiState.userRole ?: profileSummary?.role ?: uiState.profile?.type
     val roleLabel = when {
         role.equals("mitra", ignoreCase = true) -> stringResource(Res.string.mitra)
         role.equals("member", ignoreCase = true) -> stringResource(Res.string.member)

@@ -19,14 +19,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.subot.core.domain.model.Invoice
+import com.subot.core.domain.model.TransactionHistory
+import com.subot.core.ui.components.AppPrimaryButton
+import com.subot.core.ui.components.AppLoadingIndicator
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: TransactionViewModel = koinViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -35,7 +43,7 @@ fun TransactionScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Mitra",
+                            text = uiState.userRole?.replaceFirstChar { it.uppercase() } ?: "Role",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -56,141 +64,201 @@ fun TransactionScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Summary Cards Grid
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            if (uiState.isLoading && uiState.invoices.isEmpty() && uiState.paymentHistory.isEmpty()) {
+                AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (uiState.error != null && uiState.invoices.isEmpty()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    AppPrimaryButton(
+                        onClick = { viewModel.onEvent(TransactionEvent.Refresh) },
+                        text = "Coba Lagi"
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Summary Cards Grid
+                    val totalUnpaid = uiState.invoices.sumOf { it.amount }
+                    val totalPaid = uiState.paymentHistory.sumOf { it.amount }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        PaymentSummaryCard(
+                            title = "Sudah Terbayar",
+                            amount = "Rp $totalPaid",
+                            icon = Icons.Default.History,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.weight(1f)
+                        )
+                        PaymentSummaryCard(
+                            title = "Belum Terbayar",
+                            amount = "Rp $totalUnpaid",
+                            icon = Icons.Default.AccountBalanceWallet,
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    TabRow(
+                        selectedTabIndex = selectedTab,
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        divider = {}
+                    ) {
+                        Tab(
+                            selected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            text = { Text("Tagihan") }
+                        )
+                        Tab(
+                            selected = selectedTab == 1,
+                            onClick = { selectedTab = 1 },
+                            text = { Text("Riwayat") }
+                        )
+                    }
+
+                    if (selectedTab == 0) {
+                        InvoicesList(
+                            invoices = uiState.invoices,
+                            onRequestPayment = { viewModel.onEvent(TransactionEvent.RequestSnapToken(it)) }
+                        )
+                    } else {
+                        PaymentHistoryList(history = uiState.paymentHistory)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InvoicesList(
+    invoices: List<Invoice>,
+    onRequestPayment: (Int) -> Unit
+) {
+    if (invoices.isEmpty()) {
+        EmptyStatePlaceholder(text = "Tidak ada tagihan yang perlu dibayar saat ini.")
+    } else {
+        invoices.forEach { invoice ->
+            InvoiceItemCard(invoice = invoice, onRequestPayment = onRequestPayment)
+        }
+    }
+}
+
+@Composable
+fun InvoiceItemCard(
+    invoice: Invoice,
+    onRequestPayment: (Int) -> Unit
+) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                PaymentSummaryCard(
-                    title = "Sudah Terbayar",
-                    amount = "Rp 0",
-                    icon = Icons.Default.History,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.weight(1f)
-                )
-                PaymentSummaryCard(
-                    title = "Belum Terselesaikan",
-                    amount = "Rp 0",
-                    icon = Icons.Default.AccountBalanceWallet,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            // Main Content Section
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column {
                     Text(
-                        text = "Pembayaran yang Dibayar",
+                        text = invoice.invoiceNumber,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EmptyStatePlaceholder(text = "Tidak ada tagihan yang perlu dibayar saat ini.")
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Group, 
-                            contentDescription = null, 
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Pilih Siswa yang Dibayar",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EmptyStatePlaceholder(text = "Tidak ada siswa yang perlu dibayar untuk SPP ini.")
-                }
-            }
-
-            // Payment Summary Hint
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = "Ringkasan Pembayaran",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Pilih salah satu tagihan pada daftar untuk melihat ringkasan pembayaran.",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Jatuh Tempo: ${invoice.dueDate}",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                Text(
+                    text = "Rp ${invoice.amount}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
+            invoice.description?.let { description ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            AppPrimaryButton(
+                onClick = { onRequestPayment(invoice.id) },
+                text = "Bayar Sekarang",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 
-            // Finalize Payment Section
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+@Composable
+fun PaymentHistoryList(history: List<TransactionHistory>) {
+    if (history.isEmpty()) {
+        EmptyStatePlaceholder(text = "Belum ada riwayat pembayaran.")
+    } else {
+        history.forEach { item ->
+            HistoryItemCard(item = item)
+        }
+    }
+}
+
+@Composable
+fun HistoryItemCard(item: TransactionHistory) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
+                modifier = Modifier.size(40.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = "Selesaikan Pembayaran",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Alert Info
-                    Surface(
-                        color = Color(0xFFFFF9C4).copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFFFF176))
-                    ) {
-                        Text(
-                            text = "Tidak ada tagihan yang perlu dibayar saat ini. Pilih metode akan aktif ketika tagihan tersedia.",
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFF57F17)
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(
-                        text = "Metode Pembayaran",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    PaymentMethodItem(name = "BCA Virtual Account", provider = "Midtrans", icon = Icons.Default.FlashOn)
-                    PaymentMethodItem(name = "BNI Virtual Account", provider = "Midtrans", icon = Icons.Default.FlashOn)
-                    PaymentMethodItem(name = "GoPay", provider = "Midtrans", icon = Icons.Default.FlashOn)
-                    PaymentMethodItem(name = "Midtrans Payment Link", provider = "Midtrans", icon = Icons.Default.FlashOn)
-                    PaymentMethodItem(name = "Bank Transfer", provider = "Transfer / Manual", icon = Icons.Default.AccountBalance)
                 }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = item.invoiceNumber, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                Text(text = item.paymentDate, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(
+                text = "Rp ${item.amount}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.tertiary
+            )
         }
     }
 }
@@ -218,12 +286,10 @@ fun PaymentSummaryCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = title, style = MaterialTheme.typography.labelMedium)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = amount, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(text = amount, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)
                 }
                 Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Lihat Rincian...", style = MaterialTheme.typography.labelSmall, textDecoration = null)
         }
     }
 }
@@ -247,47 +313,5 @@ fun EmptyStatePlaceholder(text: String) {
                 textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-@Composable
-fun PaymentMethodItem(name: String, provider: String, icon: ImageVector) {
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(text = name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                Text(text = provider, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TransactionScreenPreview() {
-    MaterialTheme {
-        TransactionScreen()
     }
 }
