@@ -55,5 +55,20 @@ interface AuthRepository {
      * Persists the logged-in flag so the splash screen can restore session on restart.
      */
     suspend fun setLoggedIn(loggedIn: Boolean)
+
+    /**
+     * Persists the user role to secure storage.
+     */
+    suspend fun saveUserRole(role: String)
+
+    /**
+     * Returns the locally stored user role, or null if not logged in.
+     */
+    suspend fun getUserRole(): String?
+
+    /**
+     * Clears the locally stored user role.
+     */
+    suspend fun clearUserRole()
 }
 

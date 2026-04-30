@@ -17,6 +17,8 @@ class LoginUseCase(private val authRepository: AuthRepository) {
         val result = authRepository.login(loginAs, identifier, password, deviceName)
         if (result is ApiResult.Success) {
             authRepository.saveAccessToken(result.data.accessToken)
+            val role = result.data.user.profile.role ?: result.data.userType
+            authRepository.saveUserRole(role)
             authRepository.setLoggedIn(true)
         }
         return result

@@ -8,6 +8,7 @@ class LogoutUseCase(private val authRepository: AuthRepository) {
         val result = authRepository.logout()
         // Always clear local state, even if the API call fails
         authRepository.clearAccessToken()
+        authRepository.clearUserRole()
         authRepository.setLoggedIn(false)
         return result
     }
