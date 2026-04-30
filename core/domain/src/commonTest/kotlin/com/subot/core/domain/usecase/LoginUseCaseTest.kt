@@ -135,4 +135,16 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun setLoggedIn(loggedIn: Boolean) {
         this.isLoggedIn = loggedIn
     }
+
+    private var userRole: String? = null
+
+    override suspend fun saveUserRole(role: String) {
+        userRole = role
+    }
+
+    override suspend fun getUserRole(): String? = userRole
+
+    override suspend fun clearUserRole() {
+        userRole = null
+    }
 }

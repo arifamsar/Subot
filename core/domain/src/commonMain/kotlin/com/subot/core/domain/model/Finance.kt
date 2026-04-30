@@ -11,11 +11,12 @@ data class Invoice(
 
 data class TransactionHistory(
     val id: Int,
-    val invoiceNumber: String,
-    val amount: Long,
-    val paymentDate: String,
-    val paymentMethod: String?,
-    val status: String
+    val nomorTagihan: String,
+    val totalTagihan: Long,
+    val status: String,
+    val jatuhTempo: String,
+    val tipeTagihan: String,
+    val program: String
 )
 
 data class SnapToken(

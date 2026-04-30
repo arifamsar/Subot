@@ -10,16 +10,22 @@ data class Schedule(
 
 data class ScheduleDetail(
     val id: Int,
-    val trainerName: String,
-    val time: String,
-    val description: String,
-    val material: String,
-    val attendanceList: List<Attendance>,
-    val location: String?
+    val dateLabel: String,
+    val program: String,
+    val level: String,
+    val classroom: String,
+    val trainer: String,
+    val timeRange: String,
+    val statusBadges: List<String>,
+    val notes: String,
+    val students: List<Attendance>
 )
 
 data class Attendance(
     val id: Int,
-    val memberName: String,
-    val status: String
+    val nis: String,
+    val name: String,
+    val absensiStatus: String,
+    val absensiLabel: String,
+    val rowClass: String
 )
