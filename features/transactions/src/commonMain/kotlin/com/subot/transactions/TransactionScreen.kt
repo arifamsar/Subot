@@ -88,7 +88,7 @@ fun TransactionScreen(
                 ) {
                     // Summary Cards Grid
                     val totalUnpaid = uiState.invoices.sumOf { it.amount }
-                    val totalPaid = uiState.paymentHistory.sumOf { it.amount }
+                    val totalPaid = uiState.paymentHistory.sumOf { it.totalTagihan }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -250,11 +250,11 @@ fun HistoryItemCard(item: TransactionHistory) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.invoiceNumber, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                Text(text = item.paymentDate, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = item.nomorTagihan, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                Text(text = item.jatuhTempo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Text(
-                text = "Rp ${item.amount}",
+                text = "Rp ${item.totalTagihan}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.tertiary

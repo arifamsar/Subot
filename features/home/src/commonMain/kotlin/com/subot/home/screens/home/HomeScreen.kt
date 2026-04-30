@@ -50,7 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subot.core.domain.model.Dashboard
-import com.subot.core.domain.model.Meeting
+import com.subot.core.domain.model.NextSchedule
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppTextButton
 import com.subot.core.ui.components.AppLoadingIndicator
@@ -309,7 +309,7 @@ fun MetricCardM3(
 }
 
 @Composable
-fun ScheduleCard(upcomingMeeting: Meeting?) {
+fun ScheduleCard(upcomingMeeting: NextSchedule?) {
     OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -336,7 +336,7 @@ fun ScheduleCard(upcomingMeeting: Meeting?) {
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
-                                text = upcomingMeeting.trainerName.firstOrNull()?.toString() ?: "",
+                                text = upcomingMeeting.trainer.firstOrNull()?.toString() ?: "",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
@@ -346,12 +346,12 @@ fun ScheduleCard(upcomingMeeting: Meeting?) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = upcomingMeeting.trainerName,
+                            text = upcomingMeeting.trainer,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = upcomingMeeting.description,
+                            text = "${upcomingMeeting.program} • ${upcomingMeeting.dateLabel}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -377,7 +377,7 @@ fun ScheduleCard(upcomingMeeting: Meeting?) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = upcomingMeeting.time,
+                            text = upcomingMeeting.timeRange,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
