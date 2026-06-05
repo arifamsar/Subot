@@ -91,83 +91,87 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = Res.String.welcome_title,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = uiState.dashboard?.userName ?: "...",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Handle Notifications */ }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-            )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
-    ) { paddingValues ->
-        AppPullToRefresh(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.onEvent(HomeEvent.Refresh) },
-            modifier = Modifier.padding(paddingValues).fillMaxSize()
-        ) {
-            if (uiState.isLoading) {
-                AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-                    AppPrimaryButton(
-                        onClick = { viewModel.onEvent(HomeEvent.Refresh) },
-                        text = "Coba Lagi"
-                    )
-                }
-            } else {
-                uiState.dashboard?.let { dashboard ->
+    AppPullToRefresh(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.onEvent(HomeEvent.Refresh) },
+        modifier = modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                LargeTopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = Res.String.welcome_title,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = uiState.dashboard?.userName ?: "...",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { /* Handle Notifications */ }) {
+                            Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                )
+            },
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues).fillMaxSize()
+            ) {
+                if (uiState.isLoading) {
+                    AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (uiState.error != null) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        SchoolProfileSection(dashboard.schoolName)
-                        
-                        MetricsSection(dashboard)
-
-                        SectionHeader(
-                            title = Res.String.schedule_header,
-                            onActionClick = { /* Navigate to Schedule */ }
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                        AppPrimaryButton(
+                            onClick = { viewModel.onEvent(HomeEvent.Refresh) },
+                            text = "Coba Lagi"
                         )
-                        ScheduleCard(dashboard.upcomingMeeting)
+                    }
+                } else {
+                    uiState.dashboard?.let { dashboard ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(20.dp)
+                        ) {
+                            SchoolProfileSection(dashboard.schoolName)
+                            
+                            MetricsSection(dashboard)
 
-                        SectionHeader(
-                            title = Res.String.payment_overview_card,
-                            onActionClick = { /* Navigate to Payments */ }
-                        )
-                        PaymentCard(dashboard)
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
+                            SectionHeader(
+                                title = Res.String.schedule_header,
+                                onActionClick = { /* Navigate to Schedule */ }
+                            )
+                            ScheduleCard(dashboard.upcomingMeeting)
+
+                            SectionHeader(
+                                title = Res.String.payment_overview_card,
+                                onActionClick = { /* Navigate to Payments */ }
+                            )
+                            PaymentCard(dashboard)
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
                     }
                 }
             }

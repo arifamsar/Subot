@@ -39,125 +39,129 @@ fun ScheduleScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = uiState.userRole?.replaceFirstChar { it.uppercase() } ?: "Role",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Jadwal",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onCalendarClick) {
-                        Icon(Icons.Default.CalendarMonth, contentDescription = "Calendar")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
-    ) { paddingValues ->
-        AppPullToRefresh(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.onEvent(ScheduleEvent.Refresh) },
-            modifier = Modifier.padding(paddingValues).fillMaxSize()
-        ) {
-            if (uiState.isLoading) {
-                AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-                    AppPrimaryButton(
-                        onClick = { viewModel.onEvent(ScheduleEvent.Refresh) },
-                        text = "Coba Lagi"
+    AppPullToRefresh(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.onEvent(ScheduleEvent.Refresh) },
+        modifier = modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = uiState.userRole?.replaceFirstChar { it.uppercase() } ?: "Role",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Jadwal",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onCalendarClick) {
+                            Icon(Icons.Default.CalendarMonth, contentDescription = "Calendar")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    // Summary Cards Grid (2x2)
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            SummaryCard(
-                                title = "Pertemuan Terdekat",
-                                value = uiState.schedules.firstOrNull()?.time ?: "Belum ada",
-                                icon = Icons.Default.Timer,
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.weight(1f)
-                            )
-                            SummaryCard(
-                                title = "Jadwal Total",
-                                value = uiState.schedules.size.toString(),
-                                icon = Icons.Default.CalendarMonth,
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-
-                    // Schedules List
-                    item {
-                        Text(
-                            text = "Daftar Jadwal",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                )
+            },
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues).fillMaxSize()
+            ) {
+                if (uiState.isLoading) {
+                    AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (uiState.error != null) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                        AppPrimaryButton(
+                            onClick = { viewModel.onEvent(ScheduleEvent.Refresh) },
+                            text = "Coba Lagi"
                         )
                     }
-
-                    if (uiState.schedules.isEmpty()) {
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         item {
-                            EmptySchedulePlaceholder()
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                    } else {
-                        items(
-                            items = uiState.schedules,
-                            key = { it.id }
-                        ) { schedule ->
-                            ScheduleItemCard(
-                                schedule = schedule,
-                                onClick = { onScheduleClick(schedule.id) },
-                                modifier = Modifier.animateItem()
+                        // Summary Cards Grid (2x2)
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                SummaryCard(
+                                    title = "Pertemuan Terdekat",
+                                    value = uiState.schedules.firstOrNull()?.time ?: "Belum ada",
+                                    icon = Icons.Default.Timer,
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                SummaryCard(
+                                    title = "Jadwal Total",
+                                    value = uiState.schedules.size.toString(),
+                                    icon = Icons.Default.CalendarMonth,
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+
+                        // Schedules List
+                        item {
+                            Text(
+                                text = "Daftar Jadwal",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
                         }
-                    }
 
-                    // Download Report Section
-                    item {
-                        DownloadReportCard()
-                    }
-                    
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        if (uiState.schedules.isEmpty()) {
+                            item {
+                                EmptySchedulePlaceholder()
+                            }
+                        } else {
+                            items(
+                                items = uiState.schedules,
+                                key = { it.id }
+                            ) { schedule ->
+                                ScheduleItemCard(
+                                    schedule = schedule,
+                                    onClick = { onScheduleClick(schedule.id) },
+                                    modifier = Modifier.animateItem()
+                                )
+                            }
+                        }
+
+                        // Download Report Section
+                        item {
+                            DownloadReportCard()
+                        }
+                        
+                        item {
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
                     }
                 }
             }

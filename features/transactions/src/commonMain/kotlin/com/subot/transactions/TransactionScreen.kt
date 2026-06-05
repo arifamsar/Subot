@@ -37,114 +37,118 @@ fun TransactionScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     var selectedTab by remember { mutableStateOf(0) }
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = uiState.userRole?.replaceFirstChar { it.uppercase() } ?: "Role",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Pembayaran",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
-    ) { paddingValues ->
-        AppPullToRefresh(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.onEvent(TransactionEvent.Refresh) },
-            modifier = Modifier.padding(paddingValues).fillMaxSize()
-        ) {
-            if (uiState.isLoading && uiState.invoices.isEmpty() && uiState.paymentHistory.isEmpty()) {
-                AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null && uiState.invoices.isEmpty()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-                    AppPrimaryButton(
-                        onClick = { viewModel.onEvent(TransactionEvent.Refresh) },
-                        text = "Coba Lagi"
+    AppPullToRefresh(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.onEvent(TransactionEvent.Refresh) },
+        modifier = modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = uiState.userRole?.replaceFirstChar { it.uppercase() } ?: "Role",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Pembayaran",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
-                }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Summary Cards Grid
-                    val totalUnpaid = uiState.invoices.sumOf { it.amount }
-                    val totalPaid = uiState.paymentHistory.sumOf { it.totalTagihan }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                )
+            },
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues).fillMaxSize()
+            ) {
+                if (uiState.isLoading && uiState.invoices.isEmpty() && uiState.paymentHistory.isEmpty()) {
+                    AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (uiState.error != null && uiState.invoices.isEmpty()) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        PaymentSummaryCard(
-                            title = "Sudah Terbayar",
-                            amount = "Rp $totalPaid",
-                            icon = Icons.Default.History,
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.weight(1f)
-                        )
-                        PaymentSummaryCard(
-                            title = "Belum Terbayar",
-                            amount = "Rp $totalUnpaid",
-                            icon = Icons.Default.AccountBalanceWallet,
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.weight(1f)
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                        AppPrimaryButton(
+                            onClick = { viewModel.onEvent(TransactionEvent.Refresh) },
+                            text = "Coba Lagi"
                         )
                     }
-
-                    TabRow(
-                        selectedTabIndex = selectedTab,
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        divider = {}
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Tab(
-                            selected = selectedTab == 0,
-                            onClick = { selectedTab = 0 },
-                            text = { Text("Tagihan") }
-                        )
-                        Tab(
-                            selected = selectedTab == 1,
-                            onClick = { selectedTab = 1 },
-                            text = { Text("Riwayat") }
-                        )
-                    }
+                        // Summary Cards Grid
+                        val totalUnpaid = uiState.invoices.sumOf { it.amount }
+                        val totalPaid = uiState.paymentHistory.sumOf { it.totalTagihan }
 
-                    if (selectedTab == 0) {
-                        InvoicesList(
-                            invoices = uiState.invoices,
-                            onRequestPayment = { viewModel.onEvent(TransactionEvent.RequestSnapToken(it)) }
-                        )
-                    } else {
-                        PaymentHistoryList(history = uiState.paymentHistory)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            PaymentSummaryCard(
+                                title = "Sudah Terbayar",
+                                amount = "Rp $totalPaid",
+                                icon = Icons.Default.History,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                            PaymentSummaryCard(
+                                title = "Belum Terbayar",
+                                amount = "Rp $totalUnpaid",
+                                icon = Icons.Default.AccountBalanceWallet,
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        TabRow(
+                            selectedTabIndex = selectedTab,
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            divider = {}
+                        ) {
+                            Tab(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 },
+                                text = { Text("Tagihan") }
+                            )
+                            Tab(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 },
+                                text = { Text("Riwayat") }
+                            )
+                        }
+
+                        if (selectedTab == 0) {
+                            InvoicesList(
+                                invoices = uiState.invoices,
+                                onRequestPayment = { viewModel.onEvent(TransactionEvent.RequestSnapToken(it)) }
+                            )
+                        } else {
+                            PaymentHistoryList(history = uiState.paymentHistory)
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

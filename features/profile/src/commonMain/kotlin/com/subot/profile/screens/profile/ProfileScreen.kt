@@ -230,66 +230,93 @@ fun ProfileScreen(
         )
     }
     
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = roleLabel,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = stringResource(Res.string.profile),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
-    ) { paddingValues ->
-        AppPullToRefresh(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.onEvent(ProfileEvent.RefreshProfile) },
-            modifier = Modifier.padding(paddingValues).fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                // Profile Card
-                item {
-                    ProfileCard(
-                        name = displayName,
-                        secondaryText = displaySecondary,
-                        isLoading = uiState.isProfileLoading,
-                        onEditClick = {
-                            val editRoute = if (isMitra) {
-                                Route.PenanggungJawab
-                            } else {
-                                Route.SettingsDetail("edit_profile")
-                            }
-                            onNavigate(editRoute)
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp)
+    AppPullToRefresh(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.onEvent(ProfileEvent.RefreshProfile) },
+        modifier = modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = roleLabel,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = stringResource(Res.string.profile),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
+                )
+            },
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues).fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    // Profile Card
+                    item {
+                        ProfileCard(
+                            name = displayName,
+                            secondaryText = displaySecondary,
+                            isLoading = uiState.isProfileLoading,
+                            onEditClick = {
+                                val editRoute = if (isMitra) {
+                                    Route.PenanggungJawab
+                                } else {
+                                    Route.SettingsDetail("edit_profile")
+                                }
+                                onNavigate(editRoute)
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
 
-                if (isMitra) {
+                    if (isMitra) {
+                        item {
+                            Text(
+                                text = stringResource(Res.string.profile_management),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        item {
+                            SettingsGroup(
+                                items = profileManagement,
+                                onClick = { item ->
+                                    item.route?.let { onNavigate(it) }
+                                },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
+                    }
+
+                    // General Settings
                     item {
                         Text(
-                            text = stringResource(Res.string.profile_management),
+                            text = stringResource(Res.string.general_settings),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -300,7 +327,11 @@ fun ProfileScreen(
 
                     item {
                         SettingsGroup(
-                            items = profileManagement,
+                            items = generalSettings,
+                            switchStates = mapOf(Res.string.notifications to notificationsEnabled),
+                            onSwitchChange = { title, value ->
+                                if (title == Res.string.notifications) notificationsEnabled = value
+                            },
                             onClick = { item ->
                                 item.route?.let { onNavigate(it) }
                             },
@@ -308,140 +339,113 @@ fun ProfileScreen(
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                     }
+
+                    // Preferences
+                    item {
+                        Text(
+                            text = stringResource(Res.string.preferences),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = preferences,
+                            switchStates = mapOf(Res.string.dark_mode to uiState.darkModeEnabled),
+                            onSwitchChange = { title, value ->
+                                if (title == Res.string.dark_mode) viewModel.onEvent(ProfileEvent.ToggleDarkMode(value))
+                            },
+                            onClick = { item ->
+                                when (item.title) {
+                                    Res.string.language -> showLanguageDialog = true
+                                    else -> item.route?.let { onNavigate(it) }
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+
+                    // Support
+                    item {
+                        Text(
+                            text = stringResource(Res.string.support),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = support,
+                            onClick = { item ->
+                                if (item.title == Res.string.logout) showLogoutDialog = true
+                                else item.route?.let { onNavigate(it) }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // Version
+                    item {
+                        Text(
+                            text = stringResource(Res.string.version_label),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        )
+                    }
                 }
 
-                // General Settings
-                item {
-                    Text(
-                        text = stringResource(Res.string.general_settings),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                item {
-                    SettingsGroup(
-                        items = generalSettings,
-                        switchStates = mapOf(Res.string.notifications to notificationsEnabled),
-                        onSwitchChange = { title, value ->
-                            if (title == Res.string.notifications) notificationsEnabled = value
+                // Logout Confirmation Dialog
+                if (showLogoutDialog) {
+                    AppDialog(
+                        title = stringResource(Res.string.logout),
+                        message = stringResource(Res.string.logout_confirmation_message),
+                        confirmText = stringResource(Res.string.logout),
+                        onConfirm = {
+                            showLogoutDialog = false
+                            viewModel.onEvent(ProfileEvent.Logout)
                         },
-                        onClick = { item ->
-                            item.route?.let { onNavigate(it) }
+                        dismissText = stringResource(Res.string.cancel),
+                        onDismiss = { showLogoutDialog = false }
+                    )
+                }
+
+                // Language Selection Dialog
+                if (showLanguageDialog) {
+                    LanguageSelectionDialog(
+                        selectedLanguage = uiState.selectedLanguage,
+                        onLanguageSelected = { languageCode ->
+                            viewModel.onEvent(ProfileEvent.SetLanguage(languageCode))
+                            showLanguageDialog = false
                         },
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        onDismiss = { showLanguageDialog = false }
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                // Preferences
-                item {
-                    Text(
-                        text = stringResource(Res.string.preferences),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                item {
-                    SettingsGroup(
-                        items = preferences,
-                        switchStates = mapOf(Res.string.dark_mode to uiState.darkModeEnabled),
-                        onSwitchChange = { title, value ->
-                            if (title == Res.string.dark_mode) viewModel.onEvent(ProfileEvent.ToggleDarkMode(value))
-                        },
-                        onClick = { item ->
-                            when (item.title) {
-                                Res.string.language -> showLanguageDialog = true
-                                else -> item.route?.let { onNavigate(it) }
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-
-                // Support
-                item {
-                    Text(
-                        text = stringResource(Res.string.support),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                item {
-                    SettingsGroup(
-                        items = support,
-                        onClick = { item ->
-                            if (item.title == Res.string.logout) showLogoutDialog = true
-                            else item.route?.let { onNavigate(it) }
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                // Version
-                item {
-                    Text(
-                        text = stringResource(Res.string.version_label),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline,
+                // Loading overlay during logout
+                if (uiState.isLoggingOut) {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    )
-                }
-            }
-
-            // Logout Confirmation Dialog
-            if (showLogoutDialog) {
-                AppDialog(
-                    title = stringResource(Res.string.logout),
-                    message = stringResource(Res.string.logout_confirmation_message),
-                    confirmText = stringResource(Res.string.logout),
-                    onConfirm = {
-                        showLogoutDialog = false
-                        viewModel.onEvent(ProfileEvent.Logout)
-                    },
-                    dismissText = stringResource(Res.string.cancel),
-                    onDismiss = { showLogoutDialog = false }
-                )
-            }
-
-            // Language Selection Dialog
-            if (showLanguageDialog) {
-                LanguageSelectionDialog(
-                    selectedLanguage = uiState.selectedLanguage,
-                    onLanguageSelected = { languageCode ->
-                        viewModel.onEvent(ProfileEvent.SetLanguage(languageCode))
-                        showLanguageDialog = false
-                    },
-                    onDismiss = { showLanguageDialog = false }
-                )
-            }
-
-            // Loading overlay during logout
-            if (uiState.isLoggingOut) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.4f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AppLoadingIndicator(
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.4f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AppLoadingIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
             }
         }
