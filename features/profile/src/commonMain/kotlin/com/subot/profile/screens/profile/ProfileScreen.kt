@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.AppLanguage
+import com.subot.core.ui.components.AppPullToRefresh
 import com.subot.core.ui.components.AppDialog
 import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.ShimmerBox
@@ -257,10 +258,10 @@ fun ProfileScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+        AppPullToRefresh(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.onEvent(ProfileEvent.RefreshProfile) },
+            modifier = Modifier.padding(paddingValues).fillMaxSize()
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

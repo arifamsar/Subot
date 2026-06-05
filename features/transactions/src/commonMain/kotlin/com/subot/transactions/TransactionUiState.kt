@@ -6,6 +6,7 @@ import com.subot.core.domain.model.TransactionHistory
 
 data class TransactionUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val invoices: List<Invoice> = emptyList(),
     val paymentHistory: List<TransactionHistory> = emptyList(),
     val snapToken: SnapToken? = null,

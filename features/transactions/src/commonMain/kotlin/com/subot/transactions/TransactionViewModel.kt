@@ -35,25 +35,30 @@ class TransactionViewModel(
 
     fun onEvent(event: TransactionEvent) {
         when (event) {
-            is TransactionEvent.LoadInvoices -> loadInvoices()
+            is TransactionEvent.LoadInvoices -> loadInvoices(isRefresh = false)
             is TransactionEvent.LoadPaymentHistory -> loadPaymentHistory()
             is TransactionEvent.RequestSnapToken -> requestSnapToken(event.tagihanId)
             is TransactionEvent.Refresh -> {
-                loadInvoices()
+                loadInvoices(isRefresh = true)
                 loadPaymentHistory()
             }
             is TransactionEvent.ClearSnapToken -> _uiState.update { it.copy(snapToken = null) }
         }
     }
 
-    private fun loadInvoices() {
+    private fun loadInvoices(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+            }
             when (val result = getInvoicesUseCase()) {
                 is ApiResult.Success -> {
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             invoices = result.data,
                             error = null
                         ) 
@@ -63,12 +68,15 @@ class TransactionViewModel(
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.message
                         ) 
                     }
                 }
                 is ApiResult.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
+                    if (!isRefresh) {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
                 }
             }
         }

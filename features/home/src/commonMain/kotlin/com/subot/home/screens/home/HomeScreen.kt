@@ -54,6 +54,7 @@ import com.subot.core.domain.model.NextSchedule
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppTextButton
 import com.subot.core.ui.components.AppLoadingIndicator
+import com.subot.core.ui.components.AppPullToRefresh
 import org.koin.compose.viewmodel.koinViewModel
 
 // --- Multiplatform Resources (Simulated for this context) ---
@@ -123,7 +124,11 @@ fun HomeScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        AppPullToRefresh(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.onEvent(HomeEvent.Refresh) },
+            modifier = Modifier.padding(paddingValues).fillMaxSize()
+        ) {
             if (uiState.isLoading) {
                 AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (uiState.error != null) {

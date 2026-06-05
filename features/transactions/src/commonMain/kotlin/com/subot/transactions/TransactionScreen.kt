@@ -24,6 +24,7 @@ import com.subot.core.domain.model.Invoice
 import com.subot.core.domain.model.TransactionHistory
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppLoadingIndicator
+import com.subot.core.ui.components.AppPullToRefresh
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +65,11 @@ fun TransactionScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        AppPullToRefresh(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.onEvent(TransactionEvent.Refresh) },
+            modifier = Modifier.padding(paddingValues).fillMaxSize()
+        ) {
             if (uiState.isLoading && uiState.invoices.isEmpty() && uiState.paymentHistory.isEmpty()) {
                 AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (uiState.error != null && uiState.invoices.isEmpty()) {

@@ -30,6 +30,7 @@ import com.subot.core.domain.model.Attendance
 import com.subot.core.domain.model.ScheduleDetail
 import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.AppPrimaryButton
+import com.subot.core.ui.components.AppPullToRefresh
 import com.subot.core.ui.components.AppTopBar
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -57,10 +58,10 @@ fun ScheduleDetailScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
+        AppPullToRefresh(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.onEvent(ScheduleEvent.Refresh) },
+            modifier = Modifier.padding(paddingValues).fillMaxSize()
         ) {
             if (uiState.isLoading) {
                 AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))

@@ -43,7 +43,7 @@ class ProfileViewModel(
 
     fun onEvent(event: ProfileEvent) {
         when (event) {
-            is ProfileEvent.RefreshProfile -> loadProfile()
+            is ProfileEvent.RefreshProfile -> loadProfile(isRefresh = true)
             is ProfileEvent.ClearProfileError -> _uiState.update { it.copy(profileError = null) }
             is ProfileEvent.ToggleDarkMode -> toggleDarkMode(event.enabled)
             is ProfileEvent.SetLanguage -> setLanguage(event.languageCode)
@@ -52,14 +52,19 @@ class ProfileViewModel(
         }
     }
 
-    private fun loadProfile() {
+    private fun loadProfile(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isProfileLoading = true, profileError = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, profileError = null) }
+            } else {
+                _uiState.update { it.copy(isProfileLoading = true, profileError = null) }
+            }
             when (val result = getProfileUseCase()) {
                 is ApiResult.Success -> {
                     _uiState.update {
                         it.copy(
                             isProfileLoading = false,
+                            isRefreshing = false,
                             profile = result.data,
                             profileError = null
                         )
@@ -69,11 +74,16 @@ class ProfileViewModel(
                     _uiState.update {
                         it.copy(
                             isProfileLoading = false,
+                            isRefreshing = false,
                             profileError = result.message
                         )
                     }
                 }
-                is ApiResult.Loading -> Unit
+                is ApiResult.Loading -> {
+                    if (!isRefresh) {
+                        _uiState.update { it.copy(isProfileLoading = true) }
+                    }
+                }
             }
         }
     }

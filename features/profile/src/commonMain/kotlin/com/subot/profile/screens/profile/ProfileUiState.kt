@@ -5,6 +5,7 @@ import com.subot.core.domain.model.UserProfile
 
 data class ProfileUiState(
     val isProfileLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val profile: UserProfile? = null,
     val profileError: String? = null,
     val darkModeEnabled: Boolean = false,

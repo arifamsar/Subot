@@ -35,13 +35,13 @@ import com.subot.core.domain.model.Member
 import com.subot.core.ui.components.AppCircleImage
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import com.subot.core.ui.components.AppPullToRefresh
 import com.subot.core.ui.components.AppScaffold
 import com.subot.core.ui.components.AppTextField
 import com.subot.core.ui.components.ShimmerBox
 import com.subot.core.ui.components.ShimmerCircle
 import com.subot.core.ui.components.icons.ArrowLeft
 import com.subot.core.ui.components.icons.Hicon
-
 import com.subot.core.ui.components.icons.ProfileCircleFilled
 
 @Composable
@@ -59,56 +59,60 @@ fun MembersScreen(
         navigationIcon = Hicon.ArrowLeft,
         onNavigationClick = onBack
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+        AppPullToRefresh(
+            isRefreshing = uiState.refreshing,
+            onRefresh = { viewModel.onEvent(MembersEvent.RefreshMembers) },
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
         ) {
-            // Search bar
-            SearchBar(
-                searchQuery = searchQuery,
-                onSearchChanged = { newQuery ->
-                    searchQuery = newQuery
-                    viewModel.onEvent(MembersEvent.SearchMembers(newQuery))
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-
-            // Error message
-            if (uiState.error != null) {
-                ErrorBanner(
-                    message = uiState.error!!,
-                    onDismiss = { viewModel.onEvent(MembersEvent.ClearError) },
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            // Members list or loading
-            if (uiState.isLoading && uiState.members.isEmpty()) {
-                MembersLoadingSkeleton(modifier = Modifier.fillMaxSize())
-            } else if (uiState.members.isEmpty()) {
-                Box(
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Search bar
+                SearchBar(
+                    searchQuery = searchQuery,
+                    onSearchChanged = { newQuery ->
+                        searchQuery = newQuery
+                        viewModel.onEvent(MembersEvent.SearchMembers(newQuery))
+                    },
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Tidak ada data anggota",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+
+                // Error message
+                if (uiState.error != null) {
+                    ErrorBanner(
+                        message = uiState.error!!,
+                        onDismiss = { viewModel.onEvent(MembersEvent.ClearError) },
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-            } else {
-                MembersLazyList(
-                    items = uiState.members,
-                    isLoadingMore = uiState.refreshing,
-                    hasMore = uiState.hasMore,
-                    onLoadMore = { viewModel.onEvent(MembersEvent.LoadMore) },
-                    modifier = Modifier.fillMaxSize()
-                )
+
+                // Members list or loading
+                if (uiState.isLoading && uiState.members.isEmpty()) {
+                    MembersLoadingSkeleton(modifier = Modifier.fillMaxSize())
+                } else if (uiState.members.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Tidak ada data anggota",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    MembersLazyList(
+                        items = uiState.members,
+                        isLoadingMore = uiState.refreshing,
+                        hasMore = uiState.hasMore,
+                        onLoadMore = { viewModel.onEvent(MembersEvent.LoadMore) },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

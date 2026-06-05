@@ -27,7 +27,7 @@ class PenanggungJawabViewModel(
 
     fun onEvent(event: PenanggungJawabEvent) {
         when (event) {
-            is PenanggungJawabEvent.Refresh -> loadCurrentProfile()
+            is PenanggungJawabEvent.Refresh -> loadCurrentProfile(isRefresh = true)
             is PenanggungJawabEvent.NameChanged -> updateName(event.name)
             is PenanggungJawabEvent.EmailChanged -> updateEmail(event.email)
             is PenanggungJawabEvent.PhoneChanged -> updatePhone(event.phone)
@@ -37,15 +37,20 @@ class PenanggungJawabViewModel(
         }
     }
 
-    private fun loadCurrentProfile() {
+    private fun loadCurrentProfile(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isInitialLoading = true, error = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isInitialLoading = true, error = null) }
+            }
             when (val result = getProfileUseCase()) {
                 is ApiResult.Success -> {
                     val profile = result.data.profile
                     _uiState.update {
                         it.copy(
                             isInitialLoading = false,
+                            isRefreshing = false,
                             namaPenanggungJawab = profile.namaPenanggungJawab.orEmpty(),
                             emailPenanggungJawab = profile.emailPenanggungJawab
                                 ?: profile.email.orEmpty(),
@@ -58,6 +63,7 @@ class PenanggungJawabViewModel(
                     _uiState.update {
                         it.copy(
                             isInitialLoading = false,
+                            isRefreshing = false,
                             error = result.message
                         )
                     }

@@ -1,5 +1,6 @@
 package com.subot.core.ui.components
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -11,13 +12,12 @@ fun AppPullToRefresh(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable BoxScope.() -> Unit
 ) {
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
-        modifier = modifier
-    ) {
-        content()
-    }
+        modifier = modifier,
+        content = content
+    )
 }

@@ -6,6 +6,7 @@ data class PenanggungJawabUiState(
     val telephonePenanggungJawab: String = "",
     val isInitialLoading: Boolean = false,
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
     val nameError: String? = null,

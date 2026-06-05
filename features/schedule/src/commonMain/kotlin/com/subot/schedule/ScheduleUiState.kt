@@ -5,6 +5,7 @@ import com.subot.core.domain.model.ScheduleDetail
 
 data class ScheduleUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val schedules: List<Schedule> = emptyList(),
     val scheduleDetail: ScheduleDetail? = null,
     val error: String? = null,

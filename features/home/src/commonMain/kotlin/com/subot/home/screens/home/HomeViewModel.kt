@@ -22,19 +22,24 @@ class HomeViewModel(
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.LoadDashboard -> loadDashboard()
-            is HomeEvent.Refresh -> loadDashboard()
+            is HomeEvent.LoadDashboard -> loadDashboard(isRefresh = false)
+            is HomeEvent.Refresh -> loadDashboard(isRefresh = true)
         }
     }
 
-    private fun loadDashboard() {
+    private fun loadDashboard(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+            }
             when (val result = getDashboardUseCase()) {
                 is ApiResult.Success -> {
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             dashboard = result.data,
                             error = null
                         ) 
@@ -44,12 +49,15 @@ class HomeViewModel(
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.message
                         ) 
                     }
                 }
                 is ApiResult.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
+                    if (!isRefresh) {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
                 }
             }
         }

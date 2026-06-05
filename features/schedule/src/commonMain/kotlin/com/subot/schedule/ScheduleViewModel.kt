@@ -32,20 +32,29 @@ class ScheduleViewModel(
 
     fun onEvent(event: ScheduleEvent) {
         when (event) {
-            is ScheduleEvent.LoadSchedules -> loadSchedules()
-            is ScheduleEvent.LoadScheduleDetail -> loadScheduleDetail(event.id)
-            is ScheduleEvent.Refresh -> loadSchedules()
+            is ScheduleEvent.LoadSchedules -> loadSchedules(isRefresh = false)
+            is ScheduleEvent.LoadScheduleDetail -> loadScheduleDetail(event.id, isRefresh = false)
+            is ScheduleEvent.Refresh -> {
+                _uiState.value.scheduleDetail?.let {
+                    loadScheduleDetail(it.id, isRefresh = true)
+                } ?: loadSchedules(isRefresh = true)
+            }
         }
     }
 
-    private fun loadSchedules() {
+    private fun loadSchedules(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+            }
             when (val result = getSchedulesUseCase()) {
                 is ApiResult.Success -> {
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             schedules = result.data,
                             error = null
                         ) 
@@ -55,25 +64,33 @@ class ScheduleViewModel(
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.message
                         ) 
                     }
                 }
                 is ApiResult.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
+                    if (!isRefresh) {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
                 }
             }
         }
     }
 
-    private fun loadScheduleDetail(id: Int) {
+    private fun loadScheduleDetail(id: Int, isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            if (isRefresh) {
+                _uiState.update { it.copy(isRefreshing = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+            }
             when (val result = getScheduleDetailUseCase(id)) {
                 is ApiResult.Success -> {
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             scheduleDetail = result.data,
                             error = null
                         ) 
@@ -83,12 +100,15 @@ class ScheduleViewModel(
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.message
                         ) 
                     }
                 }
                 is ApiResult.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
+                    if (!isRefresh) {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
                 }
             }
         }
