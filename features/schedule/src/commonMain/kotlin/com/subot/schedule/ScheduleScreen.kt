@@ -86,15 +86,17 @@ fun ScheduleScreen(
                     )
                 }
             } else {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState()),
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     // Summary Cards Grid (2x2)
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -119,27 +121,39 @@ fun ScheduleScreen(
                     }
 
                     // Schedules List
-                    Text(
-                        text = "Daftar Jadwal",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    item {
+                        Text(
+                            text = "Daftar Jadwal",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
                     if (uiState.schedules.isEmpty()) {
-                        EmptySchedulePlaceholder()
+                        item {
+                            EmptySchedulePlaceholder()
+                        }
                     } else {
-                        uiState.schedules.forEach { schedule ->
+                        items(
+                            items = uiState.schedules,
+                            key = { it.id }
+                        ) { schedule ->
                             ScheduleItemCard(
                                 schedule = schedule,
-                                onClick = { onScheduleClick(schedule.id) }
+                                onClick = { onScheduleClick(schedule.id) },
+                                modifier = Modifier.animateItem()
                             )
                         }
                     }
 
                     // Download Report Section
-                    DownloadReportCard()
+                    item {
+                        DownloadReportCard()
+                    }
                     
-                    Spacer(modifier = Modifier.height(24.dp))
+                    item {
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
             }
         }
@@ -149,11 +163,27 @@ fun ScheduleScreen(
 @Composable
 fun ScheduleItemCard(
     schedule: Schedule,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val statusColor = when (schedule.status.lowercase()) {
+        "tercatat" -> MaterialTheme.colorScheme.primary
+        "berlangsung" -> MaterialTheme.colorScheme.secondary
+        "selesai" -> Color(0xFF10B981)
+        "batal" -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val statusBgColor = when (schedule.status.lowercase()) {
+        "tercatat" -> MaterialTheme.colorScheme.primaryContainer
+        "berlangsung" -> MaterialTheme.colorScheme.secondaryContainer
+        "selesai" -> Color(0xFF10B981).copy(alpha = 0.15f)
+        "batal" -> MaterialTheme.colorScheme.errorContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     OutlinedCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
@@ -176,11 +206,33 @@ fun ScheduleItemCard(
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = schedule.description,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = schedule.description,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    if (schedule.status.isNotEmpty()) {
+                        Surface(
+                            color = statusBgColor,
+                            contentColor = statusColor,
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = schedule.status.replaceFirstChar { it.uppercase() },
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = schedule.time,
                     style = MaterialTheme.typography.bodySmall,
@@ -192,6 +244,7 @@ fun ScheduleItemCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,

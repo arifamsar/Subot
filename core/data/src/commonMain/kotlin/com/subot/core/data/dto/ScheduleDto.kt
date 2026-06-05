@@ -38,6 +38,14 @@ data class ScheduleDto(
 )
 
 @Serializable
+data class ScheduleDetailResponseDto(
+    @SerialName("scheduleContext")
+    val scheduleContext: String = "",
+    @SerialName("schedule")
+    val schedule: ScheduleDetailDto
+)
+
+@Serializable
 data class ScheduleDetailDto(
     @SerialName("id")
     val id: Int,

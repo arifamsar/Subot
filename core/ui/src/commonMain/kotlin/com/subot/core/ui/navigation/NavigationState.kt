@@ -82,6 +82,7 @@ val serializersConfig = SavedStateConfiguration {
         polymorphic(NavKey::class) {
             subclass(Route.Home::class, Route.Home.serializer())
             subclass(Route.Schedule::class, Route.Schedule.serializer())
+            subclass(Route.ScheduleDetail::class, Route.ScheduleDetail.serializer())
             subclass(Route.Transaction::class, Route.Transaction.serializer())
             subclass(Route.Profile::class, Route.Profile.serializer())
             subclass(Route.Settings::class, Route.Settings.serializer())
