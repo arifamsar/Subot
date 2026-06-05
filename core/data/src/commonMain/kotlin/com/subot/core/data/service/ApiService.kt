@@ -23,6 +23,19 @@ interface ApiService {
     suspend fun getProfile(token: String): HttpResponse
     suspend fun getProfileMembers(token: String, page: Int = 1, perPage: Int = 10, search: String? = null): HttpResponse
     suspend fun updatePenanggungJawab(token: String, request: PenanggungJawabRequestDto): HttpResponse
+    suspend fun updateMemberProfile(
+        token: String,
+        namaLengkap: String,
+        tempatLahir: String?,
+        tanggalLahir: String?,
+        kelas: String?,
+        alamat: String?,
+        telephone: String?,
+        namaOrtu: String?,
+        workOrtu: String?,
+        fotoProfile: ByteArray?,
+        fotoProfileName: String?
+    ): HttpResponse
     suspend fun getSupervise(token: String): HttpResponse
 
     // --- Dashboard ---

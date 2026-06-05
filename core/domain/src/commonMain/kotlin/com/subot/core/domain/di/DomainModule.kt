@@ -13,6 +13,7 @@ import com.subot.core.domain.usecase.GetSchoolsUseCase
 import com.subot.core.domain.usecase.LoginUseCase
 import com.subot.core.domain.usecase.LogoutUseCase
 import com.subot.core.domain.usecase.RequestSnapTokenUseCase
+import com.subot.core.domain.usecase.UpdateMemberProfileUseCase
 import com.subot.core.domain.usecase.UpdatePenanggungJawabUseCase
 import org.koin.dsl.module
 
@@ -25,6 +26,7 @@ val domainModule = module {
     factory { GetProfileUseCase(get()) }
     factory { GetProfileMembersUseCase(get()) }
     factory { UpdatePenanggungJawabUseCase(get()) }
+    factory { UpdateMemberProfileUseCase(get()) }
     factory { GetDashboardUseCase(get()) }
     factory { GetSchedulesUseCase(get()) }
     factory { GetScheduleDetailUseCase(get()) }

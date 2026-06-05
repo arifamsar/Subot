@@ -31,7 +31,7 @@ import subot.core.ui.generated.resources.ic_cyclone
 
 @Composable
 fun AppNetworkImage(
-    url: String?,
+    url: Any?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
@@ -83,7 +83,7 @@ fun AppNetworkImage(
 
 @Composable
 fun AppCircleImage(
-    url: String?,
+    url: Any?,
     contentDescription: String?,
     size: Dp = 48.dp,
     modifier: Modifier = Modifier,

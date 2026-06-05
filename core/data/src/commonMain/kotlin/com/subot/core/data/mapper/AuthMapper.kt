@@ -22,7 +22,14 @@ fun UserProfileSummaryDto.toDomain(): UserProfileSummary = UserProfileSummary(
     namaPenanggungJawab = namaPenanggungJawab,
     emailPenanggungJawab = emailPenanggungJawab,
     telephonePenanggungJawab = telephonePenanggungJawab,
-    status = status
+    status = status,
+    tempatLahir = tempatLahir,
+    tanggalLahir = tanggalLahir,
+    kelas = kelas,
+    telephone = telephone,
+    namaOrtu = namaOrtu,
+    workOrtu = workOrtu,
+    statusSiswa = statusSiswa
 )
 
 fun AuthUserDto.toDomain(): AuthUser = AuthUser(

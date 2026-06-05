@@ -7,8 +7,12 @@ import com.subot.core.data.dto.PenanggungJawabRequestDto
 import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 
 class ApiServiceImpl(
@@ -82,6 +86,51 @@ class ApiServiceImpl(
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody(request)
+        }
+    }
+
+    override suspend fun updateMemberProfile(
+        token: String,
+        namaLengkap: String,
+        tempatLahir: String?,
+        tanggalLahir: String?,
+        kelas: String?,
+        alamat: String?,
+        telephone: String?,
+        namaOrtu: String?,
+        workOrtu: String?,
+        fotoProfile: ByteArray?,
+        fotoProfileName: String?
+    ): HttpResponse {
+        return httpClient.post("profile/member") {
+            bearerAuth(token)
+            setBody(MultiPartFormDataContent(
+                formData {
+                    append("nama_lengkap", namaLengkap)
+                    tempatLahir?.let { append("tempat_lahir", it) }
+                    tanggalLahir?.let { append("tanggal_lahir", it) }
+                    kelas?.let { append("kelas", it) }
+                    alamat?.let { append("alamat", it) }
+                    telephone?.let { append("telephone", it) }
+                    namaOrtu?.let { append("nama_ortu", it) }
+                    workOrtu?.let { append("work_ortu", it) }
+                    if (fotoProfile != null) {
+                        append("foto_profile", fotoProfile, Headers.build {
+                            append(HttpHeaders.ContentType, getContentTypeForFileName(fotoProfileName ?: "profile.jpg"))
+                            append(HttpHeaders.ContentDisposition, "filename=\"${fotoProfileName ?: "profile.jpg"}\"")
+                        })
+                    }
+                }
+            ))
+        }
+    }
+
+    private fun getContentTypeForFileName(fileName: String): String {
+        return when (fileName.substringAfterLast('.').lowercase()) {
+            "png" -> "image/png"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            else -> "image/jpeg"
         }
     }
 

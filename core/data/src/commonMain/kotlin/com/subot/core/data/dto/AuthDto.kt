@@ -57,7 +57,28 @@ data class UserProfileSummaryDto(
     val telephonePenanggungJawab: String? = null,
 
     @SerialName("status")
-    val status: String? = null
+    val status: String? = null,
+
+    @SerialName("tempat_lahir")
+    val tempatLahir: String? = null,
+
+    @SerialName("tanggal_lahir")
+    val tanggalLahir: String? = null,
+
+    @SerialName("kelas")
+    val kelas: String? = null,
+
+    @SerialName("telephone")
+    val telephone: String? = null,
+
+    @SerialName("nama_ortu")
+    val namaOrtu: String? = null,
+
+    @SerialName("work_ortu")
+    val workOrtu: String? = null,
+
+    @SerialName("status_siswa")
+    val statusSiswa: String? = null
 )
 
 @Serializable
@@ -89,6 +110,12 @@ data class UserProfileDto(
     @SerialName("type")
     val type: String,
 
+    @SerialName("profile")
+    val profile: UserProfileSummaryDto
+)
+
+@Serializable
+data class MemberProfileDataDto(
     @SerialName("profile")
     val profile: UserProfileSummaryDto
 )

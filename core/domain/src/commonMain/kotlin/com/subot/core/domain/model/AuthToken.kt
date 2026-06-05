@@ -28,5 +28,12 @@ data class UserProfileSummary(
     val namaPenanggungJawab: String? = null,
     val emailPenanggungJawab: String? = null,
     val telephonePenanggungJawab: String? = null,
-    val status: String? = null
+    val status: String? = null,
+    val tempatLahir: String? = null,
+    val tanggalLahir: String? = null,
+    val kelas: String? = null,
+    val telephone: String? = null,
+    val namaOrtu: String? = null,
+    val workOrtu: String? = null,
+    val statusSiswa: String? = null
 )

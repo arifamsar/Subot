@@ -7,6 +7,8 @@ import androidx.navigation3.runtime.NavKey
 import com.subot.core.ui.navigation.ListDetailScene
 import com.subot.core.ui.navigation.Navigator
 import com.subot.core.ui.navigation.Route
+import com.subot.profile.screens.edit_profile.EditProfileScreen
+import com.subot.profile.screens.edit_profile.EditProfileViewModel
 import com.subot.profile.screens.members.MembersScreen
 import com.subot.profile.screens.members.MembersViewModel
 import com.subot.profile.screens.penanggung_jawab.PenanggungJawabScreen
@@ -43,10 +45,18 @@ fun EntryProviderScope<NavKey>.profileFlow(
     entry<Route.SettingsDetail>(
         metadata = ListDetailScene.detailPane()
     ) { route ->
-        SettingsDetailScreen(
-            settingId = route.settingId,
-            onBack = { navigator.goBack() }
-        )
+        if (route.settingId == "edit_profile") {
+            val editProfileViewModel: EditProfileViewModel = koinViewModel()
+            EditProfileScreen(
+                viewModel = editProfileViewModel,
+                onBack = { navigator.goBack() }
+            )
+        } else {
+            SettingsDetailScreen(
+                settingId = route.settingId,
+                onBack = { navigator.goBack() }
+            )
+        }
     }
     entry<Route.Members>(
         metadata = ListDetailScene.detailPane()
