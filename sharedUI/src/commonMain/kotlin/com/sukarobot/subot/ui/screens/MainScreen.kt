@@ -20,18 +20,11 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -143,33 +136,9 @@ private fun MainContent(
     modifier: Modifier = Modifier,
 ) {
     val isTopLevel = navigationState.isOnTopLevelDestination
-    
-    // State to track if the bottom bar should be visible based on scroll
-    var isBottomBarVisible by remember { mutableStateOf(true) }
 
-    // Route/context changes can recreate parts of the UI tree; force a visible reset so
-    // the nested scroll callback always drives the current visibility state afterward.
-    LaunchedEffect(navigationState.topLevelRoute, isTopLevel) {
-        isBottomBarVisible = true
-    }
-    
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                // If scrolling down (available.y < 0), hide the bar
-                // If scrolling up (available.y > 0), show the bar
-                if (available.y < -1f) {
-                    isBottomBarVisible = false
-                } else if (available.y > 1f) {
-                    isBottomBarVisible = true
-                }
-                return Offset.Zero
-            }
-        }
-    }
-
-    // Only show bottom bar if on top level, not using rail, and scroll state says so
-    val showBottomBar = !useNavigationRail && isTopLevel && isBottomBarVisible
+    // Only show bottom bar if on top level and not using rail
+    val showBottomBar = !useNavigationRail && isTopLevel
 
     // Get the system navigation bar height for edge-to-edge
     val systemNavBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -186,7 +155,6 @@ private fun MainContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
     ) {
         SharedTransitionLayout(
             modifier = Modifier
