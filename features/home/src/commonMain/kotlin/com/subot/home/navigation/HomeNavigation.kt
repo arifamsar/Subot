@@ -12,6 +12,9 @@ fun EntryProviderScope<NavKey>.homeFlow(
     sharedTransitionScope: SharedTransitionScope,
 ) {
     entry<Route.Home> {
-        HomeScreen()
+        HomeScreen(
+            onNavigateToSchedule = { navigator.navigate(Route.Schedule) },
+            onNavigateToTransactions = { navigator.navigate(Route.Transaction) }
+        )
     }
 }

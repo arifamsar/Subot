@@ -85,6 +85,8 @@ object Res {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToTransactions: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel()
 ) {
@@ -160,15 +162,18 @@ fun HomeScreen(
 
                             SectionHeader(
                                 title = Res.String.schedule_header,
-                                onActionClick = { /* Navigate to Schedule */ }
+                                onActionClick = onNavigateToSchedule
                             )
                             ScheduleCard(dashboard.upcomingMeeting)
 
                             SectionHeader(
                                 title = Res.String.payment_overview_card,
-                                onActionClick = { /* Navigate to Payments */ }
+                                onActionClick = onNavigateToTransactions
                             )
-                            PaymentCard(dashboard)
+                            PaymentCard(
+                                dashboard = dashboard,
+                                onNavigateToTransactions = onNavigateToTransactions
+                            )
                             
                             Spacer(modifier = Modifier.height(24.dp))
                         }
@@ -409,7 +414,10 @@ fun ScheduleCard(upcomingMeeting: NextSchedule?) {
 }
 
 @Composable
-fun PaymentCard(dashboard: Dashboard) {
+fun PaymentCard(
+    dashboard: Dashboard,
+    onNavigateToTransactions: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -455,7 +463,7 @@ fun PaymentCard(dashboard: Dashboard) {
             Spacer(modifier = Modifier.height(16.dp))
 
             AppPrimaryButton(
-                onClick = { /* Handle Payment */ },
+                onClick = onNavigateToTransactions,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = dashboard.hasUnpaidBills,
                 text = "Bayar Sekarang",
