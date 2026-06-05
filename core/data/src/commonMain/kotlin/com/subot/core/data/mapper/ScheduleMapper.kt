@@ -9,9 +9,9 @@ import com.subot.core.domain.model.ScheduleDetail
 
 fun ScheduleDto.toDomain(): Schedule = Schedule(
     id = id,
-    trainerName = trainerName,
-    time = time,
-    description = description,
+    trainerName = trainer.ifEmpty { trainerName },
+    time = timeRange.ifEmpty { dateLabel.ifEmpty { time } },
+    description = program.ifEmpty { description },
     status = status
 )
 

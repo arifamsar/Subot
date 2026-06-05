@@ -8,13 +8,33 @@ data class ScheduleDto(
     @SerialName("id")
     val id: Int,
     @SerialName("trainer_name")
-    val trainerName: String,
+    val trainerName: String = "",
     @SerialName("time")
-    val time: String,
+    val time: String = "",
     @SerialName("description")
-    val description: String,
+    val description: String = "",
     @SerialName("status")
-    val status: String
+    val status: String = "",
+    @SerialName("program")
+    val program: String = "",
+    @SerialName("trainer")
+    val trainer: String = "",
+    @SerialName("date")
+    val date: String = "",
+    @SerialName("start_time")
+    val startTime: String = "",
+    @SerialName("end_time")
+    val endTime: String = "",
+    @SerialName("time_range")
+    val timeRange: String = "",
+    @SerialName("date_label")
+    val dateLabel: String = "",
+    @SerialName("status_label")
+    val statusLabel: String = "",
+    @SerialName("status_badges")
+    val statusBadges: List<String> = emptyList(),
+    @SerialName("row_classes")
+    val rowClasses: String = ""
 )
 
 @Serializable
