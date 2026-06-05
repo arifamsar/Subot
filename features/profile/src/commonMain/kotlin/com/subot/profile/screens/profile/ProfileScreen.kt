@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.AppLanguage
 import com.subot.core.ui.components.AppPullToRefresh
+import com.subot.core.ui.components.AppCircleImage
 import com.subot.core.ui.components.AppDialog
 import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.ShimmerBox
@@ -275,6 +276,7 @@ fun ProfileScreen(
                         ProfileCard(
                             name = displayName,
                             secondaryText = displaySecondary,
+                            profileImageUrl = profileSummary?.profileImageUrl,
                             isLoading = uiState.isProfileLoading,
                             onEditClick = {
                                 val editRoute = if (isMitra) {
@@ -456,6 +458,7 @@ fun ProfileScreen(
 private fun ProfileCard(
     name: String,
     secondaryText: String,
+    profileImageUrl: String?,
     isLoading: Boolean = false,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -508,20 +511,14 @@ private fun ProfileCard(
                 }
             } else {
                 // Avatar
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Hicon.ProfileCircleFilled,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                AppCircleImage(
+                    url = profileImageUrl,
+                    contentDescription = name,
+                    size = 64.dp,
+                    placeholderColor = MaterialTheme.colorScheme.primaryContainer,
+                    fallbackIcon = Hicon.ProfileCircleFilled,
+                    fallbackIconTint = MaterialTheme.colorScheme.primary
+                )
                 
                 Spacer(modifier = Modifier.width(16.dp))
                 

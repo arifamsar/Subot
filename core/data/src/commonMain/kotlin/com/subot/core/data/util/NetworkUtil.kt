@@ -6,6 +6,7 @@ import com.subot.core.domain.result.ApiResult
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.isSuccess
+import Subot.core.data.BuildConfig
 
 /**
  * Safely executes a network call and wraps the result in [ApiResult].
@@ -46,6 +47,23 @@ internal fun logApiError(code: Int, message: String) {
 @PublishedApi
 internal fun logNetworkException(e: Exception) {
     Logger.withTag("NetworkUtil").e(e) { "Network call failed" }
+}
+
+/**
+ * Formats image URLs by prepending BuildConfig.URL if the path is relative.
+ */
+fun formatImageUrl(path: String?): String? {
+    if (path.isNullOrBlank()) return null
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+        return path
+    }
+    val baseUrl = BuildConfig.URL.removeSuffix("/")
+    var cleanPath = if (path.startsWith("/")) path else "/$path"
+    if (cleanPath.startsWith("/storage")) {
+        cleanPath = cleanPath.removePrefix("/storage")
+    }
+    val finalPath = if (cleanPath.startsWith("/")) cleanPath else "/$cleanPath"
+    return "$baseUrl$finalPath"
 }
 
 

@@ -14,8 +14,10 @@ buildConfig {
     val properties = Properties().apply {
         localPropertiesFile.inputStream().use { load(it) }
     }
-    val  baseUrl: String = properties.getProperty("BASE_URL")
-    buildConfigField("BASE_URL", baseUrl )
+    val baseUrl: String = properties.getProperty("BASE_URL")
+    val url: String = properties.getProperty("URL")?.takeIf { it.isNotBlank() } ?: "https://staging-subot.sukarobot.id/"
+    buildConfigField("BASE_URL", baseUrl)
+    buildConfigField("URL", url)
 }
 
 kotlin {

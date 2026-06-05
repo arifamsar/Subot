@@ -9,6 +9,8 @@ import com.subot.core.domain.model.AuthUser
 import com.subot.core.domain.model.UserProfile
 import com.subot.core.domain.model.UserProfileSummary
 
+import com.subot.core.data.util.formatImageUrl
+
 fun UserProfileSummaryDto.toDomain(): UserProfileSummary = UserProfileSummary(
     id = id,
     nis = nis,
@@ -18,7 +20,7 @@ fun UserProfileSummaryDto.toDomain(): UserProfileSummary = UserProfileSummary(
     alamat = alamat,
     namaLengkap = namaLengkap,
     email = email,
-    profileImageUrl = profileImageUrl,
+    profileImageUrl = formatImageUrl(profileImageUrl),
     namaPenanggungJawab = namaPenanggungJawab,
     emailPenanggungJawab = emailPenanggungJawab,
     telephonePenanggungJawab = telephonePenanggungJawab,

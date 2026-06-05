@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.subot.core.ui.components.AppCircleImage
+import com.subot.core.ui.components.AppPullToRefresh
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppScaffold
 import com.subot.core.ui.components.AppTextField
@@ -95,18 +96,24 @@ fun EditProfileScreen(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
-            Column(
+            AppPullToRefresh(
+                isRefreshing = uiState.isInitialLoading,
+                onRefresh = { viewModel.onEvent(EditProfileEvent.Refresh) },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                     // Error message
                     if (uiState.error != null) {
                         ErrorBanner(
@@ -266,6 +273,7 @@ fun EditProfileScreen(
             }
         }
     }
+}
 }
 
 @Composable
