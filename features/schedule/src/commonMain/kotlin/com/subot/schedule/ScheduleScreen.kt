@@ -36,7 +36,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    onCalendarClick: () -> Unit = {},
     onScheduleClick: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ScheduleViewModel = koinViewModel()
@@ -93,11 +92,6 @@ fun ScheduleScreen(
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = onCalendarClick) {
-                            Icon(Icons.Default.CalendarMonth, contentDescription = "Calendar")
                         }
                     },
                     scrollBehavior = scrollBehavior,
