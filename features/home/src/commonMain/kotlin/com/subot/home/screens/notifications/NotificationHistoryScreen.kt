@@ -2,7 +2,18 @@ package com.subot.home.screens.notifications
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -11,8 +22,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.NotificationsNone
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,13 +41,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.model.NotificationHistory
 import com.subot.core.ui.components.AppLoadingIndicator
-import com.subot.core.ui.components.AppPrimaryButton
-import kotlinx.datetime.Instant
+import com.subot.core.ui.components.AppScaffold
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationHistoryScreen(
     onBack: () -> Unit,
@@ -38,42 +56,27 @@ fun NotificationHistoryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Riwayat Notifikasi", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    if (uiState.notifications.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onEvent(NotificationHistoryEvent.ClearAll) }) {
-                            Icon(
-                                imageVector = Icons.Default.DeleteSweep,
-                                contentDescription = "Hapus Semua",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
-        modifier = modifier.fillMaxSize()
+    AppScaffold(
+        modifier = modifier,
+        topBarTitle = "Riwayat Notifikasi",
+        navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        onNavigationClick = onBack,
+        actions = {
+            if (uiState.notifications.isNotEmpty()) {
+                IconButton(onClick = { viewModel.onEvent(NotificationHistoryEvent.ClearAll) }) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteSweep,
+                        contentDescription = "Hapus Semua",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
         ) {
             if (uiState.isLoading) {
                 AppLoadingIndicator(modifier = Modifier.align(Alignment.Center))
@@ -120,7 +123,7 @@ fun NotificationHistoryItem(
         try {
             val localDateTime = Instant.fromEpochMilliseconds(notification.timestamp)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-            "${localDateTime.dayOfMonth.toString().padStart(2, '0')}/${localDateTime.monthNumber.toString().padStart(2, '0')}/${localDateTime.year} ${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}"
+            "${localDateTime.day.toString().padStart(2, '0')}/${localDateTime.month.number.toString().padStart(2, '0')}/${localDateTime.year} ${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}"
         } catch (e: Exception) {
             ""
         }
