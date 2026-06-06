@@ -1,5 +1,6 @@
 package com.subot.core.data.service
 
+import com.subot.core.data.dto.ChangePasswordRequestDto
 import com.subot.core.data.dto.ListItemDto
 import com.subot.core.data.dto.ListResponseDto
 import com.subot.core.data.dto.LoginRequestDto
@@ -7,6 +8,7 @@ import com.subot.core.data.dto.PenanggungJawabRequestDto
 import io.ktor.client.statement.HttpResponse
 
 interface ApiService {
+
     // --- Legacy placeholder endpoints ---
     suspend fun getListItems(page: Int = 1, limit: Int = 10): ListResponseDto<ListItemDto>
     suspend fun getItemById(id: Int): ListItemDto
@@ -36,7 +38,9 @@ interface ApiService {
         fotoProfile: ByteArray?,
         fotoProfileName: String?
     ): HttpResponse
+    suspend fun changePassword(token: String, request: ChangePasswordRequestDto): HttpResponse
     suspend fun getSupervise(token: String): HttpResponse
+
 
     // --- Dashboard ---
     suspend fun getDashboard(token: String): HttpResponse

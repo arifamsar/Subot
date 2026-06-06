@@ -39,6 +39,33 @@ suspend inline fun <reified T> safeApiCall(crossinline call: suspend () -> HttpR
     }
 }
 
+/**
+ * Safely executes a network call for endpoints that don't return data (only success status and message).
+ * Wraps the result in [ApiResult].
+ */
+suspend inline fun safeApiCallNoData(crossinline call: suspend () -> HttpResponse): ApiResult<String> {
+    return try {
+        val response = call()
+        if (response.status.isSuccess()) {
+            val body = response.body<ApiResponseDto<Unit>>()
+            ApiResult.Success(body.message ?: "Success")
+        } else {
+            val errorBody = try {
+                response.body<ApiResponseDto<Unit>>()
+            } catch (_: Exception) {
+                null
+            }
+            val message = errorBody?.message ?: response.status.description
+            logApiError(response.status.value, message)
+            ApiResult.Error(message, response.status.value)
+        }
+    } catch (e: Exception) {
+        logNetworkException(e)
+        ApiResult.Error(e.message ?: "Unknown network error")
+    }
+}
+
+
 @PublishedApi
 internal fun logApiError(code: Int, message: String) {
     Logger.withTag("NetworkUtil").e { "API Error $code: $message" }

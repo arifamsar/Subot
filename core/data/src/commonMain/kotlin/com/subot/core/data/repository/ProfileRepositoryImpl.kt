@@ -3,6 +3,7 @@ package com.subot.core.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.subot.core.data.dto.ChangePasswordRequestDto
 import com.subot.core.data.dto.MemberProfileDataDto
 import com.subot.core.data.dto.PaginatedMembersDto
 import com.subot.core.data.dto.PenanggungJawabRequestDto
@@ -12,6 +13,7 @@ import com.subot.core.data.paging.MembersPagingSource
 import com.subot.core.data.service.ApiService
 import com.subot.core.data.service.UserPreferences
 import com.subot.core.data.util.safeApiCall
+import com.subot.core.data.util.safeApiCallNoData
 import com.subot.core.domain.model.Member
 import com.subot.core.domain.model.PaginatedData
 import com.subot.core.domain.model.PenanggungJawab
@@ -126,4 +128,22 @@ class ProfileRepositoryImpl(
             is ApiResult.Loading -> result
         }
     }
+
+    override suspend fun changePassword(
+        currentPassword: String,
+        password: String,
+        passwordConfirmation: String
+    ): ApiResult<String> {
+        val token = userPreferences.getAccessToken()
+            ?: return ApiResult.Error("Not authenticated", 401)
+        val request = ChangePasswordRequestDto(
+            currentPassword = currentPassword,
+            password = password,
+            passwordConfirmation = passwordConfirmation
+        )
+        return safeApiCallNoData {
+            apiService.changePassword(token = token, request = request)
+        }
+    }
 }
+

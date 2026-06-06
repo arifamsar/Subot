@@ -151,26 +151,34 @@ fun ProfileScreen(
     }
 
 
-    val generalSettings = remember {
-        listOf(
-            ProfileMenuItem(
-                title = Res.string.edit_profile,
-                subtitle = Res.string.edit_profile_subtitle,
-                icon = Hicon.ProfileOutlined,
-                route = Route.SettingsDetail("edit_profile")
-            ),
-            ProfileMenuItem(
-                title = Res.string.security,
-                subtitle = Res.string.security_subtitle,
-                icon = Hicon.SecuritySafe,
-                route = Route.SettingsDetail("security")
-            ),
-            ProfileMenuItem(
-                title = Res.string.notifications,
-                icon = Hicon.Notification3,
-                hasSwitch = true
+    val generalSettings = remember(isMitra) {
+        buildList {
+            if (!isMitra) {
+                add(
+                    ProfileMenuItem(
+                        title = Res.string.edit_profile,
+                        subtitle = Res.string.edit_profile_subtitle,
+                        icon = Hicon.ProfileOutlined,
+                        route = Route.SettingsDetail("edit_profile")
+                    )
+                )
+            }
+            add(
+                ProfileMenuItem(
+                    title = Res.string.security,
+                    subtitle = Res.string.security_subtitle,
+                    icon = Hicon.SecuritySafe,
+                    route = Route.SettingsDetail("security")
+                )
             )
-        )
+            add(
+                ProfileMenuItem(
+                    title = Res.string.notifications,
+                    icon = Hicon.Notification3,
+                    hasSwitch = true
+                )
+            )
+        }
     }
     
     val preferences = remember {

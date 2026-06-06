@@ -41,4 +41,11 @@ interface ProfileRepository {
         fotoProfile: ByteArray?,
         fotoProfileName: String?
     ): ApiResult<UserProfileSummary>
+
+    suspend fun changePassword(
+        currentPassword: String,
+        password: String,
+        passwordConfirmation: String
+    ): ApiResult<String>
 }
+

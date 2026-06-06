@@ -7,6 +7,8 @@ import androidx.navigation3.runtime.NavKey
 import com.subot.core.ui.navigation.ListDetailScene
 import com.subot.core.ui.navigation.Navigator
 import com.subot.core.ui.navigation.Route
+import com.subot.profile.screens.change_password.ChangePasswordScreen
+import com.subot.profile.screens.change_password.ChangePasswordViewModel
 import com.subot.profile.screens.edit_profile.EditProfileScreen
 import com.subot.profile.screens.edit_profile.EditProfileViewModel
 import com.subot.profile.screens.members.MembersScreen
@@ -49,6 +51,12 @@ fun EntryProviderScope<NavKey>.profileFlow(
             val editProfileViewModel: EditProfileViewModel = koinViewModel()
             EditProfileScreen(
                 viewModel = editProfileViewModel,
+                onBack = { navigator.goBack() }
+            )
+        } else if (route.settingId == "security") {
+            val changePasswordViewModel: ChangePasswordViewModel = koinViewModel()
+            ChangePasswordScreen(
+                viewModel = changePasswordViewModel,
                 onBack = { navigator.goBack() }
             )
         } else {

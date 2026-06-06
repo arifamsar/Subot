@@ -12,6 +12,7 @@ import com.subot.core.domain.usecase.GetSchoolsPagedUseCase
 import com.subot.core.domain.usecase.GetSchoolsUseCase
 import com.subot.core.domain.usecase.LoginUseCase
 import com.subot.core.domain.usecase.LogoutUseCase
+import com.subot.core.domain.usecase.ChangePasswordUseCase
 import com.subot.core.domain.usecase.RequestSnapTokenUseCase
 import com.subot.core.domain.usecase.UpdateMemberProfileUseCase
 import com.subot.core.domain.usecase.UpdatePenanggungJawabUseCase
@@ -35,4 +36,6 @@ val domainModule = module {
     factory { GetPaymentHistoryUseCase(get()) }
     factory { RequestSnapTokenUseCase(get()) }
     factory { ExportScheduleReportUseCase(get()) }
+    factory { ChangePasswordUseCase(get()) }
 }
+

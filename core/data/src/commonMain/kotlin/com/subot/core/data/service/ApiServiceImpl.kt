@@ -1,5 +1,6 @@
 package com.subot.core.data.service
 
+import com.subot.core.data.dto.ChangePasswordRequestDto
 import com.subot.core.data.dto.ListItemDto
 import com.subot.core.data.dto.ListResponseDto
 import com.subot.core.data.dto.LoginRequestDto
@@ -134,11 +135,20 @@ class ApiServiceImpl(
         }
     }
 
+    override suspend fun changePassword(token: String, request: ChangePasswordRequestDto): HttpResponse {
+        return httpClient.post("profile/change-password") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+    }
+
     override suspend fun getSupervise(token: String): HttpResponse {
         return httpClient.get("supervise") {
             bearerAuth(token)
         }
     }
+
 
     // ---------- Dashboard ----------
 
