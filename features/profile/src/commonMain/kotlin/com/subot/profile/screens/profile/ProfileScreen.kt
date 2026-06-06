@@ -175,7 +175,7 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     title = Res.string.notifications,
                     icon = Hicon.Notification3,
-                    hasSwitch = true
+                    route = Route.SettingsDetail("notifications")
                 )
             )
         }
@@ -322,7 +322,7 @@ fun ProfileScreen(
                     item {
                         SettingsGroup(
                             items = generalSettings,
-                            switchStates = mapOf(Res.string.notifications to notificationsEnabled),
+                            // No switch for notifications now; remove switchState entry
                             onSwitchChange = { title, value ->
                                 if (title == Res.string.notifications) notificationsEnabled = value
                             },

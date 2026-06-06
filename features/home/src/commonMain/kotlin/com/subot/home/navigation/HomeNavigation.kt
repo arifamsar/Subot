@@ -14,7 +14,14 @@ fun EntryProviderScope<NavKey>.homeFlow(
     entry<Route.Home> {
         HomeScreen(
             onNavigateToSchedule = { navigator.navigate(Route.Schedule) },
-            onNavigateToTransactions = { navigator.navigate(Route.Transaction) }
+            onNavigateToTransactions = { navigator.navigate(Route.Transaction) },
+            onNavigateToNotifications = { navigator.navigate(Route.NotificationHistory) }
+        )
+    }
+
+    entry<Route.NotificationHistory> {
+        com.subot.home.screens.notifications.NotificationHistoryScreen(
+            onBack = { navigator.goBack() }
         )
     }
 }

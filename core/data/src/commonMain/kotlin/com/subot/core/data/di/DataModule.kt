@@ -7,6 +7,7 @@ val dataModule = module {
     includes(
         preferencesModule,
         httpModule,
+        databaseModule,
         domainModule
     )
 }

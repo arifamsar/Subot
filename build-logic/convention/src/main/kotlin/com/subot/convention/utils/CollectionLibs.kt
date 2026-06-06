@@ -43,6 +43,8 @@ fun KotlinDependencyHandler.coreDataDependencies(project: Project) {
     implementation(libs.ktor.client.logging)
 
     implementation(libs.room.runtime)
+    implementation(libs.sqlite.bundled)
+    implementation(libs.alarmee)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.paging.common)

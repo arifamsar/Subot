@@ -31,6 +31,9 @@ sealed interface Route : NavKey {
     data class ScheduleDetail(val scheduleId: Int) : Route
 
     @Serializable
+    data object NotificationHistory : Route
+
+    @Serializable
     data object Transaction : Route
 
     @Serializable

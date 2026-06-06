@@ -7,6 +7,12 @@ import com.subot.core.domain.result.ApiResult
 import com.subot.core.domain.usecase.GetScheduleDetailUseCase
 import com.subot.core.domain.usecase.GetSchedulesUseCase
 import com.subot.core.domain.usecase.ExportScheduleReportUseCase
+import com.subot.core.domain.repository.NotificationRepository
+import com.tweener.alarmee.AlarmeeService
+import com.tweener.alarmee.model.Alarmee
+import com.tweener.alarmee.model.AndroidNotificationConfiguration
+import com.tweener.alarmee.model.IosNotificationConfiguration
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -17,7 +23,9 @@ class ScheduleViewModel(
     private val getSchedulesUseCase: GetSchedulesUseCase,
     private val getScheduleDetailUseCase: GetScheduleDetailUseCase,
     private val userPreferences: UserPreferences,
-    private val exportScheduleReportUseCase: ExportScheduleReportUseCase
+    private val exportScheduleReportUseCase: ExportScheduleReportUseCase,
+    private val notificationRepository: NotificationRepository,
+    private val alarmeeService: AlarmeeService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -59,6 +67,35 @@ class ScheduleViewModel(
                             exportedPdfBytes = result.data,
                             exportError = null
                         )
+                    }
+                    val notificationTitle = "Laporan Pertemuan Berhasil Diunduh"
+                    val notificationBody = "File PDF laporan pertemuan Anda telah berhasil diunduh dan disimpan."
+
+                    try {
+                        alarmeeService.local.immediate(
+                            alarmee = Alarmee(
+                                uuid = Clock.System.now().toEpochMilliseconds().toString(),
+                                notificationTitle = notificationTitle,
+                                notificationBody = notificationBody,
+                                androidNotificationConfiguration = AndroidNotificationConfiguration(
+                                    channelId = "download_channel"
+                                ),
+                                iosNotificationConfiguration = IosNotificationConfiguration()
+                            )
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    viewModelScope.launch {
+                        try {
+                            notificationRepository.insertNotification(
+                                title = notificationTitle,
+                                body = notificationBody
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
                 is ApiResult.Error -> {

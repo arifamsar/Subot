@@ -18,6 +18,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             sharedUiDependencies(project)
+            implementation(libs.alarmee)
             api(projects.core.common)
             api(projects.core.domain)
             api(projects.core.data)

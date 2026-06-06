@@ -4,6 +4,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.subot.kotlin.multiplatform)
+    alias(libs.plugins.subot.compose.multiplatform)
     alias(libs.plugins.subot.room)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.buildConfig)
@@ -30,6 +31,8 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:domain"))
             implementation(project(":core:common"))
+            implementation(libs.alarmee)
+            api(libs.compose.ui)
             coreDataDependencies(project)
         }
         
@@ -37,6 +40,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
 
+        iosMain {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+        }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }

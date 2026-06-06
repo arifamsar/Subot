@@ -22,6 +22,7 @@ class RoomConventionPlugin : Plugin<Project> {
 
             dependencies {
                 val roomCompiler = libs.room.compiler
+                add("kspCommonMainMetadata", roomCompiler)
                 add("kspAndroid", roomCompiler)
                 add("kspIosArm64", roomCompiler)
                 add("kspIosSimulatorArm64", roomCompiler)

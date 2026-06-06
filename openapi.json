@@ -1,0 +1,1388 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Supervise API Documentation",
+    "version": "1.0.0",
+    "description": "API contract for the Supervise module of Management Subot, used by Member and Mitra mobile app clients. All requests must send `Accept: application/json` header. Protected endpoints require a Bearer token in the `Authorization` header."
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Standard API Base path"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "SanctumAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Use the token returned by the POST /v1/auth/login endpoint."
+      }
+    },
+    "schemas": {
+      "SchoolOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "sekolah": {
+            "type": "string",
+            "example": "SMP Negeri 1"
+          }
+        },
+        "required": ["id", "sekolah"]
+      },
+      "MemberProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 123
+          },
+          "role": {
+            "type": "string",
+            "example": "member"
+          },
+          "nis": {
+            "type": "string",
+            "example": "12345"
+          },
+          "nama_lengkap": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "id_sekolah": {
+            "type": "string",
+            "example": "SCH-01"
+          },
+          "kelas": {
+            "type": "string",
+            "example": "6A"
+          },
+          "tempat_lahir": {
+            "type": "string",
+            "example": "Bandung"
+          },
+          "tanggal_lahir": {
+            "type": "string",
+            "format": "date",
+            "example": "2014-05-15"
+          },
+          "alamat": {
+            "type": "string",
+            "example": "Jl. Kemerdekaan No. 45"
+          },
+          "telephone": {
+            "type": "string",
+            "example": "08123456789"
+          },
+          "status_siswa": {
+            "type": "string",
+            "example": "Aktif"
+          }
+        },
+        "required": ["id", "role", "nis", "nama_lengkap", "id_sekolah", "kelas", "status_siswa"]
+      },
+      "MitraProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 5
+          },
+          "role": {
+            "type": "string",
+            "example": "mitra"
+          },
+          "id_sekolah": {
+            "type": "string",
+            "example": "SCH-01"
+          },
+          "sekolah": {
+            "type": "string",
+            "example": "SMP Negeri 1"
+          },
+          "alamat": {
+            "type": "string",
+            "example": "Jl. Pendidikan No. 12"
+          },
+          "nama_penanggung_jawab": {
+            "type": "string",
+            "example": "Bapak Ahmad"
+          },
+          "email_penanggung_jawab": {
+            "type": "string",
+            "format": "email",
+            "example": "ahmad@example.com"
+          },
+          "telephone_penanggung_jawab": {
+            "type": "string",
+            "example": "081234567890"
+          },
+          "status": {
+            "type": "string",
+            "example": "isactive"
+          }
+        },
+        "required": ["id", "role", "id_sekolah", "sekolah", "status"]
+      },
+      "ProfileWrapper": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["member", "mitra", "unknown"],
+            "example": "member"
+          },
+          "profile": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MemberProfile"
+              },
+              {
+                "$ref": "#/components/schemas/MitraProfile"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": ["type", "profile"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token_type": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "access_token": {
+            "type": "string",
+            "example": "1|abcdef1234567890..."
+          },
+          "user_type": {
+            "type": "string",
+            "enum": ["member", "mitra"],
+            "example": "member"
+          },
+          "user": {
+            "$ref": "#/components/schemas/ProfileWrapper"
+          }
+        },
+        "required": ["token_type", "access_token", "user_type", "user"]
+      },
+      "MemberListResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 10
+          },
+          "role": {
+            "type": "string",
+            "example": "member"
+          },
+          "nama_lengkap": {
+            "type": "string",
+            "example": "Budi"
+          },
+          "nis": {
+            "type": "string",
+            "example": "12345"
+          },
+          "kelas": {
+            "type": "string",
+            "example": "6A"
+          },
+          "id_sekolah": {
+            "type": "string",
+            "example": "SCH-01"
+          },
+          "status_siswa": {
+            "type": "string",
+            "example": "Aktif"
+          },
+          "profile_image_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "http://127.0.0.1:8000/storage/assets/data/dataAnak/img/pasFoto_budi_20260311_144844.png"
+          }
+        },
+        "required": ["id", "role", "nama_lengkap", "nis", "kelas", "id_sekolah", "status_siswa", "profile_image_url"]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer",
+            "example": 1
+          },
+          "last_page": {
+            "type": "integer",
+            "example": 3
+          },
+          "per_page": {
+            "type": "integer",
+            "example": 10
+          },
+          "total": {
+            "type": "integer",
+            "example": 22
+          },
+          "from": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "to": {
+            "type": "integer",
+            "nullable": true,
+            "example": 10
+          },
+          "has_more_pages": {
+            "type": "boolean",
+            "example": true
+          },
+          "next_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "http://127.0.0.1:8000/api/v1/public/schools?page=2&per_page=10"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": null
+          }
+        },
+        "required": ["current_page", "last_page", "per_page", "total", "from", "to", "has_more_pages", "next_page_url", "prev_page_url"]
+      },
+      "SchedulePreview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "program": {
+            "type": "string",
+            "example": "Robotics Level 1"
+          },
+          "trainer": {
+            "type": "string",
+            "example": "Kak Ahmad"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-04-28"
+          },
+          "start_time": {
+            "type": "string",
+            "example": "08:00:00"
+          },
+          "end_time": {
+            "type": "string",
+            "example": "10:00:00"
+          },
+          "time_range": {
+            "type": "string",
+            "example": "08:00 - 10:00"
+          },
+          "date_label": {
+            "type": "string",
+            "example": "28 Apr 2026"
+          },
+          "status": {
+            "type": "string",
+            "example": "terjadwal"
+          },
+          "status_label": {
+            "type": "string",
+            "example": "Terjadwal"
+          },
+          "status_badges": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["terjadwal"]
+          },
+          "row_classes": {
+            "type": "string",
+            "example": "bg-gray-50"
+          }
+        },
+        "required": ["id", "program", "trainer", "date", "start_time", "end_time", "time_range", "date_label", "status", "status_label", "status_badges", "row_classes"]
+      },
+      "UnpaidInvoiceItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 123
+          },
+          "label": {
+            "type": "string",
+            "example": "Cicilan ke-1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Budi Santoso • Robotics Level 1"
+          },
+          "amount": {
+            "type": "number",
+            "example": 150000
+          },
+          "amount_formatted": {
+            "type": "string",
+            "example": "Rp 150.000"
+          },
+          "due_date_formatted": {
+            "type": "string",
+            "example": "30 Apr 2026"
+          }
+        },
+        "required": ["id", "label", "description", "amount", "amount_formatted", "due_date_formatted"]
+      },
+      "DashboardData": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "display_name": {
+                "type": "string",
+                "example": "Budi Santoso"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["member", "mitra"],
+                "example": "member"
+              },
+              "profile_image_url": {
+                "type": "string",
+                "format": "uri",
+                "nullable": true,
+                "example": "http://127.0.0.1:8000/storage/assets/data/dataAnak/img/pasFoto_budi.png"
+              }
+            },
+            "required": ["display_name", "type", "profile_image_url"]
+          },
+          "summary_metrics": {
+            "type": "object",
+            "properties": {
+              "totalSchedules": {
+                "type": "integer",
+                "example": 10
+              },
+              "completedSchedules": {
+                "type": "integer",
+                "example": 2
+              },
+              "remainingSchedules": {
+                "type": "integer",
+                "example": 8
+              },
+              "nextSchedule": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "dateLabel": {
+                    "type": "string",
+                    "example": "28 Apr 2026"
+                  },
+                  "timeRange": {
+                    "type": "string",
+                    "example": "08:00 - 10:00"
+                  },
+                  "program": {
+                    "type": "string",
+                    "example": "Robotics Level 1"
+                  },
+                  "trainer": {
+                    "type": "string",
+                    "example": "Kak Ahmad"
+                  }
+                },
+                "required": ["dateLabel", "timeRange", "program", "trainer"]
+              }
+            },
+            "required": ["totalSchedules", "completedSchedules", "remainingSchedules", "nextSchedule"]
+          },
+          "schedule_preview": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchedulePreview"
+            }
+          },
+          "unpaid_invoices": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UnpaidInvoiceItem"
+                }
+              },
+              "total_amount": {
+                "type": "number",
+                "example": 150000
+              },
+              "total_formatted": {
+                "type": "string",
+                "example": "Rp 150.000"
+              },
+              "has_more": {
+                "type": "boolean",
+                "example": false
+              },
+              "remaining_count": {
+                "type": "integer",
+                "example": 0
+              }
+            },
+            "required": ["items", "total_amount", "total_formatted", "has_more", "remaining_count"]
+          }
+        },
+        "required": ["user", "summary_metrics", "schedule_preview", "unpaid_invoices"]
+      },
+      "ScheduleStudent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 10
+          },
+          "nis": {
+            "type": "string",
+            "example": "12345"
+          },
+          "name": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "absensi_status": {
+            "type": "string",
+            "example": "Hadir"
+          },
+          "absensi_label": {
+            "type": "string",
+            "example": "Hadir"
+          },
+          "row_class": {
+            "type": "string",
+            "example": "bg-emerald-50 hover:bg-emerald-100"
+          }
+        },
+        "required": ["id", "nis", "name", "absensi_status", "absensi_label", "row_class"]
+      },
+      "ScheduleDetail": {
+        "type": "object",
+        "properties": {
+          "scheduleContext": {
+            "type": "string",
+            "enum": ["member", "mitra"],
+            "example": "member"
+          },
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "dateLabel": {
+                "type": "string",
+                "example": "28 April 2026"
+              },
+              "program": {
+                "type": "string",
+                "example": "Robotics Level 1"
+              },
+              "level": {
+                "type": "string",
+                "example": "Basic"
+              },
+              "classroom": {
+                "type": "string",
+                "example": "Grade 6A"
+              },
+              "trainer": {
+                "type": "string",
+                "example": "Kak Ahmad"
+              },
+              "timeRange": {
+                "type": "string",
+                "example": "08:00 - 10:00"
+              },
+              "statusBadges": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["terjadwal"]
+              },
+              "notes": {
+                "type": "string",
+                "example": "Pertemuan pertama pengenalan komponen."
+              },
+              "students": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ScheduleStudent"
+                }
+              }
+            },
+            "required": ["id", "dateLabel", "program", "level", "classroom", "trainer", "timeRange", "statusBadges", "notes", "students"]
+          }
+        },
+        "required": ["scheduleContext", "schedule"]
+      },
+      "InvoiceTagihan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 123
+          },
+          "nomor_tagihan": {
+            "type": "string",
+            "example": "INV-20260401-001"
+          },
+          "total_tagihan": {
+            "type": "number",
+            "example": 150000
+          },
+          "status": {
+            "type": "string",
+            "example": "belum lunas"
+          },
+          "jatuh_tempo": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-04-30"
+          },
+          "tipe_tagihan": {
+            "type": "string",
+            "example": "ekskul"
+          },
+          "is_payable": {
+            "type": "boolean",
+            "example": true
+          },
+          "invoice_file_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "http://127.0.0.1:8000/storage/invoices/inv-123.pdf"
+          },
+          "program": {
+            "type": "string",
+            "nullable": true,
+            "example": "Robotics Level 1"
+          }
+        },
+        "required": ["id", "nomor_tagihan", "total_tagihan", "status", "jatuh_tempo", "tipe_tagihan", "is_payable", "invoice_file_url", "program"]
+      },
+      "StandardSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "Proses berhasil."
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": ["status", "message", "data"]
+      },
+      "StandardErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "message": {
+            "type": "string",
+            "example": "Kredensial tidak valid atau parameter tidak lengkap."
+          },
+          "errors": {
+            "type": "object",
+            "example": {}
+          }
+        },
+        "required": ["status", "message", "errors"]
+      }
+    }
+  },
+  "paths": {
+    "/v1/public/schools": {
+      "get": {
+        "summary": "List Active Schools",
+        "description": "Retrieve a list of active schools (mitra) to be displayed on the school picker or registration screens of the mobile client.",
+        "tags": ["Supervise Public"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Page size for pagination (1 to 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of active schools.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/SchoolOption"
+                              }
+                            },
+                            "pagination": {
+                              "$ref": "#/components/schemas/Pagination"
+                            }
+                          },
+                          "required": ["items", "pagination"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "summary": "Authenticate User",
+        "description": "Authenticate member (via NIS) or mitra (via sekolah name) and return an access token.",
+        "tags": ["Supervise Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "login_as": {
+                    "type": "string",
+                    "enum": ["member", "mitra"],
+                    "description": "Select the login type.",
+                    "example": "member"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "NIS for members, School name (sekolah) for mitra.",
+                    "example": "12345"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password credentials.",
+                    "example": "secret123"
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "description": "Label for the device initiating the request.",
+                    "example": "mobile-android"
+                  }
+                },
+                "required": ["login_as", "identifier", "password"]
+              }
+            }
+          },
+        },
+        "responses": {
+          "200": {
+            "description": "Login success. Returns auth credentials and profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed or invalid credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "summary": "Current Authenticated User",
+        "description": "Get current session profile and role verification. Requires a valid Sanctum bearer token.",
+        "tags": ["Supervise Auth"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved active user profile information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AuthMeResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. Token is invalid or missing."
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "Revokes the active bearer token for the current session.",
+        "tags": ["Supervise Auth"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully logged out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardSuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/dashboard": {
+      "get": {
+        "summary": "Dashboard Summary",
+        "description": "Retrieves statistical aggregates, list of upcoming schedule previews, and a list of unpaid invoices for the dashboard widgets.",
+        "tags": ["Supervise Dashboard"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DashboardData"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/schedules": {
+      "get": {
+        "summary": "List Schedules",
+        "description": "Retrieves all schedules applicable to the authenticated user.",
+        "tags": ["Supervise Schedule"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedules retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SchedulePreview"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/schedules/{schedule}": {
+      "get": {
+        "summary": "Schedule Details",
+        "description": "Returns full details of a specific schedule, including the trainer, material notes, and classroom attendee lists.",
+        "tags": ["Supervise Schedule"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "schedule",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the schedule record",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedule detail retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ScheduleDetail"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Unauthorized access to schedule.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/finance/invoices": {
+      "get": {
+        "summary": "Unpaid Invoices",
+        "description": "Retrieves the full list of unpaid invoices/installments for the authenticated user.",
+        "tags": ["Supervise Finance"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unpaid invoices retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/InvoiceTagihan"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/finance/history": {
+      "get": {
+        "summary": "Payment History",
+        "description": "Retrieves a paginated list of paid invoices.",
+        "tags": ["Supervise Finance"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Page size limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment history retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/InvoiceTagihan"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/finance/request-token": {
+      "post": {
+        "summary": "Get Midtrans Token",
+        "description": "Creates a Snap payment session with Midtrans and retrieves a token for checking out/rendering the payment screen.",
+        "tags": ["Supervise Finance"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tagihan_id": {
+                    "type": "integer",
+                    "description": "The database ID of the invoice.",
+                    "example": 123
+                  }
+                },
+                "required": ["tagihan_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Midtrans Snap Token generated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string",
+                              "example": "snap-token-xyz-123"
+                            }
+                          },
+                          "required": ["token"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed. Invoice does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/profile/me": {
+      "get": {
+        "summary": "Profile of Current User",
+        "description": "Direct shortcut endpoint returning same profile wrapper containing detailed user demographics.",
+        "tags": ["Supervise Profile"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile details retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ProfileWrapper"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/profile/members": {
+      "get": {
+        "summary": "Mitra's Members (Students)",
+        "description": "Allows school partners (mitra) to see students assigned to their school (paginated).",
+        "tags": ["Supervise Profile"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Records per page (1 to 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filter by student's full name or NIS",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of student members retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/MemberListResponse"
+                              }
+                            },
+                            "pagination": {
+                              "$ref": "#/components/schemas/Pagination"
+                            }
+                          },
+                          "required": ["items", "pagination"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. This endpoint is restricted to mitra users only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    },
+    "/v1/profile/penanggung-jawab": {
+      "put": {
+        "summary": "Update Mitra Representative Contact",
+        "description": "Update contact fields of the person in charge for the partner school (mitra only).",
+        "tags": ["Supervise Profile"],
+        "security": [
+          {
+            "SanctumAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nama_penanggung_jawab": {
+                    "type": "string",
+                    "description": "Full name of the representative person in charge.",
+                    "example": "Bapak Ahmad"
+                  },
+                  "email_penanggung_jawab": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email address of the representative.",
+                    "example": "ahmad@example.com"
+                  },
+                  "telephone_penanggung_jawab": {
+                    "type": "string",
+                    "description": "Telephone number of the representative.",
+                    "example": "081234567890"
+                  }
+                },
+                "required": ["nama_penanggung_jawab"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact information updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/StandardSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "profile": {
+                              "$ref": "#/components/schemas/MitraProfile"
+                            }
+                          },
+                          "required": ["profile"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. This endpoint is restricted to mitra users only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated."
+          }
+        }
+      }
+    }
+  }
+}

@@ -87,6 +87,7 @@ object Res {
 fun HomeScreen(
     onNavigateToSchedule: () -> Unit,
     onNavigateToTransactions: () -> Unit,
+    onNavigateToNotifications: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel()
 ) {
@@ -117,7 +118,7 @@ fun HomeScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Handle Notifications */ }) {
+                        IconButton(onClick = onNavigateToNotifications) {
                             Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                         }
                     },
