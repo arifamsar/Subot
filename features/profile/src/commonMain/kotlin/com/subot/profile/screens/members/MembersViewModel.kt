@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subot.core.domain.result.ApiResult
 import com.subot.core.domain.usecase.GetProfileMembersUseCase
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +18,8 @@ class MembersViewModel(
 
     private val _uiState = MutableStateFlow(MembersUiState())
     val uiState: StateFlow<MembersUiState> = _uiState.asStateFlow()
+
+    private var searchJob: Job? = null
 
     init {
         loadMembers()
@@ -122,13 +126,15 @@ class MembersViewModel(
 
     private fun searchMembers(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
-        viewModelScope.launch {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(300)
             _uiState.update { it.copy(isLoading = true, error = null, currentPage = 1) }
             try {
                 val result = getProfileMembersUseCase(
                     page = 1,
                     perPage = 20,
-                    search = query
+                    search = query.takeIf { it.isNotBlank() }
                 )
                 when (result) {
                     is ApiResult.Success -> {

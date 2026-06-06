@@ -1,5 +1,6 @@
 package com.subot.profile.screens.members
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +16,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.subot.core.domain.model.Member
 import com.subot.core.ui.components.AppCircleImage
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import com.subot.core.ui.components.AppPullToRefresh
 import com.subot.core.ui.components.AppScaffold
 import com.subot.core.ui.components.AppTextField
@@ -50,7 +53,7 @@ fun MembersScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf(uiState.searchQuery) }
 
     AppScaffold(
@@ -84,7 +87,7 @@ fun MembersScreen(
                     ErrorBanner(
                         message = uiState.error!!,
                         onDismiss = { viewModel.onEvent(MembersEvent.ClearError) },
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
 
@@ -95,14 +98,43 @@ fun MembersScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Tidak ada data anggota",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(20.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Anggota Tidak Ditemukan",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Coba gunakan kata kunci pencarian lain atau periksa kembali ejaan Anda.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 } else {
                     MembersLazyList(
@@ -145,6 +177,8 @@ private fun SearchBar(
         label = "",
         placeholder = "Cari nama atau NIS",
         leadingIcon = Icons.Default.Search,
+        trailingIcon = if (searchQuery.isNotEmpty()) Icons.Default.Close else null,
+        onTrailingIconClick = { onSearchChanged("") },
         modifier = modifier
     )
 }
@@ -176,7 +210,7 @@ private fun ErrorBanner(
             )
             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
                 Icon(
-                    imageVector = Icons.Default.Search, // Using Search as a placeholder since Close icon isn't imported
+                    imageVector = Icons.Default.Close,
                     contentDescription = "Tutup",
                     tint = MaterialTheme.colorScheme.onErrorContainer
                 )
@@ -239,6 +273,9 @@ private fun MemberCard(
     modifier: Modifier = Modifier
 ) {
     val kelasText = member.kelas.ifBlank { "-" }
+    val isActive = member.statusSiswa.equals("Aktif", ignoreCase = true)
+    val statusColor = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    val statusBg = if (isActive) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -283,16 +320,24 @@ private fun MemberCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = member.statusSiswa,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (member.statusSiswa.equals("Aktif", ignoreCase = true)) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.error
-                )
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Status chip badge
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = statusBg,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = member.statusSiswa,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = statusColor
+                    )
+                }
             }
         }
     }
