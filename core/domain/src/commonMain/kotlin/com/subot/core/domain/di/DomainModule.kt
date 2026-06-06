@@ -15,6 +15,7 @@ import com.subot.core.domain.usecase.LogoutUseCase
 import com.subot.core.domain.usecase.RequestSnapTokenUseCase
 import com.subot.core.domain.usecase.UpdateMemberProfileUseCase
 import com.subot.core.domain.usecase.UpdatePenanggungJawabUseCase
+import com.subot.core.domain.usecase.ExportScheduleReportUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -33,4 +34,5 @@ val domainModule = module {
     factory { GetInvoicesUseCase(get()) }
     factory { GetPaymentHistoryUseCase(get()) }
     factory { RequestSnapTokenUseCase(get()) }
+    factory { ExportScheduleReportUseCase(get()) }
 }

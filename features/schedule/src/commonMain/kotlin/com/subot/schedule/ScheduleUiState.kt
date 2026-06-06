@@ -9,5 +9,8 @@ data class ScheduleUiState(
     val schedules: List<Schedule> = emptyList(),
     val scheduleDetail: ScheduleDetail? = null,
     val error: String? = null,
-    val userRole: String? = null
+    val userRole: String? = null,
+    val isExporting: Boolean = false,
+    val exportError: String? = null,
+    val exportedPdfBytes: ByteArray? = null
 )

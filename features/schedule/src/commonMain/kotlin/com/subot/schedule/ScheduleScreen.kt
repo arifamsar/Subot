@@ -26,6 +26,11 @@ import com.subot.core.domain.model.Schedule
 import com.subot.core.ui.components.AppPrimaryButton
 import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.AppPullToRefresh
+import com.subot.core.ui.components.rememberPlatformPdfHelper
+import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +43,33 @@ fun ScheduleScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val pdfHelper = rememberPlatformPdfHelper()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showExportDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.exportedPdfBytes) {
+        uiState.exportedPdfBytes?.let { bytes ->
+            val timestamp = Clock.System.now().toEpochMilliseconds()
+            pdfHelper.saveAndOpenPdf("laporan_pertemuan_$timestamp.pdf", bytes)
+            viewModel.onEvent(ScheduleEvent.ClearExportResult)
+        }
+    }
+
+    LaunchedEffect(uiState.exportError) {
+        uiState.exportError?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            viewModel.onEvent(ScheduleEvent.ClearExportResult)
+        }
+    }
+
+    if (showExportDialog) {
+        ExportReportDialog(
+            onDismissRequest = { showExportDialog = false },
+            onExport = { startDate, endDate ->
+                viewModel.onEvent(ScheduleEvent.ExportReport(null, startDate, endDate))
+            }
+        )
+    }
 
     AppPullToRefresh(
         isRefreshing = uiState.isRefreshing,
@@ -46,6 +78,7 @@ fun ScheduleScreen(
     ) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -156,7 +189,10 @@ fun ScheduleScreen(
 
                         // Download Report Section
                         item {
-                            DownloadReportCard()
+                            DownloadReportCard(
+                                isExporting = uiState.isExporting,
+                                onExportClick = { showExportDialog = true }
+                            )
                         }
                         
                         item {
@@ -342,6 +378,8 @@ fun SummaryCard(
 
 @Composable
 fun DownloadReportCard(
+    isExporting: Boolean,
+    onExportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -374,9 +412,172 @@ fun DownloadReportCard(
             Spacer(modifier = Modifier.height(24.dp))
             
             AppPrimaryButton(
-                text = "BUKA PENGATURAN UNDUH",
-                onClick = { /* Handle Download */ }
+                text = if (isExporting) "MENGUNDUH..." else "BUKA PENGATURAN UNDUH",
+                onClick = onExportClick,
+                enabled = !isExporting
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerDialogWrapper(
+    onDismissRequest: () -> Unit,
+    onDateSelected: (String) -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+    DatePickerDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val localDate = Instant.fromEpochMilliseconds(millis)
+                            .toLocalDateTime(TimeZone.UTC).date
+                        onDateSelected(localDate.toString())
+                    }
+                    onDismissRequest()
+                }
+            ) {
+                Text("Pilih")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Batal")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExportReportDialog(
+    onDismissRequest: () -> Unit,
+    onExport: (startDate: String?, endDate: String?) -> Unit
+) {
+    var exportType by remember { mutableStateOf(0) } // 0: Semua Jadwal, 1: Rentang Tanggal
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
+    
+    if (showStartDatePicker) {
+        DatePickerDialogWrapper(
+            onDismissRequest = { showStartDatePicker = false },
+            onDateSelected = { startDate = it }
+        )
+    }
+    
+    if (showEndDatePicker) {
+        DatePickerDialogWrapper(
+            onDismissRequest = { showEndDatePicker = false },
+            onDateSelected = { endDate = it }
+        )
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = "Unduh Laporan Pertemuan",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Pilih jenis laporan yang ingin Anda unduh.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    RadioButton(
+                        selected = exportType == 0,
+                        onClick = { exportType = 0 }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Semua Jadwal",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    RadioButton(
+                        selected = exportType == 1,
+                        onClick = { exportType = 1 }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Rentang Tanggal",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                
+                if (exportType == 1) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedButton(
+                        onClick = { showStartDatePicker = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = if (startDate.isEmpty()) "Pilih Tanggal Mulai" else "Mulai: $startDate",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    
+                    OutlinedButton(
+                        onClick = { showEndDatePicker = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = if (endDate.isEmpty()) "Pilih Tanggal Selesai" else "Selesai: $endDate",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (exportType == 0) {
+                        onExport(null, null)
+                    } else {
+                        onExport(
+                            startDate.takeIf { it.isNotEmpty() },
+                            endDate.takeIf { it.isNotEmpty() }
+                        )
+                    }
+                    onDismissRequest()
+                },
+                enabled = exportType == 0 || (startDate.isNotEmpty() && endDate.isNotEmpty())
+            ) {
+                Text("Unduh PDF")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Batal")
+            }
+        }
+    )
 }

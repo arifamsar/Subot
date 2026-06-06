@@ -6,6 +6,7 @@ import com.subot.core.data.service.UserPreferences
 import com.subot.core.domain.result.ApiResult
 import com.subot.core.domain.usecase.GetScheduleDetailUseCase
 import com.subot.core.domain.usecase.GetSchedulesUseCase
+import com.subot.core.domain.usecase.ExportScheduleReportUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class ScheduleViewModel(
     private val getSchedulesUseCase: GetSchedulesUseCase,
     private val getScheduleDetailUseCase: GetScheduleDetailUseCase,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val exportScheduleReportUseCase: ExportScheduleReportUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -38,6 +40,39 @@ class ScheduleViewModel(
                 _uiState.value.scheduleDetail?.let {
                     loadScheduleDetail(it.id, isRefresh = true)
                 } ?: loadSchedules(isRefresh = true)
+            }
+            is ScheduleEvent.ExportReport -> exportReport(event.scheduleIds, event.startDate, event.endDate)
+            is ScheduleEvent.ClearExportResult -> {
+                _uiState.update { it.copy(exportedPdfBytes = null, exportError = null) }
+            }
+        }
+    }
+
+    private fun exportReport(scheduleIds: List<Int>?, startDate: String?, endDate: String?) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isExporting = true, exportError = null, exportedPdfBytes = null) }
+            when (val result = exportScheduleReportUseCase(scheduleIds, startDate, endDate)) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isExporting = false,
+                            exportedPdfBytes = result.data,
+                            exportError = null
+                        )
+                    }
+                }
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isExporting = false,
+                            exportError = result.message,
+                            exportedPdfBytes = null
+                        )
+                    }
+                }
+                is ApiResult.Loading -> {
+                    _uiState.update { it.copy(isExporting = true) }
+                }
             }
         }
     }

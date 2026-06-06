@@ -30,6 +30,7 @@ fun AppScaffold(
     actions: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     containerColor: Color = MaterialTheme.colorScheme.background,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -68,6 +69,7 @@ fun AppScaffold(
         },
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,
+        snackbarHost = snackbarHost,
         containerColor = containerColor,
         contentWindowInsets = WindowInsets.safeDrawing,
         content = content

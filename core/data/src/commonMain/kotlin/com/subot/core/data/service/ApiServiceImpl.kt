@@ -162,6 +162,20 @@ class ApiServiceImpl(
         }
     }
 
+    override suspend fun exportScheduleReport(
+        token: String,
+        scheduleIds: List<Int>?,
+        startDate: String?,
+        endDate: String?
+    ): HttpResponse {
+        return httpClient.post("schedules/export") {
+            bearerAuth(token)
+            header(io.ktor.http.HttpHeaders.Accept, "application/pdf, application/json")
+            contentType(ContentType.Application.Json)
+            setBody(com.subot.core.data.dto.ExportRequestDto(scheduleIds, startDate, endDate))
+        }
+    }
+
     // ---------- Finance ----------
 
     override suspend fun getInvoices(token: String): HttpResponse {

@@ -59,7 +59,6 @@ import com.subot.core.ui.components.AppDialog
 import com.subot.core.ui.components.AppLoadingIndicator
 import com.subot.core.ui.components.ShimmerBox
 import com.subot.core.ui.components.ShimmerCircle
-import com.subot.core.ui.components.icons.FAQCircle
 import com.subot.core.ui.components.icons.Global
 import com.subot.core.ui.components.icons.Hicon
 import com.subot.core.ui.components.icons.Logout
@@ -67,21 +66,17 @@ import com.subot.core.ui.components.icons.MoonOutlined
 import com.subot.core.ui.components.icons.Notification3
 import com.subot.core.ui.components.icons.ProfileOutlined
 import com.subot.core.ui.components.icons.SecuritySafe
-import com.subot.core.ui.components.icons.Setting
 import com.subot.core.ui.navigation.Route
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import subot.core.ui.generated.resources.Res
-import subot.core.ui.generated.resources.app_settings
-import subot.core.ui.generated.resources.app_settings_subtitle
 import subot.core.ui.generated.resources.cancel
 import subot.core.ui.generated.resources.dark_mode
 import subot.core.ui.generated.resources.edit_profile
 import subot.core.ui.generated.resources.edit_profile_subtitle
 import subot.core.ui.generated.resources.english
 import subot.core.ui.generated.resources.general_settings
-import subot.core.ui.generated.resources.help_and_support
 import subot.core.ui.generated.resources.indonesian
 import subot.core.ui.generated.resources.language
 import subot.core.ui.generated.resources.language_subtitle
@@ -189,23 +184,12 @@ fun ProfileScreen(
                 title = Res.string.dark_mode,
                 icon = Hicon.MoonOutlined,
                 hasSwitch = true
-            ),
-            ProfileMenuItem(
-                title = Res.string.app_settings,
-                subtitle = Res.string.app_settings_subtitle,
-                icon = Hicon.Setting,
-                route = Route.Settings
             )
         )
     }
     
     val support = remember {
         listOf(
-            ProfileMenuItem(
-                title = Res.string.help_and_support,
-                icon = Hicon.FAQCircle,
-                route = Route.SettingsDetail("help")
-            ),
             ProfileMenuItem(
                 title = Res.string.logout,
                 icon = Hicon.Logout,

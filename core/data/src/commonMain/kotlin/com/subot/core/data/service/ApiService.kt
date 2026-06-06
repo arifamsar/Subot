@@ -44,6 +44,12 @@ interface ApiService {
     // --- Schedules ---
     suspend fun getSchedules(token: String): HttpResponse
     suspend fun getScheduleDetail(token: String, id: Int): HttpResponse
+    suspend fun exportScheduleReport(
+        token: String,
+        scheduleIds: List<Int>?,
+        startDate: String?,
+        endDate: String?
+    ): HttpResponse
 
     // --- Finance ---
     suspend fun getInvoices(token: String): HttpResponse

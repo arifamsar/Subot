@@ -11,6 +11,8 @@ import com.subot.core.domain.model.Schedule
 import com.subot.core.domain.model.ScheduleDetail
 import com.subot.core.domain.repository.ScheduleRepository
 import com.subot.core.domain.result.ApiResult
+import io.ktor.client.call.body
+import io.ktor.http.isSuccess
 
 class ScheduleRepositoryImpl(
     private val apiService: ApiService,
@@ -39,6 +41,37 @@ class ScheduleRepositoryImpl(
             is ApiResult.Success -> ApiResult.Success(result.data.schedule.toDomain())
             is ApiResult.Error -> result
             is ApiResult.Loading -> result
+        }
+    }
+
+    override suspend fun exportScheduleReport(
+        scheduleIds: List<Int>?,
+        startDate: String?,
+        endDate: String?
+    ): ApiResult<ByteArray> {
+        val token = userPreferences.getAccessToken()
+            ?: return ApiResult.Error("Not authenticated", 401)
+        return try {
+            val response = apiService.exportScheduleReport(
+                token = token,
+                scheduleIds = scheduleIds,
+                startDate = startDate,
+                endDate = endDate
+            )
+            if (response.status.isSuccess()) {
+                val bytes = response.body<ByteArray>()
+                ApiResult.Success(bytes)
+            } else {
+                val errorMsg = try {
+                    val body = response.body<com.subot.core.data.dto.ApiResponseDto<Nothing>>()
+                    body.message ?: "Failed to download report. HTTP Status: ${response.status}"
+                } catch (_: Exception) {
+                    "Failed to download report. HTTP Status: ${response.status}"
+                }
+                ApiResult.Error(errorMsg, response.status.value)
+            }
+        } catch (e: Exception) {
+            ApiResult.Error(e.message ?: "Unknown network error")
         }
     }
 }

@@ -68,7 +68,7 @@ fun PenanggungJawabScreen(
         topBarTitle = "Penanggung Jawab",
         navigationIcon = Hicon.ArrowLeft,
         onNavigationClick = onBack,
-        floatingActionButton = {
+        snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
